@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadoras Técnicas · Olgacolor Alumínio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b1220;
+  --s1: #121a2b;
+  --s2: #182337;
+  --bd: rgba(255,255,255,0.09);
+  --txt: #e8f0ff;
+  --mut: #7a90b0;
+  --acc: #5ba8f5;
+  --acc2: #5cf0c8;
+  --ok: #3dd68c;
+  --ok-bg: rgba(61,214,140,0.10);
+  --ok-bd: rgba(61,214,140,0.25);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+}
+.shell { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
+
+/* HEADER */
+.header { margin-bottom: 48px; }
+.logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.logo-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px; color: #0b1220;
+  flex-shrink: 0;
+}
+.logo-name { font-size: 15px; font-weight: 700; color: var(--txt); }
+.logo-sub { font-size: 12px; color: var(--mut); margin-top: 2px; }
+.header h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.header h1 span { color: var(--acc2); }
+.header p { font-size: 15px; color: var(--mut); line-height: 1.6; max-width: 560px; }
+
+/* SECTION */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--mut);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--bd);
+}
+
+/* GRID */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 40px; }
+
+/* APP CARD */
+.app-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 20px;
+  text-decoration: none;
+  color: var(--txt);
+  display: flex; flex-direction: column; gap: 14px;
+  transition: border-color .2s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.app-card:hover { border-color: var(--acc); transform: translateY(-2px); }
+.app-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: 2px 2px 0 0;
+}
+.app-card.c-blue::before { background: var(--acc); }
+.app-card.c-teal::before { background: var(--acc2); }
+.app-card.c-green::before { background: var(--ok); }
+.app-card.c-amber::before { background: #f0c040; }
+.app-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.ic-blue  { background: rgba(91,168,245,0.15); }
+.ic-teal  { background: rgba(92,240,200,0.15); }
+.ic-green { background: rgba(61,214,140,0.15); }
+.ic-amber { background: rgba(240,192,64,0.15); }
+.app-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.app-desc { font-size: 13px; color: var(--mut); line-height: 1.5; }
+.app-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.tag {
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
+  border-radius: 6px; border: 1px solid var(--bd);
+  color: var(--mut); font-family: 'DM Mono', monospace;
+}
+.status-badge {
+  position: absolute; top: 14px; right: 14px;
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 99px; letter-spacing: .05em;
+}
+.badge-live { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd); }
+.badge-soon { background: rgba(255,255,255,0.05); color: var(--mut); border: 1px solid var(--bd); }
+
+/* PLACEHOLDER CARD */
+.placeholder-card {
+  background: var(--s1);
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 8px;
+  opacity: .5;
+}
+.placeholder-card .app-title { color: var(--mut); font-size: 15px; }
+.placeholder-card .app-desc { font-size: 13px; color: var(--mut); }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--bd);
+  padding-top: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  font-size: 12px; color: var(--mut);
+}
+.footer-norm { font-family: 'DM Mono', monospace; color: var(--acc); }
+
+@media (max-width: 600px) {
+  .shell { padding: 24px 14px 48px; }
+  .grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-mark">OA</div>
+      <div>
+        <div class="logo-name">Olgacolor Alumínio</div>
+        <div class="logo-sub">Engenharia de Produto</div>
+      </div>
+    </div>
+    <h1>Calculadoras <span>técnicas</span></h1>
+    <p>Ferramentas de cálculo para projetos de fachadas, esquadrias e envolvente de edificações. Baseadas em NBR 7199, NBR 6123 e ASTM E1300.</p>
+  </header>
+
+  <!-- DISPONÍVEIS -->
+  <div class="section-label">Disponíveis</div>
+  <div class="grid">
+
+    <a href="apps/vidro-laminado/" class="app-card c-blue">
+      <span class="status-badge badge-live">LIVE</span>
+      <div class="app-icon ic-blue">🪟</div>
+      <div>
+        <div class="app-title">Vidro Laminado</div>
+        <div class="app-desc">Seleção de espessura para fachadas e esquadrias. Tensão e deflexão com espessura efetiva para laminados assimétricos.</div>
+      </div>
+      <div class="app-tags">
+        <span class="tag">NBR 7199</span>
+        <span class="tag">ASTM E1300</span>
+        <span class="tag">App. X9</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- EM DESENVOLVIMENTO -->
+  <div class="section-label">Em desenvolvimento</div>
+  <div class="grid">
+
+    <div class="placeholder-card">
+      <div class="app-icon ic-teal" style="opacity:.6;">💨</div>
+      <div class="app-title">Pressão de Vento</div>
+      <div class="app-desc">Cálculo de pressão característica de vento por NBR 6123. Isopletas, fator S2, exposição e coeficiente de forma.</div>
+      <div class="app-tags">
+        <span class="tag">NBR 6123</span>
+        <span class="tag">NBR 10821</span>
+      </div>
+    </div>
+
+    <div class="placeholder-card">
+      <div class="app-icon ic-green" style="opacity:.6;">📐</div>
+      <div class="app-title">Perfil Estrutural</div>
+      <div class="app-desc">Verificação de perfis de alumínio sob carga de vento. Momento fletor, deflexão e fator de segurança.</div>
+      <div class="app-tags">
+        <span class="tag">NBR 10821</span>
+        <span class="tag">AA ADM</span>
+      </div>
+    </div>
+
+    <div class="placeholder-card">
+      <div class="app-icon ic-amber" style="opacity:.6;">🌡️</div>
+      <div class="app-title">Desempenho Térmico</div>
+      <div class="app-desc">Cálculo de transmitância térmica (U) e fator solar (g) de composições de vidro e caixilho.</div>
+      <div class="app-tags">
+        <span class="tag">NBR 15575</span>
+        <span class="tag">ISO 10077</span>
+      </div>
+    </div>
+
+    <div class="placeholder-card">
+      <div class="app-icon ic-blue" style="opacity:.6;">💧</div>
+      <div class="app-title">Estanqueidade</div>
+      <div class="app-desc">Verificação de pressão de ensaio para estanqueidade à água. Classes de desempenho NBR 10821 e AAMA.</div>
+      <div class="app-tags">
+        <span class="tag">NBR 10821</span>
+        <span class="tag">AAMA 502</span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span>Olgacolor Alumínio · Engenharia de Produto</span>
+    <span class="footer-norm">NBR 7199 · NBR 6123 · NBR 10821 · ASTM E1300</span>
+  </footer>
+
+</div>
+</body>
+</html>
