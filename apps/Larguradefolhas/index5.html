@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Olgacolor • Curva por Conjunto v3</title>
+  <title>Olgacolor • Geração de gráficos v3</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
   <style>
     :root{
       --bg:#0d1526;
@@ -26,9 +25,16 @@
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
     .page{max-width:1480px;margin:0 auto;padding:24px}
-    .instructions-banner{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;line-height:1.55;}
-    .instructions-banner h3{margin:0 0 14px 0;font-size:18px;}
-    .instructions-banner p{margin:0 0 10px 0;color:var(--muted);}
+    .instructions-banner{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      padding:20px 24px;
+      margin-bottom:24px;
+      line-height:1.5;
+    }
+    .instructions-banner h3{margin:0 0 12px 0;font-size:18px;}
+    .instructions-banner p{margin:0 0 8px 0;color:var(--muted);}
     .layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
     .card{background:linear-gradient(180deg,var(--panel) 0%, #131d33 100%);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow)}
     .sidebar{padding:18px;position:sticky;top:14px}
@@ -59,28 +65,13 @@
     .chart-wrap{height:470px}
     .verify-result{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-height:92px}
 
-    /* Selected panel images */
-    .profiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .profile-box{padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);text-align:center}
-    .profile-box img{width:100%;height:180px;object-fit:contain;background:#0f182c;border-radius:12px;margin-top:8px}
-
-    /* Conjunto image panel */
-    .conjunto-name{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text)}
-    .conjunto-img-wrap{background:#0f182c;border-radius:14px;overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center;min-height:180px}
-    .conjunto-img-wrap img{width:100%;max-height:220px;object-fit:contain;display:block}
-    .conjunto-data{display:flex;flex-direction:column;gap:6px}
-    .perfil-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-    .total-row{background:rgba(131,226,199,.05);border-color:rgba(131,226,199,.2)}
-    .perfil-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;min-width:22px}
-    .perfil-code{font-size:13px;font-weight:700;flex:1}
-    .perfil-ix{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap}
-
     @media (max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{position:static}.panel-grid{grid-template-columns:1fr}}
     @media (max-width:720px){.page{padding:14px}.title-wrap h1{font-size:24px}.params{grid-template-columns:1fr 1fr}.field-grid,.verify-grid,.profiles{grid-template-columns:1fr}.chart-wrap{height:340px}.combo-list{max-height:none}.field input,.field select,.field button{padding:16px 14px;font-size:16px}}
   </style>
 </head>
 <body>
   <div class="page">
+    <!-- === INSTRUÇÕES DE USO (exatamente como você pediu) === -->
     <div class="instructions-banner">
       <h3>Instruções de uso</h3>
       <p><strong>Importante:</strong> Estamos calculando pela largura de cada folha, e não pela largura total da esquadria.</p>
@@ -120,7 +111,7 @@
           </div>
           <div class="field-grid">
             <div class="field"><label for="heightStart">Altura inicial (mm)</label><input id="heightStart" type="number" value="1200" oninput="refreshAll()" /></div>
-            <div class="field"><label for="heightEnd">Altura final (mm)</label><input id="heightEnd" type="number" value="2222" oninput="refreshAll()" /></div>
+            <div class="field"><label for="heightEnd">Altura final (mm)</label><input id="heightEnd" type="number" value="2200" oninput="refreshAll()" /></div>
           </div>
           <div class="field-grid">
             <div class="field"><label for="widthStep">Passo (mm)</label><input id="widthStep" type="number" value="50" oninput="refreshAll()" /></div>
@@ -154,29 +145,20 @@
               <h3>Conjunto selecionado</h3>
               <span class="pill" id="selectedTag">ativo</span>
             </div>
-            <div class="conjunto-name" id="conjuntoName">—</div>
             <div class="scheme">
-              <div class="conjunto-img-wrap">
-                <img id="conjuntoImg" src="" alt="Conjunto"
-                     onerror="this.style.display='none';document.getElementById('imgError').style.display='flex'"
-                     onload="this.style.display='block';document.getElementById('imgError').style.display='none'" />
-                <div id="imgError" style="display:none;width:100%;height:180px;align-items:center;justify-content:center;color:var(--muted);font-size:13px;">Imagem não encontrada</div>
+              <div class="scheme-canvas">
+                <svg id="schemeSvg" width="100%" viewBox="0 0 360 170"></svg>
               </div>
-              <div class="conjunto-data">
-                <div class="perfil-row">
-                  <span class="perfil-label">P1</span>
-                  <span class="perfil-code" id="profile1Code">—</span>
-                  <span class="perfil-ix" id="profile1Data">—</span>
+              <div class="profiles">
+                <div class="profile-box">
+                  <div class="label">PERFIL 1</div>
+                  <div class="code" id="profile1Code">—</div>
+                  <div class="data" id="profile1Data">—</div>
                 </div>
-                <div class="perfil-row">
-                  <span class="perfil-label">P2</span>
-                  <span class="perfil-code" id="profile2Code">—</span>
-                  <span class="perfil-ix" id="profile2Data">—</span>
-                </div>
-                <div class="perfil-row total-row">
-                  <span class="perfil-label" style="color:var(--acc-2)">∑</span>
-                  <span class="perfil-code" style="color:var(--acc-2)">Ix total</span>
-                  <span class="perfil-ix" id="profileTotal" style="color:var(--acc-2)">—</span>
+                <div class="profile-box">
+                  <div class="label">PERFIL 2</div>
+                  <div class="code" id="profile2Code">—</div>
+                  <div class="data" id="profile2Data">—</div>
                 </div>
               </div>
             </div>
@@ -190,6 +172,7 @@
                 <button class="soft-btn" id="modeAll">Mostrar todas</button>
               </div>
             </div>
+            <div class="tiny-note" id="chartNote">As 3 combinações com melhor desempenho médio aparecem ligadas por padrão.</div>
             <div class="chart-wrap"><canvas id="chart"></canvas></div>
           </section>
         </div>
@@ -211,26 +194,20 @@
 const E = 70000;
 let chartInstance = null;
 let currentSystem = "LOCK_SL 45°";
-let selectedName = "GSK025 + GSK025";
-let currentEnc = "MA";
+let selectedName = "GSK008 + GSK008";
 
-const ALL_DATA = {
-  MA: {
-    "LOCK_SL 45°": [
-      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" },
-      { name: "GSK026 + GSK026", ixTotal: 620520,  ixP1: 310260, ixP2: 310260, wxP1: 6971,  wxP2: 6971,  img1: "GSK026_GSK026.png", img2: "GSK026_GSK026.png" },
-      { name: "GSK027 + GSK027", ixTotal: 256028,  ixP1: 128014, ixP2: 128014, wxP1: 3922,  wxP2: 3922,  img1: "GSK027_GSK027.png", img2: "GSK027_GSK027.png" },
-      { name: "GSK090 + GSK090", ixTotal: 2381166, ixP1: 1190583, ixP2: 1190583, wxP1: 16753, wxP2: 16753, img1: "GSK090_GSK090.png", img2: "GSK090_GSK090.png" }
-    ]
-  },
-  CE: {
-    "LOCK-SL": [
-      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" }
-    ]
-  }
+const DATA = {
+  "LOCK_SL 45°": [
+    { name: "GSK008 + GSK008", ixTotal: 108684, ixP1: 54342, ixP2: 54342, wxP1: 3551, wxP2: 3551 },
+    { name: "GSK008 + GSK016", ixTotal: 306351, ixP1: 54342, ixP2: 252009, wxP1: 3551, wxP2: 5443 },
+    { name: "GSK016 + GSK016", ixTotal: 504018, ixP1: 252009, ixP2: 252009, wxP1: 5443, wxP2: 5443 }
+  ],
+  "LOCK_SL 90°": [
+    { name: "GSK133 + GSK131", ixTotal: 439518, ixP1: 122954, ixP2: 316564, wxP1: 4090, wxP2: 7985 },
+    { name: "GSK133 + GSK132", ixTotal: 1126815, ixP1: 122954, ixP2: 1003861, wxP1: 4090, wxP2: 16599 },
+    { name: "GSK133 + GSK134", ixTotal: 2014749, ixP1: 122954, ixP2: 1891795, wxP1: 4090, wxP2: 26630 }
+  ]
 };
-
-let DATA = ALL_DATA["MA"];
 
 function getFy() {
   return document.getElementById('temper').value === 'T5' ? 110 : 170;
@@ -293,44 +270,45 @@ function renderChart() {
   const heightMin = Number(document.getElementById('heightStart').value) || 1000;
   const heightMax = Number(document.getElementById('heightEnd').value) || 3000;
   const combos = DATA[currentSystem] || [];
-  const verifyW = Number(document.getElementById('verifyW').value) || 1200;
-  const verifyH = Number(document.getElementById('verifyH').value) || 1400;
 
   if (chartInstance) chartInstance.destroy();
 
   const datasets = combos.map((combo, i) => ({
     label: combo.name,
-    data: ws.map(w => ({ x: w, y: calculateHeight(combo, w, q) })),
+    data: ws.map(w => calculateHeight(combo, w, q)),
     borderColor: ['#6eb3ff', '#83e2c7', '#f9c46b'][i % 3],
     borderWidth: 3,
     tension: 0.2,
     pointRadius: 0
   }));
 
+  const verifyW = Number(document.getElementById('verifyW').value) || 1200;
+  const verifyH = Number(document.getElementById('verifyH').value) || 1400;
+
   chartInstance = new Chart(document.getElementById('chart'), {
     type: 'line',
-    data: { datasets },
+    data: { labels: ws, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: {
-        x: { type: 'linear', title: { display: true, text: 'Largura por folha (mm)' } },
-        y: { title: { display: true, text: 'Altura máxima H (mm)' }, min: heightMin, max: heightMax }
-      },
       plugins: {
-        tooltip: { callbacks: { label: (ctx) => `H máximo = ${ctx.raw.y} mm` } },
+        tooltip: { callbacks: { label: (ctx) => `H máximo = ${ctx.raw} mm` } },
         annotation: {
           annotations: {
-            crossV: { type: 'line', xMin: verifyW, xMax: verifyW, borderColor: '#ffffff', borderWidth: 2, borderDash: [6, 3] },
-            crossH: { type: 'line', yMin: verifyH, yMax: verifyH, borderColor: '#ffffff', borderWidth: 2, borderDash: [6, 3] },
-            point: { type: 'point', xValue: verifyW, yValue: verifyH, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 3, radius: 7, pointStyle: 'crossRot' }
+            crossV: { type: 'line', xMin: verifyW, xMax: verifyW, borderColor: '#fff', borderWidth: 2, borderDash: [4,2] },
+            crossH: { type: 'line', yMin: verifyH, yMax: verifyH, borderColor: '#fff', borderWidth: 2, borderDash: [4,2] },
+            point: { type: 'point', xValue: verifyW, yValue: verifyH, backgroundColor: '#fff', borderColor: '#000', borderWidth: 2, radius: 6, pointStyle: 'crossRot' }
           }
         }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Largura por folha (mm)' } },
+        y: { title: { display: true, text: 'Altura máxima H (mm)' }, min: heightMin, max: heightMax }
       }
     }
   });
 
-  const maxH = Math.max(...datasets.flatMap(d => d.data.map(p => p.y)));
+  const maxH = Math.max(...datasets.flatMap(d => d.data));
   const kpiEl = document.getElementById('kpiMaxH');
   kpiEl.textContent = maxH + " mm";
   if (maxH >= verifyH + 300) kpiEl.style.color = 'var(--good)';
@@ -345,21 +323,13 @@ function renderChart() {
 function updateSelectedPanel() {
   const combo = DATA[currentSystem].find(c => c.name === selectedName) || DATA[currentSystem][0];
   if (!combo) return;
-
   const p1 = combo.name.split(' + ')[0];
   const p2 = combo.name.split(' + ')[1];
-
-  document.getElementById('conjuntoName').textContent = combo.name;
   document.getElementById('profile1Code').textContent = p1;
   document.getElementById('profile2Code').textContent = p2;
-  document.getElementById('profile1Data').textContent = `Ix ${(combo.ixP1).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profile2Data').textContent = `Ix ${(combo.ixP2).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profileTotal').textContent = `${(combo.ixTotal).toLocaleString('pt-BR')} mm⁴`;
-
-  const img = document.getElementById('conjuntoImg');
-  img.style.display = 'block';
-  document.getElementById('imgError').style.display = 'none';
-  img.src = `./assets/perfis/${combo.img1}`;
+  document.getElementById('profile1Data').innerHTML = `Ix total ${combo.ixTotal} mm⁴`;
+  document.getElementById('profile2Data').innerHTML = `Ix total ${combo.ixTotal} mm⁴`;
+  document.getElementById('selectedTag').textContent = "ativo";
 }
 
 function updateVerification() {
@@ -386,20 +356,12 @@ function toggleParameters(el) {
 }
 
 function switchEncounter(enc) {
-  currentEnc = enc;
-  DATA = ALL_DATA[enc];
-  currentSystem = Object.keys(DATA)[0];
-  selectedName = DATA[currentSystem][0].name;
-  document.querySelectorAll('.segmented button').forEach((btn, i) => {
-    btn.classList.toggle('active', (i === 0 && enc === 'MA') || (i === 1 && enc === 'CE'));
-  });
-  document.getElementById('system').innerHTML = Object.keys(DATA).map(k => `<option value="${k}">${k}</option>`).join('');
   refreshAll();
 }
 
 window.onload = () => {
   document.getElementById('system').innerHTML = Object.keys(DATA).map(k => `<option value="${k}">${k}</option>`).join('');
-  selectedName = "GSK025 + GSK025";
+  selectedName = "GSK008 + GSK008";
   updatePressureBadge();
   renderComboList();
   renderChart();

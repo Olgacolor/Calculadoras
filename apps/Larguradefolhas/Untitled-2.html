@@ -6,6 +6,7 @@
   <title>Olgacolor • Curva por Conjunto v3</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg:#0d1526;
@@ -24,7 +25,7 @@
       --radius:20px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
+    body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
     .page{max-width:1480px;margin:0 auto;padding:24px}
     .instructions-banner{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;line-height:1.55;}
     .instructions-banner h3{margin:0 0 14px 0;font-size:18px;}
@@ -59,21 +60,39 @@
     .chart-wrap{height:470px}
     .verify-result{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-height:92px}
 
-    /* Selected panel images */
-    .profiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    /* Topbar */
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+    .title-wrap h1{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px}
+    .title-wrap p{font-size:13px;color:var(--muted)}
+    .badge{padding:8px 16px;border-radius:99px;background:rgba(110,179,255,.12);border:1px solid rgba(110,179,255,.3);color:#d9ecff;font-size:13px;font-weight:600;white-space:nowrap;align-self:center}
+
+    /* Selected panel */
+    .selected-card{padding:18px}
+    .selected-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .selected-head h3{font-size:15px;font-weight:700}
+    .pill{padding:4px 12px;border-radius:99px;background:rgba(131,226,199,.12);border:1px solid rgba(131,226,199,.3);color:var(--acc-2);font-size:11px;font-weight:700;text-transform:uppercase}
+    .scheme{display:flex;flex-direction:column;gap:12px}
+    .scheme-canvas{background:rgba(255,255,255,.03);border-radius:14px;padding:12px}
+    .profiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .profile-box{padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);text-align:center}
     .profile-box img{width:100%;height:180px;object-fit:contain;background:#0f182c;border-radius:12px;margin-top:8px}
+    .profile-box .label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+    .profile-box .code{font-size:14px;font-weight:700;margin-bottom:2px}
+    .profile-box .data{font-size:12px;color:var(--muted)}
 
-    /* Conjunto image panel */
-    .conjunto-name{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text)}
-    .conjunto-img-wrap{background:#0f182c;border-radius:14px;overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center;min-height:180px}
-    .conjunto-img-wrap img{width:100%;max-height:220px;object-fit:contain;display:block}
-    .conjunto-data{display:flex;flex-direction:column;gap:6px}
-    .perfil-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-    .total-row{background:rgba(131,226,199,.05);border-color:rgba(131,226,199,.2)}
-    .perfil-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;min-width:22px}
-    .perfil-code{font-size:13px;font-weight:700;flex:1}
-    .perfil-ix{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap}
+    /* Chart card */
+    .chart-card{padding:18px}
+    .chart-tools{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+    .chart-tools h3{font-size:15px;font-weight:700}
+    .chart-tools .right{display:flex;gap:6px}
+    .soft-btn{padding:7px 14px;border-radius:10px;border:1px solid var(--line);background:#0f182c;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+    .soft-btn.active{background:rgba(110,179,255,.14);border-color:rgba(110,179,255,.4);color:#d9ecff}
+    .tiny-note{font-size:12px;color:var(--muted);margin-bottom:10px}
+
+    /* Verify */
+    .verify-card{padding:18px}
+    .verify-card h3{font-size:15px;font-weight:700;margin-bottom:14px}
+    .verify-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:14px}
 
     @media (max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{position:static}.panel-grid{grid-template-columns:1fr}}
     @media (max-width:720px){.page{padding:14px}.title-wrap h1{font-size:24px}.params{grid-template-columns:1fr 1fr}.field-grid,.verify-grid,.profiles{grid-template-columns:1fr}.chart-wrap{height:340px}.combo-list{max-height:none}.field input,.field select,.field button{padding:16px 14px;font-size:16px}}
@@ -154,29 +173,19 @@
               <h3>Conjunto selecionado</h3>
               <span class="pill" id="selectedTag">ativo</span>
             </div>
-            <div class="conjunto-name" id="conjuntoName">—</div>
             <div class="scheme">
-              <div class="conjunto-img-wrap">
-                <img id="conjuntoImg" src="" alt="Conjunto"
-                     onerror="this.style.display='none';document.getElementById('imgError').style.display='flex'"
-                     onload="this.style.display='block';document.getElementById('imgError').style.display='none'" />
-                <div id="imgError" style="display:none;width:100%;height:180px;align-items:center;justify-content:center;color:var(--muted);font-size:13px;">Imagem não encontrada</div>
-              </div>
-              <div class="conjunto-data">
-                <div class="perfil-row">
-                  <span class="perfil-label">P1</span>
-                  <span class="perfil-code" id="profile1Code">—</span>
-                  <span class="perfil-ix" id="profile1Data">—</span>
+              <div class="profiles">
+                <div class="profile-box">
+                  <div class="label">PERFIL 1</div>
+                  <div class="code" id="profile1Code">—</div>
+                  <img id="profile1Img" src="" alt="Perfil 1" style="width:100%;height:180px;object-fit:contain;background:#0f182c;border-radius:12px;margin-top:8px">
+                  <div class="data" id="profile1Data">—</div>
                 </div>
-                <div class="perfil-row">
-                  <span class="perfil-label">P2</span>
-                  <span class="perfil-code" id="profile2Code">—</span>
-                  <span class="perfil-ix" id="profile2Data">—</span>
-                </div>
-                <div class="perfil-row total-row">
-                  <span class="perfil-label" style="color:var(--acc-2)">∑</span>
-                  <span class="perfil-code" style="color:var(--acc-2)">Ix total</span>
-                  <span class="perfil-ix" id="profileTotal" style="color:var(--acc-2)">—</span>
+                <div class="profile-box">
+                  <div class="label">PERFIL 2</div>
+                  <div class="code" id="profile2Code">—</div>
+                  <img id="profile2Img" src="" alt="Perfil 2" style="width:100%;height:180px;object-fit:contain;background:#0f182c;border-radius:12px;margin-top:8px">
+                  <div class="data" id="profile2Data">—</div>
                 </div>
               </div>
             </div>
@@ -211,21 +220,26 @@
 const E = 70000;
 let chartInstance = null;
 let currentSystem = "LOCK_SL 45°";
-let selectedName = "GSK025 + GSK025";
+let selectedName = "GSK008 + GSK008";
 let currentEnc = "MA";
 
 const ALL_DATA = {
   MA: {
     "LOCK_SL 45°": [
-      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" },
-      { name: "GSK026 + GSK026", ixTotal: 620520,  ixP1: 310260, ixP2: 310260, wxP1: 6971,  wxP2: 6971,  img1: "GSK026_GSK026.png", img2: "GSK026_GSK026.png" },
-      { name: "GSK027 + GSK027", ixTotal: 256028,  ixP1: 128014, ixP2: 128014, wxP1: 3922,  wxP2: 3922,  img1: "GSK027_GSK027.png", img2: "GSK027_GSK027.png" },
-      { name: "GSK090 + GSK090", ixTotal: 2381166, ixP1: 1190583, ixP2: 1190583, wxP1: 16753, wxP2: 16753, img1: "GSK090_GSK090.png", img2: "GSK090_GSK090.png" }
+      { name: "GSK008 + GSK008", ixTotal: 108684, ixP1: 54342, ixP2: 54342, wxP1: 3551, wxP2: 3551, img1: "GSK008_GSK008.png", img2: "GSK008_GSK008.png" },
+      { name: "GSK008 + GSK016", ixTotal: 306351, ixP1: 54342, ixP2: 252009, wxP1: 3551, wxP2: 5443, img1: "GSK008_GSK008.png", img2: "GSK016_GSK016.png" },
+      { name: "GSK016 + GSK016", ixTotal: 504018, ixP1: 252009, ixP2: 252009, wxP1: 5443, wxP2: 5443, img1: "GSK016_GSK016.png", img2: "GSK016_GSK016.png" }
+    ],
+    "LOCK_SL 90°": [
+      { name: "GSK133 + GSK131", ixTotal: 439518, ixP1: 122954, ixP2: 316564, wxP1: 4090, wxP2: 7985, img1: "GSK133_GSK131.png", img2: "GSK133_GSK131.png" },
+      { name: "GSK133 + GSK132", ixTotal: 1126815, ixP1: 122954, ixP2: 1003861, wxP1: 4090, wxP2: 16599, img1: "GSK133_GSK132.png", img2: "GSK133_GSK132.png" },
+      { name: "GSK133 + GSK134", ixTotal: 2014749, ixP1: 122954, ixP2: 1891795, wxP1: 4090, wxP2: 26630, img1: "GSK133_GSK134.png", img2: "GSK133_GSK134.png" }
     ]
   },
   CE: {
     "LOCK-SL": [
-      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" }
+      { name: "GSK008 + GSK008", ixTotal: 108684, ixP1: 54342, ixP2: 54342, wxP1: 3551, wxP2: 3551, img1: "GSK008_GSK008.png", img2: "GSK008_GSK008.png" },
+      { name: "GSK016 + GSK016", ixTotal: 504018, ixP1: 252009, ixP2: 252009, wxP1: 5443, wxP2: 5443, img1: "GSK016_GSK016.png", img2: "GSK016_GSK016.png" }
     ]
   }
 };
@@ -349,17 +363,16 @@ function updateSelectedPanel() {
   const p1 = combo.name.split(' + ')[0];
   const p2 = combo.name.split(' + ')[1];
 
-  document.getElementById('conjuntoName').textContent = combo.name;
   document.getElementById('profile1Code').textContent = p1;
   document.getElementById('profile2Code').textContent = p2;
-  document.getElementById('profile1Data').textContent = `Ix ${(combo.ixP1).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profile2Data').textContent = `Ix ${(combo.ixP2).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profileTotal').textContent = `${(combo.ixTotal).toLocaleString('pt-BR')} mm⁴`;
+  document.getElementById('profile1Data').innerHTML = `Ix total ${combo.ixP1 || combo.ixTotal} mm⁴`;
+  document.getElementById('profile2Data').innerHTML = `Ix total ${combo.ixP2 || combo.ixTotal} mm⁴`;
 
-  const img = document.getElementById('conjuntoImg');
-  img.style.display = 'block';
-  document.getElementById('imgError').style.display = 'none';
-  img.src = `./assets/perfis/${combo.img1}`;
+  const img1 = document.getElementById('profile1Img');
+  const img2 = document.getElementById('profile2Img');
+
+  img1.src = `./assets/perfis/${combo.img1 || 'AI.png'}`;
+  img2.src = `./assets/perfis/${combo.img2 || 'AI.png'}`;
 }
 
 function updateVerification() {
@@ -399,7 +412,7 @@ function switchEncounter(enc) {
 
 window.onload = () => {
   document.getElementById('system').innerHTML = Object.keys(DATA).map(k => `<option value="${k}">${k}</option>`).join('');
-  selectedName = "GSK025 + GSK025";
+  selectedName = "GSK008 + GSK008";
   updatePressureBadge();
   renderComboList();
   renderChart();
