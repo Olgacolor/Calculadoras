@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Olgacolor • Curva por Conjunto v3</title>
+  <title>Olgacolor • Gráfico de desempenho v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
   <style>
@@ -24,7 +25,7 @@
       --radius:20px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
+    body{margin:0;font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
     .page{max-width:1480px;margin:0 auto;padding:24px}
     .instructions-banner{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;line-height:1.55;}
     .instructions-banner h3{margin:0 0 14px 0;font-size:18px;}
@@ -83,6 +84,44 @@
 
     @media (max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{position:static}.panel-grid{grid-template-columns:1fr}}
     @media (max-width:720px){.page{padding:14px}.title-wrap h1{font-size:24px}.params{grid-template-columns:1fr 1fr}.field-grid,.verify-grid,.profiles{grid-template-columns:1fr}.chart-wrap{height:340px}.combo-list{max-height:none}.field input,.field select,.field button{padding:16px 14px;font-size:16px}}
+
+    /* Topbar */
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+    .title-wrap h1{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px}
+    .title-wrap p{font-size:13px;color:var(--muted)}
+    .badge{padding:8px 16px;border-radius:99px;background:rgba(110,179,245,.12);border:1px solid rgba(110,179,255,.3);color:#d9ecff;font-size:13px;font-weight:600;white-space:nowrap;align-self:center}
+    /* Selected panel */
+    .selected-card{padding:18px}
+    .selected-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .selected-head h3{font-size:15px;font-weight:700}
+    .pill{padding:4px 12px;border-radius:99px;background:rgba(131,226,199,.12);border:1px solid rgba(131,226,199,.3);color:var(--acc-2);font-size:11px;font-weight:700;text-transform:uppercase}
+    /* Chart card */
+    .chart-card{padding:18px}
+    .chart-tools{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+    .chart-tools h3{font-size:15px;font-weight:700}
+    .chart-tools .right{display:flex;gap:6px;align-items:center}
+    .soft-btn{padding:7px 14px;border-radius:10px;border:1px solid var(--line);background:#0f182c;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s;font-family:inherit}
+    .soft-btn.active{background:rgba(110,179,255,.14);border-color:rgba(110,179,255,.4);color:#d9ecff}
+    /* Verify */
+    .verify-card{padding:18px}
+    .verify-card h3{font-size:15px;font-weight:700;margin-bottom:14px}
+    .verify-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:14px}
+    /* Export btn */
+    .export-btn{background:rgba(131,226,199,.12);border:1px solid rgba(131,226,199,.4);color:#83e2c7;padding:7px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;transition:.15s;font-family:inherit}
+    .export-btn:hover{background:rgba(131,226,199,.22)}
+    /* Pressure KPI destacado no hero */
+    .pressure-kpi{
+      display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+      padding:14px 20px;border-radius:16px;
+      background:rgba(110,179,255,.08);
+      border:1px solid rgba(110,179,255,.25);
+      flex-shrink:0;
+    }
+    .pressure-kpi .pk-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+    .pressure-kpi .pk-number{display:flex;align-items:baseline;gap:6px}
+    .pressure-kpi .pk-value{font-size:36px;font-weight:800;letter-spacing:-.03em;color:var(--acc);font-family:'DM Mono',monospace;line-height:1}
+    .pressure-kpi .pk-unit{font-size:14px;color:var(--muted);font-weight:600}
+    .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
   </style>
 </head>
 <body>
@@ -91,15 +130,14 @@
       <h3>Instruções de uso</h3>
       <p><strong>Importante:</strong> Estamos calculando pela largura de cada folha, e não pela largura total da esquadria.</p>
       <p><strong>Exemplo:</strong> Uma esquadria de 4 folhas com 4000 mm de largura total → cada folha tem 1000 mm (4000 ÷ 4).</p>
-      <p>Preencha os parâmetros à esquerda. O gráfico atualiza automaticamente.</p>
+      <p>Preencha os parâmetros necessários e caso deseje uma verificação rápida você pode entrar diretamente com as medidas de sua esquadria.</p>
     </div>
 
     <div class="topbar">
       <div class="title-wrap">
-        <h1>Mão de amigo - Fechamento Central</h1>
-        <p>Protótipo de interface para seleção de conjuntos Olgacolor.</p>
+        <h1>Gráfico de desempenho </h1>
+        <p>Interface para seleção de conjuntos de perfis Olgacolor.</p>
       </div>
-      <div class="badge" id="pressureBadge">Pressão de ensaio: 1500 Pa</div>
     </div>
 
     <div class="layout">
@@ -121,7 +159,7 @@
           </div>
           <div class="field"><label for="pressure">Pressão de ensaio (Pa)</label><input id="pressure" type="number" value="1820" oninput="refreshAll()" /></div>
           <div class="field-grid">
-            <div class="field"><label for="widthStart">Largura inicial (mm)</label><input id="widthStart" type="number" value="500" oninput="refreshAll()" /></div>
+            <div class="field"><label for="widthStart">Largura inicial (mm)</label><input id="widthStart" type="number" value="600" oninput="refreshAll()" /></div>
             <div class="field"><label for="widthEnd">Largura final (mm)</label><input id="widthEnd" type="number" value="1200" oninput="refreshAll()" /></div>
           </div>
           <div class="field-grid">
@@ -133,7 +171,7 @@
 
         <div class="section-title" style="margin-top:16px">Combinações</div>
         <div class="field search" style="margin-bottom:10px">
-          <input id="search" type="text" placeholder="Buscar combinação..." oninput="renderComboList()" />
+          <input id="search" type="text" placeholder="Buscar combinação..." oninput="renderComboList();renderChart()" />
         </div>
         <div class="combo-list" id="comboList"></div>
       </aside>
@@ -141,13 +179,20 @@
       <main class="main">
         <section class="card hero">
           <div class="hero-top">
-            <div><h2 id="heroTitle">LOCK_SL 90°</h2><p id="heroSubtitle">Curvas de altura máxima por largura, usando a pressão informada.</p></div>
+            <div><h2 id="heroTitle">LOCK_SL 90°</h2><p id="heroSubtitle">Gráfico de altura máxima por largura da folha, usando a pressão informada.</p></div>
+            <div class="pressure-kpi">
+              <span class="pk-label">Pressão de ensaio</span>
+              <div class="pk-number">
+                <span class="pk-value" id="pressureKpi">1820</span>
+                <span class="pk-unit">Pa</span>
+              </div>
+            </div>
           </div>
           <div class="params">
-            <div class="param"><div class="k">Conjuntos ligados</div><div class="v" id="kpiVisible">3</div></div>
-            <div class="param"><div class="k">Faixas de largura</div><div class="v" id="kpiBands">23</div></div>
-            <div class="param"><div class="k">Maior H no gráfico</div><div class="v" id="kpiMaxH" style="color:var(--good)">—</div></div>
-            <div class="param"><div class="k">Conjunto ativo</div><div class="v" id="kpiActive">—</div></div>
+            <div class="param"><div class="k">Conjunto ativo</div><div class="v" id="kpiActive" style="font-size:14px;">—</div></div>
+            <div class="param"><div class="k" id="kpiHLabel">H máx @ L —</div><div class="v" id="kpiMaxH">—</div></div>
+            <div class="param"><div class="k" id="kpiMinLabel">Menor que atende</div><div class="v" id="kpiMin" style="font-size:13px;">—</div></div>
+            <div class="param"><div class="k">Critério governante</div><div class="v" id="kpiGov" style="font-size:13px;">—</div></div>
           </div>
         </section>
 
@@ -199,8 +244,8 @@
             <div class="chart-tools">
               <div class="left"><h3>Gráfico principal</h3></div>
               <div class="right">
-                <button class="soft-btn active" id="modeTop">Só top 3</button>
-                <button class="soft-btn" id="modeAll">Mostrar todas</button>
+                <button class="soft-btn active" id="modeTop" onclick="setMode(3)">Só top 3</button>
+                <button class="soft-btn" id="modeAll" onclick="setMode(999)">Mostrar todas</button>
               </div>
             </div>
             <div class="chart-wrap"><canvas id="chart"></canvas></div>
@@ -210,8 +255,8 @@
         <section class="card verify-card">
           <h3>Verificação rápida</h3>
           <div class="verify-grid">
-            <div class="field" style="margin:0"><label for="verifyW">Largura (mm)</label><input id="verifyW" type="number" value="1200" step="10" oninput="updateVerification()" /></div>
-            <div class="field" style="margin:0"><label for="verifyH">Altura desejada (mm)</label><input id="verifyH" type="number" value="1400" step="10" oninput="updateVerification()" /></div>
+            <div class="field" style="margin:0"><label for="verifyW">Largura (mm)</label><input id="verifyW" type="number" value="900" step="10" oninput="updateVerification()" /></div>
+            <div class="field" style="margin:0"><label for="verifyH">Altura desejada (mm)</label><input id="verifyH" type="number" value="1700" step="10" oninput="updateVerification()" /></div>
             <div class="field" style="margin:0"><label>&nbsp;</label><button onclick="updateVerification()">Verificar</button></div>
           </div>
           <div class="verify-result" id="verifyResult"></div>
@@ -226,6 +271,7 @@ let chartInstance = null;
 let currentSystem = "LOCK_SL 90°";
 let selectedName = "GSK025 + GSK025";
 let currentEnc = "MA";
+let showTopOnly = 3;
 
 const ALL_DATA = {
   MA: {
@@ -266,12 +312,34 @@ function calculateHeight(combo, widthMm, qPa) {
   return Math.floor(Math.min(H_tensao, H_deflexao));
 }
 
+function getGoverns(combo, widthMm, qPa) {
+  const p = qPa / 1000000;
+  const sigmaAdm = getFy() / 1.1;
+  const Ix = combo.ixTotal;
+  const Ix1 = combo.ixP1 || Ix / 2;
+  const Ix2 = combo.ixP2 || Ix / 2;
+  const Wx1 = combo.wxP1 || 3500;
+  const Wx2 = combo.wxP2 || 3500;
+  const M_cap = Math.min(sigmaAdm * Wx1 * (Ix / Ix1), sigmaAdm * Wx2 * (Ix / Ix2));
+  const H_tensao   = Math.sqrt(8 * M_cap / (1.5 * p * widthMm));
+  const H_deflexao = Math.cbrt(384 * E * Ix / (875 * p * widthMm));
+  return H_deflexao <= H_tensao ? 'Deflexão' : 'Tensão';
+}
+
 function widths() {
   const start = Number(document.getElementById('widthStart').value) || 500;
   const end = Number(document.getElementById('widthEnd').value) || 1200;
   const arr = [];
   for (let w = start; w <= end; w += 10) arr.push(w);
   return arr;
+}
+
+function setMode(mode) {
+  showTopOnly = mode;
+  document.getElementById('modeTop').classList.toggle('active', mode === 3);
+  document.getElementById('modeAll').classList.toggle('active', mode !== 3);
+  renderComboList();
+  renderChart();
 }
 
 function refreshAll() {
@@ -283,8 +351,8 @@ function refreshAll() {
 }
 
 function updatePressureBadge() {
-  const p = document.getElementById('pressure').value || 1500;
-  document.getElementById('pressureBadge').textContent = `Pressão de ensaio: ${p} Pa`;
+  const p = document.getElementById('pressure').value || 1820;
+  document.getElementById('pressureKpi').textContent = Number(p).toLocaleString('pt-BR');
 }
 
 function renderComboList() {
@@ -310,7 +378,10 @@ function renderChart() {
   const ws = widths();
   const heightMin = Number(document.getElementById('heightStart').value) || 1000;
   const heightMax = Number(document.getElementById('heightEnd').value) || 3000;
-  const combos = DATA[currentSystem] || [];
+  const filter = document.getElementById('search').value.toLowerCase();
+  let combos = (DATA[currentSystem] || []).slice().sort((a, b) => b.ixTotal - a.ixTotal);
+  if (showTopOnly === 3) combos = combos.slice(0, 3);
+  if (filter) combos = combos.filter(c => c.name.toLowerCase().includes(filter));
   const verifyW = Number(document.getElementById('verifyW').value) || 1200;
   const verifyH = Number(document.getElementById('verifyH').value) || 1400;
 
@@ -386,16 +457,42 @@ function renderChart() {
     }
   });
 
-  const maxH = Math.max(...datasets.flatMap(d => d.data.map(p => p.y)));
-  const kpiEl = document.getElementById('kpiMaxH');
-  kpiEl.textContent = maxH + " mm";
-  if (maxH >= verifyH + 300) kpiEl.style.color = 'var(--good)';
-  else if (maxH >= verifyH) kpiEl.style.color = 'var(--warn)';
-  else kpiEl.style.color = 'var(--bad)';
-
+  // KPI 1 — Conjunto ativo
   document.getElementById('kpiActive').textContent = selectedName || combos[0]?.name || "—";
-  document.getElementById('kpiVisible').textContent = datasets.length;
-  document.getElementById('kpiBands').textContent = ws.length;
+
+  // KPI 2 — H máx @ L da verificação, entre combos visíveis
+  const hAtL = combos.map(combo => calculateHeight(combo, verifyW, q));
+  const maxHatL = hAtL.length ? Math.max(...hAtL) : 0;
+  const kpiH = document.getElementById('kpiMaxH');
+  document.getElementById('kpiHLabel').textContent = `H máx @ L = ${verifyW} mm`;
+  kpiH.textContent = maxHatL ? maxHatL.toLocaleString('pt-BR') + ' mm' : '—';
+  kpiH.style.color = maxHatL >= verifyH ? 'var(--good)' : maxHatL > 0 ? 'var(--bad)' : 'var(--muted)';
+
+  // KPI 3 — Menor combo que atende H e L da verificação
+  const passing = combos.filter(combo => calculateHeight(combo, verifyW, q) >= verifyH);
+  const kpiMin = document.getElementById('kpiMin');
+  if (passing.length) {
+    const best = passing.reduce((a, b) => a.ixTotal < b.ixTotal ? a : b);
+    kpiMin.textContent = best.name;
+    kpiMin.style.color = 'var(--good)';
+    document.getElementById('kpiMinLabel').textContent = 'Menor que atende';
+  } else {
+    kpiMin.textContent = 'Nenhum';
+    kpiMin.style.color = 'var(--bad)';
+    document.getElementById('kpiMinLabel').textContent = `Nenhum atende H=${verifyH} mm`;
+  }
+
+  // KPI 4 — Critério governante no combo ativo @ L da verificação
+  const activeCombo = combos.find(c => c.name === selectedName) || combos[0];
+  const kpiGov = document.getElementById('kpiGov');
+  if (activeCombo) {
+    const gov = getGoverns(activeCombo, verifyW, q);
+    kpiGov.textContent = gov;
+    kpiGov.style.color = gov === 'Deflexão' ? 'var(--acc-2)' : 'var(--warn)';
+  } else {
+    kpiGov.textContent = '—';
+    kpiGov.style.color = 'var(--muted)';
+  }
 }
 
 function updateSelectedPanel() {
