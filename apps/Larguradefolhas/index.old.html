@@ -138,7 +138,7 @@
       <main class="main">
         <section class="card hero">
           <div class="hero-top">
-            <div><h2 id="heroTitle">LOCK_SL 90°</h2><p id="heroSubtitle">Curvas de altura máxima por largura, usando a pressão informada.</p></div>
+            <div><h2 id="heroTitle">LOCK_SL 45°</h2><p id="heroSubtitle">Curvas de altura máxima por largura, usando a pressão informada.</p></div>
           </div>
           <div class="params">
             <div class="param"><div class="k">Conjuntos ligados</div><div class="v" id="kpiVisible">3</div></div>
@@ -210,24 +210,22 @@
 <script>
 const E = 70000;
 let chartInstance = null;
-let currentSystem = "LOCK_SL 90°";
+let currentSystem = "LOCK_SL 45°";
 let selectedName = "GSK025 + GSK025";
 let currentEnc = "MA";
 
 const ALL_DATA = {
   MA: {
-    "LOCK_SL 90°": [
-      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958,  ixP2: 557958,  wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" },
-      { name: "GSK026 + GSK026", ixTotal: 620520,  ixP1: 310260,  ixP2: 310260,  wxP1: 6971,  wxP2: 6971,  img1: "GSK026_GSK026.png", img2: "GSK026_GSK026.png" },
-      { name: "GSK027 + GSK027", ixTotal: 256028,  ixP1: 128014,  ixP2: 128014,  wxP1: 3922,  wxP2: 3922,  img1: "GSK027_GSK027.png", img2: "GSK027_GSK027.png" },
+    "LOCK_SL 45°": [
+      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" },
+      { name: "GSK026 + GSK026", ixTotal: 620520,  ixP1: 310260, ixP2: 310260, wxP1: 6971,  wxP2: 6971,  img1: "GSK026_GSK026.png", img2: "GSK026_GSK026.png" },
+      { name: "GSK027 + GSK027", ixTotal: 256028,  ixP1: 128014, ixP2: 128014, wxP1: 3922,  wxP2: 3922,  img1: "GSK027_GSK027.png", img2: "GSK027_GSK027.png" },
       { name: "GSK090 + GSK090", ixTotal: 2381166, ixP1: 1190583, ixP2: 1190583, wxP1: 16753, wxP2: 16753, img1: "GSK090_GSK090.png", img2: "GSK090_GSK090.png" }
     ]
   },
   CE: {
     "LOCK-SL": [
-      { name: "GSK008 + GSK008", ixTotal: 108684,  ixP1: 54342,  ixP2: 54342,  wxP1: 3551,  wxP2: 3551,  img1: "GSK008_GSK008.png",  img2: "GSK008_GSK008.png"  },
-      { name: "GSK016 + GSK016", ixTotal: 504018,  ixP1: 252009, ixP2: 252009, wxP1: 5443,  wxP2: 5443,  img1: "GSK016_GSK016.png",  img2: "GSK016_GSK016.png"  },
-      { name: "GSK023 + GSK023", ixTotal: 579050,  ixP1: 289525, ixP2: 289525, wxP1: 7145,  wxP2: 7145,  img1: "GSK023_GSK023.png",  img2: "GSK023_GSK023.png"  }
+      { name: "GSK025 + GSK025", ixTotal: 1115916, ixP1: 557958, ixP2: 557958, wxP1: 10390, wxP2: 10390, img1: "GSK025_GSK025.png", img2: "GSK025_GSK025.png" }
     ]
   }
 };
