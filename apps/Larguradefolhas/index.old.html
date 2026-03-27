@@ -23,33 +23,21 @@
       --radius:20px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);color:var(--text);}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:linear-gradient(180deg,#0a1324 0%,#0d1526 100%);
+      color:var(--text);
+    }
     .page{max-width:1480px;margin:0 auto;padding:24px}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
     .title-wrap h1{margin:0;font-size:32px;letter-spacing:-0.03em}
     .title-wrap p{margin:6px 0 0;color:var(--muted);font-size:14px}
     .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(110,179,255,.12);border:1px solid rgba(110,179,255,.24);color:#cfe6ff;font-size:13px;font-weight:600}
-    
-    /* Banner de orientação inicial */
-    .welcome-banner{
-      background:var(--panel);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:var(--radius);
-      padding:20px 24px;
-      margin-bottom:24px;
-      display:flex;
-      gap:16px;
-      flex-wrap:wrap;
-    }
-    .welcome-banner h2{font-size:18px;margin:0}
-    .welcome-banner p{margin:0;color:var(--muted);line-height:1.45}
-    
     .layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
     .card{background:linear-gradient(180deg,var(--panel) 0%, #131d33 100%);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow)}
     .sidebar{padding:18px;position:sticky;top:14px}
-    .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2px 0 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-    .section-title::after{content:"▼";font-size:10px;transition:.2s}
-    .section-title.collapsed::after{content:"▶";transform:rotate(-90deg)}
+    .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2px 0 10px}
     .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
     .field label{font-size:12px;color:var(--muted);font-weight:600}
@@ -58,82 +46,123 @@
     .segmented{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
     .segmented button{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#0f182c;color:var(--text);cursor:pointer;font-weight:700}
     .segmented button.active{background:rgba(110,179,255,.16);border-color:rgba(110,179,255,.45);color:#d9ecff}
+    .tiny-note{font-size:12px;color:var(--muted);line-height:1.45}
+    .search{margin-top:4px;margin-bottom:12px}
     .combo-list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto;padding-right:4px}
     .combo-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid transparent;cursor:pointer;transition:.18s ease}
     .combo-item:hover{transform:translateY(-1px);background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.06)}
     .combo-item.active{border-color:rgba(110,179,255,.42);background:rgba(110,179,255,.08)}
-    .combo-name{font-size:14px;font-weight:700}
+    .combo-main{min-width:0}
+    .combo-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .combo-meta{font-size:12px;color:var(--muted);margin-top:2px}
+    .pill{font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;background:#0f182c;border:1px solid var(--line);color:#cfe6ff}
     .main{display:flex;flex-direction:column;gap:18px}
     .hero{padding:18px}
+    .hero-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+    .hero-top h2{margin:0;font-size:24px;letter-spacing:-0.03em}
+    .hero-top p{margin:4px 0 0;color:var(--muted);font-size:14px}
     .params{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:12px}
     .param{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
     .param .k{font-size:12px;color:var(--muted);margin-bottom:6px}
     .param .v{font-size:18px;font-weight:800;letter-spacing:-.03em}
     .panel-grid{display:grid;grid-template-columns:380px 1fr;gap:18px}
+    .selected-card,.chart-card,.verify-card{padding:18px}
+    .selected-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+    .selected-head h3,.chart-card h3,.verify-card h3{margin:0;font-size:18px}
+    .scheme{background:linear-gradient(180deg,#0d1729 0%,#101b30 100%);border:1px solid rgba(255,255,255,.05);border-radius:18px;padding:16px}
+    .scheme-canvas{height:170px;display:grid;place-items:center;margin-bottom:12px}
+    .profiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .profile-box{padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05)}
+    .profile-box .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .profile-box .code{font-size:17px;font-weight:800;margin-top:4px}
+    .profile-box .data{font-size:12px;color:#c7d7f1;margin-top:6px;line-height:1.45}
+    .chart-tools{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .chart-tools .left,.chart-tools .right{display:flex;gap:8px;flex-wrap:wrap}
+    .soft-btn{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#0f182c;color:var(--text);cursor:pointer;font-weight:700}
+    .soft-btn.active{background:rgba(110,179,255,.14);border-color:rgba(110,179,255,.4)}
     .chart-wrap{height:470px}
+    .verify-grid{display:grid;grid-template-columns:repeat(3, minmax(120px, 1fr));gap:12px;margin-bottom:14px}
     .verify-result{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-height:92px}
-    
-    @media (max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{position:static}.panel-grid{grid-template-columns:1fr}}
-    @media (max-width:720px){.page{padding:14px}.title-wrap h1{font-size:24px}.params{grid-template-columns:1fr 1fr}.field-grid,.verify-grid,.profiles{grid-template-columns:1fr}.chart-wrap{height:340px}.combo-list{max-height:none}.field input,.field select,.field button{padding:16px 14px;font-size:16px}}
+    .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+
+    @media (max-width: 1120px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:static}
+      .panel-grid{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .page{padding:14px}
+      .title-wrap h1{font-size:24px}
+      .params{grid-template-columns:1fr 1fr}
+      .field-grid,.verify-grid,.profiles{grid-template-columns:1fr}
+      .chart-wrap{height:340px}
+      .combo-list{max-height:none}
+      .field input,.field select,.field button{padding:16px 14px;font-size:16px}
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <!-- Banner de orientação inicial -->
-    <div class="welcome-banner">
-      <div>
-        <h2>📐 Curva por Conjunto • Mão de amigo</h2>
-        <p><strong>Importante:</strong> Estamos calculando pela <strong>largura de cada folha</strong> (folha móvel), e <strong>não</strong> pela largura total da esquadria.</p>
-        <p><strong>Exemplo:</strong> Uma esquadria de 4 folhas com 4000 mm de largura total → cada folha tem <strong>1000 mm</strong> (4000 ÷ 4).</p>
-        <p>Preencha os parâmetros à esquerda. O gráfico atualiza automaticamente.</p>
-      </div>
-    </div>
-
     <div class="topbar">
       <div class="title-wrap">
         <h1>Curva por conjunto • Mão de amigo</h1>
-        <p>Protótipo de interface para seleção de conjuntos Olgacolor.</p>
+        <p>Protótipo de interface para seleção de conjuntos Olgacolor. O foco aqui é fluxo e leitura.</p>
       </div>
       <div class="badge" id="pressureBadge">Pressão de ensaio: 1500 Pa</div>
     </div>
 
     <div class="layout">
       <aside class="card sidebar">
-        <div class="section-title" onclick="toggleParameters(this)">Escopo ▼</div>
-        <div id="parametersContent">
-          <div class="segmented">
-            <button class="active" onclick="switchEncounter('MA')">Mão de amigo</button>
-            <button onclick="switchEncounter('CE')">Fechamento central</button>
-          </div>
+        <div class="section-title">Escopo</div>
+        <div class="segmented">
+          <button class="active" onclick="switchEncounter('MA')">Mão de amigo</button>
+          <button onclick="switchEncounter('CE')">Fechamento central</button>
+        </div>
 
-          <div class="section-title">Parâmetros</div>
+        <div class="section-title">Parâmetros</div>
+        <div class="field">
+          <label for="system">Sistema</label>
+          <select id="system" onchange="refreshAll()"></select>
+        </div>
+        <div class="field">
+          <label for="temper">Temper do alumínio</label>
+          <select id="temper" onchange="refreshAll()">
+            <option value="T6" selected>6063-T6 (fy = 170 MPa)</option>
+            <option value="T5">6063-T5 (fy = 110 MPa)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pressure">Pressão de ensaio (Pa)</label>
+          <input id="pressure" type="number" value="1500" oninput="refreshAll()" />
+        </div>
+        <div class="field-grid">
           <div class="field">
-            <label for="system">Sistema</label>
-            <select id="system" onchange="refreshAll()"></select>
+            <label for="widthStart">Largura inicial (mm)</label>
+            <input id="widthStart" type="number" value="500" oninput="refreshAll()" />
           </div>
           <div class="field">
-            <label for="temper">Temper do alumínio</label>
-            <select id="temper" onchange="refreshAll()">
-              <option value="T6" selected>6063-T6 (fy = 170 MPa)</option>
-              <option value="T5">6063-T5 (fy = 110 MPa)</option>
-            </select>
+            <label for="widthEnd">Largura final (mm)</label>
+            <input id="widthEnd" type="number" value="1600" oninput="refreshAll()" />
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="heightStart">Altura inicial (mm)</label>
+            <input id="heightStart" type="number" value="1200" oninput="refreshAll()" />
           </div>
           <div class="field">
-            <label for="pressure">Pressão de ensaio (Pa)</label>
-            <input id="pressure" type="number" value="1500" oninput="refreshAll()" />
+            <label for="heightEnd">Altura final (mm)</label>
+            <input id="heightEnd" type="number" value="2222" oninput="refreshAll()" />
           </div>
-          <div class="field-grid">
-            <div class="field"><label for="widthStart">Largura inicial (mm)</label><input id="widthStart" type="number" value="500" oninput="refreshAll()" /></div>
-            <div class="field"><label for="widthEnd">Largura final (mm)</label><input id="widthEnd" type="number" value="1600" oninput="refreshAll()" /></div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="widthStep">Passo (mm)</label>
+            <input id="widthStep" type="number" value="50" oninput="refreshAll()" />
           </div>
-          <div class="field-grid">
-            <div class="field"><label for="heightStart">Altura inicial (mm)</label><input id="heightStart" type="number" value="1200" oninput="refreshAll()" /></div>
-            <div class="field"><label for="heightEnd">Altura final (mm)</label><input id="heightEnd" type="number" value="2200" oninput="refreshAll()" /></div>
-          </div>
-          <div class="field-grid">
-            <div class="field"><label for="widthStep">Passo (mm)</label><input id="widthStep" type="number" value="50" oninput="refreshAll()" /></div>
-            <div class="field"><label>&nbsp;</label><button onclick="refreshAll()">Atualizar curvas</button></div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button onclick="refreshAll()">Atualizar curvas</button>
           </div>
         </div>
 
@@ -252,6 +281,7 @@ function calculateHeight(combo, widthMm, qPa) {
   const Ix2 = combo.ixP2 || Ix / 2;
   const Wx1 = combo.wxP1 || 3500;
   const Wx2 = combo.wxP2 || 3500;
+
   const M_cap = Math.min(sigmaAdm * Wx1 * (Ix / Ix1), sigmaAdm * Wx2 * (Ix / Ix2));
   const H_tensao = Math.sqrt(8 * M_cap / (1.5 * p * widthMm));
   const H_deflexao = Math.cbrt(384 * E * Ix / (875 * p * widthMm));
@@ -360,13 +390,8 @@ function updateVerification() {
   document.getElementById('verifyResult').innerHTML = html;
 }
 
-function toggleParameters(el) {
-  const content = document.getElementById('parametersContent');
-  content.style.display = content.style.display === 'none' ? 'block' : 'none';
-  el.classList.toggle('collapsed');
-}
-
 function switchEncounter(enc) {
+  // placeholder para futura expansão
   refreshAll();
 }
 
