@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levitare — Custo de Venda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:   #0b1220;
+    --s1:   #121a2b;
+    --s2:   #1a2540;
+    --s3:   #243058;
+    --acc:  #5ba8f5;
+    --acc2: #5cf0c8;
+    --warn: #f59e5b;
+    --err:  #f55b5b;
+    --txt:  #e4eaf4;
+    --muted:#7a8aaa;
+    --border:#1f2f4a;
+    --r: 10px;
+    --r2: 6px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--s1);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-inner {
+    max-width: 680px;
+    margin: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--acc);
+  }
+  .logo span { color: var(--acc2); }
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 28px 16px 0;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    background: var(--acc);
+    border-radius: 2px;
+  }
+
+  /* ── FORM GRID ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-grid .span2 { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+  .field input, .field select {
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    color: var(--txt);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    height: 48px;
+    padding: 0 14px;
+    transition: border-color .15s, background .15s;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--acc);
+    background: var(--s3);
+  }
+  .field .unit {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: -2px;
+  }
+
+  /* select arrow */
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  /* ── COLOR PILLS ── */
+  .color-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .color-pill {
+    flex: 1;
+    min-width: 110px;
+    background: var(--s2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r2);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: center;
+  }
+  .color-pill:hover { border-color: var(--acc); background: var(--s3); }
+  .color-pill.active {
+    border-color: var(--acc);
+    background: rgba(91,168,245,.12);
+  }
+  .color-pill .pill-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--txt);
+    display: block;
+  }
+  .color-pill .pill-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+  }
+  .color-pill.active .pill-name { color: var(--acc); }
+
+  /* ── BUTTON ── */
+  .btn-calc {
+    width: 100%;
+    height: 52px;
+    background: linear-gradient(135deg, var(--acc) 0%, #4892dc 100%);
+    border: none;
+    border-radius: var(--r);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity .15s, transform .1s;
+    margin-top: 4px;
+  }
+  .btn-calc:hover { opacity: .92; }
+  .btn-calc:active { transform: scale(.99); }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  /* warning banner */
+  .warn-banner {
+    background: rgba(245,158,91,.12);
+    border: 1px solid rgba(245,158,91,.4);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    color: var(--warn);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* hero total */
+  .hero-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .hero-card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    text-align: center;
+  }
+  .hero-card.accent { border-color: rgba(91,168,245,.3); }
+  .hero-card.accent2 { border-color: rgba(92,240,200,.3); }
+  .hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .hero-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .hero-card.accent .hero-value { color: var(--acc); }
+  .hero-card.accent2 .hero-value { color: var(--acc2); }
+  .hero-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* cost breakdown */
+  .breakdown-list { display: flex; flex-direction: column; gap: 10px; }
+  .breakdown-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .breakdown-name {
+    font-size: 13px;
+    color: var(--txt);
+    white-space: nowrap;
+  }
+  .breakdown-bar-wrap {
+    position: relative;
+    height: 4px;
+    background: var(--s2);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .breakdown-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    border-radius: 2px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+  .breakdown-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* tech info grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .info-item {
+    background: var(--s2);
+    border-radius: var(--r2);
+    padding: 12px 14px;
+  }
+  .info-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .info-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--txt);
+  }
+  .info-value.ok { color: var(--acc2); }
+  .info-value.warn { color: var(--warn); }
+
+  /* disclaimer */
+  .disclaimer {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    padding: 0 8px;
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: rgba(122,138,170,.8); }
+
+  /* divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* quantity badge */
+  .qty-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* btn pdf */
+  .btn-pdf {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    border: 1.5px solid var(--acc2);
+    border-radius: var(--r);
+    color: var(--acc2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background .15s, opacity .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .btn-pdf:hover { background: rgba(92,240,200,.08); }
+  .btn-pdf:active { opacity: .8; }
+
+  /* ── RELATÓRIO OVERLAY ── */
+  #reportOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #reportOverlay.visible { display: block; }
+
+  .report-toolbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 10;
+  }
+  .report-toolbar-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+  }
+  .report-toolbar-actions { display: flex; gap: 8px; }
+  .btn-rprint {
+    height: 36px;
+    padding: 0 16px;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-rclose {
+    height: 36px;
+    padding: 0 14px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    color: #374151;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  #reportContent {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 24px 48px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #111827;
+    line-height: 1.5;
+  }
+
+  @media print {
+    header, main, .report-toolbar { display: none !important; }
+    #reportOverlay {
+      display: block !important;
+      position: static !important;
+      overflow: visible !important;
+    }
+    #reportContent { padding: 0 !important; }
+    @page { margin: 16mm 12mm; }
+  }
+
+  @media (max-width: 420px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .span2 { grid-column: 1; }
+    .hero-row { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .color-group { flex-direction: column; }
+    .color-pill { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Olgacolor" style="height:32px;display:block">
+    <div class="tagline" style="margin-left:4px">Custo de venda</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- CLIENTE / OBRA -->
+  <div class="card">
+    <div class="card-title">Identificação</div>
+    <div class="form-grid">
+      <div class="field span2">
+        <label>Cliente</label>
+        <input type="text" id="cliente" placeholder="Nome do cliente" style="font-family:'DM Sans',sans-serif">
+      </div>
+      <div class="field span2">
+        <label>Obra / ambiente</label>
+        <input type="text" id="obra" placeholder="Ex: Sala de estar — Bloco B" style="font-family:'DM Sans',sans-serif">
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="card">
+    <div class="card-title">Dimensões da porta</div>
+    <div class="form-grid">
+
+      <div class="field">
+        <label>Largura total</label>
+        <input type="number" id="largura" value="5000" min="500" max="12000" step="1">
+        <span class="unit">mm</span>
+      </div>
+
+      <div class="field">
+        <label>Altura</label>
+        <input type="number" id="altura" value="2700" min="500" max="5000" step="1">
+        <span class="unit">mm</span>
+      </div>
+
+      <div class="field">
+        <label>Nº de folhas</label>
+        <select id="folhas">
+          <option value="2">2 folhas</option>
+          <option value="3">3 folhas</option>
+          <option value="4">4 folhas</option>
+          <option value="5">5 folhas</option>
+          <option value="6">6 folhas</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Planos / trilhos</label>
+        <input type="number" id="planos" value="2" min="1" max="20" step="1">
+        <span class="unit">plano(s)</span>
+      </div>
+
+      <div class="field">
+        <label>Espessura do vidro</label>
+        <select id="espessura">
+          <option value="8">8 mm</option>
+          <option value="10">10 mm</option>
+          <option value="12" selected>12 mm</option>
+          <option value="15">15 mm</option>
+          <option value="19">19 mm</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Quantidade</label>
+        <input type="number" id="quantidade" value="1" min="1" max="100" step="1">
+        <span class="unit">porta(s)</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Acabamento</div>
+    <div class="color-group" id="colorGroup">
+      <div class="color-pill active" data-key="Madeira" data-price="60">
+        <span class="pill-name">Madeira</span>
+      </div>
+      <div class="color-pill" data-key="Inox escovado" data-price="55">
+        <span class="pill-name">Anodizado</span>
+      </div>
+      <div class="color-pill" data-key="Anod-Pint" data-price="45">
+        <span class="pill-name">Pintura</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">Calcular custo</button>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div style="height:20px"></div>
+
+    <div id="warnBanner" class="warn-banner" style="display:none">
+      <span>⚠</span>
+      <span id="warnText"></span>
+    </div>
+
+    <div class="hero-row">
+      <div class="hero-card accent">
+        <div class="hero-label">Total materiais</div>
+        <div class="hero-value" id="rTotal">—</div>
+        <div class="hero-sub" id="rQtyNote"></div>
+      </div>
+      <div class="hero-card accent2">
+        <div class="hero-label">Custo por m²</div>
+        <div class="hero-value" id="rM2">—</div>
+        <div class="hero-sub" id="rArea"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Composição do custo</div>
+      <div class="breakdown-list" id="breakdownList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Detalhes técnicos</div>
+      <div class="info-grid" id="infoGrid"></div>
+    </div>
+
+    <div class="card">
+      <p class="disclaimer">
+        <strong>* Orçamento orientativo de materiais.</strong><br>
+        Sistema de fecho MR Brasil incluso.<br>
+        Não inclui arremates, parafusos, silicone e contramarco.
+      </p>
+    </div>
+
+    <button class="btn-pdf" onclick="gerarRelatorio()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10 2v3h3M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Gerar relatório PDF
+    </button>
+
+  </div>
+
+
+<script>
+// ── COLOR PILLS ──
+let selectedColor = { key: 'Madeira', price: 60 };
+let lastResult = null;  // stores last calculated data for PDF
+document.querySelectorAll('.color-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.color-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    selectedColor = { key: pill.dataset.key, price: parseFloat(pill.dataset.price) };
+  });
+});
+
+// ── FORMATTERS ──
+const brl = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const num = (v, dec=2) => v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+// ── CORE CALCULATION (mirrors Levitare_rev4.xlsx) ──
+function calcular() {
+  const width    = parseFloat(document.getElementById('largura').value);
+  const height   = parseFloat(document.getElementById('altura').value);
+  const nFolhas  = parseInt(document.getElementById('folhas').value);
+  const nPlanos  = parseInt(document.getElementById('planos').value);
+  const espVidro = parseFloat(document.getElementById('espessura').value);
+  const qty      = parseInt(document.getElementById('quantidade').value);
+  const priceKg  = selectedColor.price;
+
+  if (!width || !height || isNaN(qty) || qty < 1) return;
+
+  // ── derived dimensions ──
+  const larguraFolha = width / nFolhas;           // mm  (Apoio B6)
+  const areaTotal    = width * height / 1e6;      // m²  (Cálculo F14)
+
+  // ── profile weights (kg/m) ──
+  const w = { LEV001:1.57, OM005:1.25, OM002:1.284, OM006:1.784,
+              OM009:2.054, LEV002:0.22, OM011:0.138, OM012:0.333,
+              OM018:0.513, GSK046:0.174, FK048:0.054 };
+
+  // ── aluminum quantities (meters) — Apoio M-P columns ──
+  const O10 = larguraFolha * nFolhas / 1000;              // LEV001  (carro, total largura)
+  const O11 = 2 * height / 1000;                          // OM005   (montantes lat, 2×alt)
+  const O12 = width * nPlanos / 1000;                     // OM005   (trilho inf, larg×planos)
+  const O13 = O11;                                        // OM002   (mont lateral)
+  const O14 = O12;                                        // OM006   (marco sup)
+  const O15 = ((nFolhas * 2) - 2) * height / 1000;       // OM009   (montantes centrais)
+  const O16 = width * nPlanos / 1000;                     // LEV002  (trilho)
+  const O17 = O11 * 2;                                    // OM011   (arremate marco 2×alt)
+  const O18 = O12 * 2;                                    // OM012   (arremate inf 2×larg×planos)
+  const O19 = O10 * 2;                                    // OM018   (base vidro, largura)
+  const O20 = nFolhas * height / 1000 * 2;                // OM018   (base vidro, altura)
+  const O21 = O13;                                        // GSK046  (click mont lat)
+  const O22 = O15;                                        // FK048   (click mão de amigo)
+
+  // ── total raw aluminum weight ──
+  const sumP = O10*w.LEV001 + O11*w.OM005 + O12*w.OM005 + O13*w.OM002
+             + O14*w.OM006  + O15*w.OM009 + O16*w.LEV002 + O17*w.OM011
+             + O18*w.OM012  + O19*w.OM018 + O20*w.OM018  + O21*w.GSK046
+             + O22*w.FK048;
+
+  const P24   = sumP * 1.1;       // +10% sobra/perda
+  const P27   = P24 * 1.15;       // +15% fator acabamento
+  const aluKg = P27;              // kg alumínio por porta  (Apoio C19)
+
+  // ── COST: alumínio ──
+  const costAlu = aluKg * priceKg * qty;          // (Cálculo F24)
+
+  // ── COST: trilho magnético (R$300/m) ──
+  const trilhoM    = nPlanos * qty * width / 1000; // metros totais (Apoio C12)
+  const costTrilho = trilhoM * 300;               // (Apoio E12)
+
+  // ── COST: carrinhos magnéticos (R$1.000/un) ──
+  // peso vidro por folha
+  const pesoVidroFolha = larguraFolha * height / 1e6 * espVidro * 2.5;  // kg (Apoio B10)
+
+  // peso alumínio por folha (Apoio U17)
+  const T13 = height * 2 / 1000;
+  const U13 = T13 * w.OM009;                        // mont central por folha
+  const T14 = larguraFolha / 1000;
+  const U14 = T14 * w.LEV001;                       // carro por folha
+  const T15 = (O19 + O20) / nFolhas;
+  const U15 = T15 * w.OM018;                        // base vidro por folha
+  const U17 = U13 + U14 + U15;                      // kg alu por folha
+
+  const pesoTotalFolha = pesoVidroFolha + U17;       // kg total folha (Apoio U21)
+  const maxCarr        = Math.floor(larguraFolha / 200);         // max carrinhos (Apoio U22)
+  const carrPerFolha   = Math.ceil(pesoTotalFolha / 25); // (Apoio U23 — 25 kg/carrinho)
+  const totalCarr      = carrPerFolha * nFolhas * qty;
+  const costCarr       = totalCarr * 1000;           // (Apoio E13)
+
+  // ── COST: acessórios (R$650 × folhas × 1.15) ──
+  const costAcess = nFolhas * qty * 650 * 1.15;  // Apoio: E14=B9×D14×D9, B21=E14×1.15
+
+  // ── TOTAL ──
+  const total  = costAlu + costTrilho + costCarr + costAcess;
+  const custoM2 = total / (areaTotal * qty);
+
+  // ── VALIDATION ──
+  const overweight = carrPerFolha > maxCarr;
+
+  // ── RENDER ──
+  renderResults({
+    total, custoM2, areaTotal, qty,
+    costAlu, costTrilho, costCarr, costAcess,
+    aluKg, pesoTotalFolha, pesoVidroFolha, U17,
+    carrPerFolha, totalCarr, maxCarr, nFolhas,
+    larguraFolha, height, espVidro, overweight, nPlanos
+  });
+}
+
+function renderResults(r) {
+  lastResult = r;
+  // show panel
+  const panel = document.getElementById('results');
+  panel.classList.add('visible');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+
+  // warning
+  const wb = document.getElementById('warnBanner');
+  if (r.overweight) {
+    wb.style.display = 'flex';
+    document.getElementById('warnText').textContent =
+      `Peso da folha (${num(r.pesoTotalFolha)} kg) excede capacidade de ${num(r.carrPerFolha)} carrinhos. Consultar engenharia.`;
+  } else {
+    wb.style.display = 'none';
+  }
+
+  // hero
+  document.getElementById('rTotal').textContent = brl(r.total);
+  document.getElementById('rM2').textContent    = brl(r.custoM2);
+  document.getElementById('rArea').textContent  = num(r.areaTotal * r.qty, 2) + ' m²';
+  document.getElementById('rQtyNote').textContent =
+    r.qty > 1 ? `${r.qty} porta${r.qty > 1 ? 's' : ''}` : '1 porta';
+
+  // breakdown
+  const items = [
+    { name: 'Alumínio',           value: r.costAlu,    color: '#5ba8f5' },
+    { name: 'Trilho magnético',   value: r.costTrilho, color: '#8b7cf5' },
+    { name: 'Carrinhos magnéticos', value: r.costCarr, color: '#5cf0c8' },
+    { name: 'Acessórios diversos', value: r.costAcess, color: '#f5c85b' },
+  ];
+  const maxV = Math.max(...items.map(i => i.value));
+  const bd = document.getElementById('breakdownList');
+  bd.innerHTML = items.map(item => `
+    <div class="breakdown-item">
+      <div>
+        <div class="breakdown-name">${item.name}</div>
+        <div class="breakdown-bar-wrap">
+          <div class="breakdown-bar" style="width:${(item.value/maxV*100).toFixed(1)}%;background:${item.color}"></div>
+        </div>
+      </div>
+      <div class="breakdown-value" style="color:${item.color}">${brl(item.value)}</div>
+    </div>
+    <div class="divider" style="margin:6px 0"></div>
+  `).join('') + `
+    <div class="breakdown-item">
+      <div class="breakdown-name" style="font-weight:600">TOTAL</div>
+      <div class="breakdown-value" style="color:var(--acc);font-size:16px">${brl(r.total)}</div>
+    </div>`;
+
+  // tech info
+  const infos = [
+    { label: 'Largura por folha',      value: num(r.larguraFolha, 0) + ' mm' },
+    { label: 'Peso total da folha',    value: num(r.pesoTotalFolha, 1) + ' kg' },
+    { label: 'Carrinhos / folha',      value: r.carrPerFolha + ' un  (máx ' + num(r.maxCarr, 1) + ')',
+      cls: r.overweight ? 'warn' : 'ok' },
+    { label: 'Total de carrinhos',     value: r.totalCarr + ' un' },
+    { label: 'Metros de trilho',       value: num(r.nPlanos * r.qty * (r.larguraFolha * r.nFolhas) / 1000, 2) + ' m' },
+  ];
+  document.getElementById('infoGrid').innerHTML = infos.map(i => `
+    <div class="info-item">
+      <div class="info-label">${i.label}</div>
+      <div class="info-value ${i.cls || ''}">${i.value}</div>
+    </div>`).join('');
+}
+
+function fecharRelatorio() {
+  document.getElementById('reportOverlay').classList.remove('visible');
+}
+
+function gerarRelatorio() {
+  const r = lastResult;
+  if (!r) return;
+
+  const width      = parseFloat(document.getElementById('largura').value);
+  const height     = parseFloat(document.getElementById('altura').value);
+  const acabamento = document.querySelector('.color-pill.active .pill-name').textContent;
+  const espVidro   = document.getElementById('espessura').value;
+  const qty        = parseInt(document.getElementById('quantidade').value);
+  const cliente    = document.getElementById('cliente').value.trim();
+  const obra       = document.getElementById('obra').value.trim();
+  const today      = new Date().toLocaleDateString('pt-BR');
+
+  const clienteHtml = (cliente || obra) ? `
+    <div style="margin-bottom:18px;padding:12px 16px;background:#f3f4f6;border-radius:8px">
+      ${cliente ? `<div style="font-size:15px;font-weight:600;color:#111827">${cliente}</div>` : ''}
+      ${obra    ? `<div style="font-size:12px;color:#6b7280;margin-top:2px">${obra}</div>`    : ''}
+    </div>` : '';
+
+  const warnHtml = r.overweight
+    ? `<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:10px 14px;color:#92400e;font-size:12px;margin-bottom:16px">⚠ Peso da folha (${num(r.pesoTotalFolha)} kg) excede capacidade de ${r.carrPerFolha} carrinhos. Consultar engenharia.</div>`
+    : '';
+
+  const di = (label, value) =>
+    `<div style="background:#f3f4f6;border-radius:6px;padding:9px 14px;flex:1;min-width:110px">
+      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px">${label}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:#111827">${value}</div>
+    </div>`;
+
+  const ti = (label, value, color) =>
+    `<div style="background:#f9fafb;border-radius:6px;padding:10px 14px">
+      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">${label}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${color||'#111827'}">${value}</div>
+    </div>`;
+
+  const sec = t => `<div style="font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#6b7280;margin:20px 0 10px">${t}</div>`;
+
+  document.getElementById('reportContent').innerHTML = `
+    <!-- cabeçalho -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111827;padding-bottom:14px;margin-bottom:22px">
+      <div>
+        <img src="assets/logo.png" alt="Olgacolor" style="height:36px;display:block">
+        <div style="font-size:12px;color:#6b7280;margin-top:6px">Porta de correr — Sistema magnético</div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#6b7280;line-height:1.8">
+        <span style="color:#111827;font-size:13px;font-weight:600;display:block">Orçamento orientativo</span>
+        Emitido em ${today}<br>
+        Qtd: ${qty} porta${qty > 1 ? 's' : ''}
+      </div>
+    </div>
+
+    ${warnHtml}
+
+    ${clienteHtml}
+
+    ${sec('Dimensões')}
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      ${di('Largura total', num(width,0)+' mm')}
+      ${di('Altura', num(height,0)+' mm')}
+      ${di('Área / porta', num(r.areaTotal,2)+' m²')}
+      ${di('Folhas', r.nFolhas)}
+    </div>
+
+    ${sec('Custo de materiais')}
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Alumínio</td>
+          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costAlu)}</td></tr>
+      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Trilho magnético</td>
+          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costTrilho)}</td></tr>
+      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Carrinhos magnéticos</td>
+          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costCarr)}</td></tr>
+      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Acessórios diversos</td>
+          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costAcess)}</td></tr>
+      <tr><td style="padding-top:12px;border-top:2px solid #111827;font-weight:600;font-size:14px;color:#111827">TOTAL${qty > 1 ? ' ('+qty+' portas)' : ''}</td>
+          <td style="padding-top:12px;border-top:2px solid #111827;text-align:right;font-family:'DM Mono',monospace;font-weight:600;font-size:15px;color:#2563eb">${brl(r.total)}</td></tr>
+    </table>
+
+    ${sec('Detalhes técnicos')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${ti('Acabamento', acabamento)}
+      ${ti('Espessura vidro', espVidro+' mm')}
+      ${ti('Custo por m²', brl(r.custoM2))}
+      ${ti('Largura por folha', num(r.larguraFolha,0)+' mm')}
+      ${ti('Peso total da folha', num(r.pesoTotalFolha,1)+' kg')}
+      ${ti('Carrinhos / folha', r.carrPerFolha+' un (máx '+num(r.maxCarr,1)+')', r.overweight?'#d97706':'#059669')}
+      ${ti('Total de carrinhos', r.totalCarr+' un')}
+      ${ti('Sistema de fecho', 'MR Brasil')}
+    </div>
+
+    <div style="margin-top:28px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:10.5px;color:#9ca3af;line-height:1.7">
+      <strong style="color:#6b7280">* Orçamento orientativo de materiais.</strong><br>
+      Não inclui arremates, parafusos, silicone e contramarco.<br>
+      Valores sujeitos a alteração sem aviso prévio.
+    </div>
+  `;
+
+  const overlay = document.getElementById('reportOverlay');
+  overlay.classList.add('visible');
+  overlay.scrollTop = 0;
+}
+
+function imprimirRelatorio() {
+  const content = document.getElementById('reportContent').innerHTML;
+  const logo    = document.querySelector('#reportOverlay img') 
+                  ? document.querySelector('#reportOverlay img').outerHTML 
+                  : '';
+
+  // Monta HTML completo para o iframe
+  const printHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;font-size:13px;color:#111827;line-height:1.5;padding:20px 28px;background:#fff}
+  @page{margin:16mm 12mm}
+</style>
+</head>
+<body>${content}</body>
+</html>`;
+
+  // Cria iframe invisível
+  let frame = document.getElementById('_printFrame');
+  if (frame) frame.remove();
+  frame = document.createElement('iframe');
+  frame.id = '_printFrame';
+  frame.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none';
+  document.body.appendChild(frame);
+
+  frame.onload = function() {
+    try {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+    } catch(e) { window.print(); }
+  };
+
+  frame.contentDocument.open();
+  frame.contentDocument.write(printHtml);
+  frame.contentDocument.close();
+}
+</script>
+
+<div id="reportOverlay">
+  <div class="report-toolbar">
+    <span class="report-toolbar-title">Orçamento orientativo</span>
+    <div class="report-toolbar-actions">
+      <button class="btn-rprint" onclick="imprimirRelatorio()">Imprimir / PDF</button>
+      <button class="btn-rclose" onclick="fecharRelatorio()">Fechar</button>
+    </div>
+  </div>
+  <div id="reportContent"></div>
+</div>
+
+</body>
+</html>
