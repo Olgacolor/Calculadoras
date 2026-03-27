@@ -65,15 +65,21 @@
     .profile-box img{width:100%;height:180px;object-fit:contain;background:#0f182c;border-radius:12px;margin-top:8px}
 
     /* Conjunto image panel */
-    .conjunto-name{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text)}
+    .conjunto-name{font-size:16px;font-weight:700;margin-bottom:14px;margin-top:4px;color:var(--text)}
     .conjunto-img-wrap{background:#0f182c;border-radius:14px;overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center;min-height:180px}
     .conjunto-img-wrap img{width:100%;max-height:220px;object-fit:contain;display:block}
-    .conjunto-data{display:flex;flex-direction:column;gap:6px}
-    .perfil-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-    .total-row{background:rgba(131,226,199,.05);border-color:rgba(131,226,199,.2)}
-    .perfil-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;min-width:22px}
-    .perfil-code{font-size:13px;font-weight:700;flex:1}
-    .perfil-ix{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap}
+    .conjunto-data{margin-top:4px}
+    .perfil-table{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+    .pt-header{display:contents}
+    .pt-header span{padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
+    .pt-col-head{text-align:right}
+    .pt-row{display:contents}
+    .pt-row span{padding:10px 10px;font-family:'DM Mono',monospace;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.02)}
+    .pt-total span{background:rgba(255,255,255,.04);border-bottom:none}
+    .perfil-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;justify-content:center}
+    .perfil-code{font-size:13px;font-weight:700;display:flex;align-items:center}
+    .perfil-ix{text-align:right;color:var(--muted);display:flex;align-items:center;justify-content:flex-end}
+    .perfil-wx{text-align:right;color:var(--muted);display:flex;align-items:center;justify-content:flex-end}
 
     @media (max-width:1120px){.layout{grid-template-columns:1fr}.sidebar{position:static}.panel-grid{grid-template-columns:1fr}}
     @media (max-width:720px){.page{padding:14px}.title-wrap h1{font-size:24px}.params{grid-template-columns:1fr 1fr}.field-grid,.verify-grid,.profiles{grid-template-columns:1fr}.chart-wrap{height:340px}.combo-list{max-height:none}.field input,.field select,.field button{padding:16px 14px;font-size:16px}}
@@ -113,19 +119,16 @@
               <option value="T5">6063-T5 (fy = 110 MPa)</option>
             </select>
           </div>
-          <div class="field"><label for="pressure">Pressão de ensaio (Pa)</label><input id="pressure" type="number" value="1500" oninput="refreshAll()" /></div>
+          <div class="field"><label for="pressure">Pressão de ensaio (Pa)</label><input id="pressure" type="number" value="1820" oninput="refreshAll()" /></div>
           <div class="field-grid">
             <div class="field"><label for="widthStart">Largura inicial (mm)</label><input id="widthStart" type="number" value="500" oninput="refreshAll()" /></div>
-            <div class="field"><label for="widthEnd">Largura final (mm)</label><input id="widthEnd" type="number" value="1600" oninput="refreshAll()" /></div>
+            <div class="field"><label for="widthEnd">Largura final (mm)</label><input id="widthEnd" type="number" value="1200" oninput="refreshAll()" /></div>
           </div>
           <div class="field-grid">
-            <div class="field"><label for="heightStart">Altura inicial (mm)</label><input id="heightStart" type="number" value="1200" oninput="refreshAll()" /></div>
-            <div class="field"><label for="heightEnd">Altura final (mm)</label><input id="heightEnd" type="number" value="2222" oninput="refreshAll()" /></div>
+            <div class="field"><label for="heightStart">Altura inicial (mm)</label><input id="heightStart" type="number" value="1000" oninput="refreshAll()" /></div>
+            <div class="field"><label for="heightEnd">Altura final (mm)</label><input id="heightEnd" type="number" value="2500" oninput="refreshAll()" /></div>
           </div>
-          <div class="field-grid">
-            <div class="field"><label for="widthStep">Passo (mm)</label><input id="widthStep" type="number" value="50" oninput="refreshAll()" /></div>
-            <div class="field"><label>&nbsp;</label><button onclick="refreshAll()">Atualizar curvas</button></div>
-          </div>
+
         </div>
 
         <div class="section-title" style="margin-top:16px">Combinações</div>
@@ -163,20 +166,30 @@
                 <div id="imgError" style="display:none;width:100%;height:180px;align-items:center;justify-content:center;color:var(--muted);font-size:13px;">Imagem não encontrada</div>
               </div>
               <div class="conjunto-data">
-                <div class="perfil-row">
-                  <span class="perfil-label">P1</span>
-                  <span class="perfil-code" id="profile1Code">—</span>
-                  <span class="perfil-ix" id="profile1Data">—</span>
-                </div>
-                <div class="perfil-row">
-                  <span class="perfil-label">P2</span>
-                  <span class="perfil-code" id="profile2Code">—</span>
-                  <span class="perfil-ix" id="profile2Data">—</span>
-                </div>
-                <div class="perfil-row total-row">
-                  <span class="perfil-label" style="color:var(--acc-2)">∑</span>
-                  <span class="perfil-code" style="color:var(--acc-2)">Ix total</span>
-                  <span class="perfil-ix" id="profileTotal" style="color:var(--acc-2)">—</span>
+                <div class="perfil-table">
+                  <div class="pt-header">
+                    <span></span><span></span>
+                    <span class="pt-col-head">Ix (mm⁴)</span>
+                    <span class="pt-col-head">Wx (mm³)</span>
+                  </div>
+                  <div class="pt-row">
+                    <span class="perfil-label">P1</span>
+                    <span class="perfil-code" id="profile1Code">—</span>
+                    <span class="perfil-ix" id="profile1Ix">—</span>
+                    <span class="perfil-wx" id="profile1Wx">—</span>
+                  </div>
+                  <div class="pt-row">
+                    <span class="perfil-label">P2</span>
+                    <span class="perfil-code" id="profile2Code">—</span>
+                    <span class="perfil-ix" id="profile2Ix">—</span>
+                    <span class="perfil-wx" id="profile2Wx">—</span>
+                  </div>
+                  <div class="pt-row pt-total">
+                    <span class="perfil-label" style="color:var(--acc-2)">∑</span>
+                    <span class="perfil-code" style="color:var(--muted)">Total</span>
+                    <span class="perfil-ix" id="profileTotal" style="color:var(--acc-2)">—</span>
+                    <span class="perfil-wx" id="profileWxTotal" style="color:#b8a0e8">—</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -255,10 +268,9 @@ function calculateHeight(combo, widthMm, qPa) {
 
 function widths() {
   const start = Number(document.getElementById('widthStart').value) || 500;
-  const end = Number(document.getElementById('widthEnd').value) || 1600;
-  const step = Number(document.getElementById('widthStep').value) || 50;
+  const end = Number(document.getElementById('widthEnd').value) || 1200;
   const arr = [];
-  for (let w = start; w <= end; w += step) arr.push(w);
+  for (let w = start; w <= end; w += 10) arr.push(w);
   return arr;
 }
 
@@ -279,12 +291,16 @@ function renderComboList() {
   const list = document.getElementById('comboList');
   list.innerHTML = '';
   const filter = document.getElementById('search').value.toLowerCase();
-  const combos = DATA[currentSystem] || [];
+  const combos = (DATA[currentSystem] || [])
+    .slice()
+    .sort((a, b) => b.ixTotal - a.ixTotal);
   combos.filter(c => c.name.toLowerCase().includes(filter)).forEach(combo => {
     const div = document.createElement('div');
-    div.className = 'combo-item';
-    div.innerHTML = `<div class="combo-name">${combo.name}</div><div class="combo-meta">Ix total ${combo.ixTotal}</div>`;
-    div.onclick = () => { selectedName = combo.name; updateSelectedPanel(); renderChart(); };
+    div.className = `combo-item${combo.name === selectedName ? ' active' : ''}`;
+    div.innerHTML = `
+      <div class="combo-name">${combo.name}</div>
+      <div class="combo-meta">Ix ${combo.ixTotal.toLocaleString('pt-BR')} mm⁴</div>`;
+    div.onclick = () => { selectedName = combo.name; renderComboList(); updateSelectedPanel(); renderChart(); };
     list.appendChild(div);
   });
 }
@@ -300,13 +316,19 @@ function renderChart() {
 
   if (chartInstance) chartInstance.destroy();
 
+  const PALETTE = ['#6eb3ff', '#83e2c7', '#f9c46b', '#ff8b8b', '#a97de8'];
   const datasets = combos.map((combo, i) => ({
     label: combo.name,
     data: ws.map(w => ({ x: w, y: calculateHeight(combo, w, q) })),
-    borderColor: ['#6eb3ff', '#83e2c7', '#f9c46b'][i % 3],
-    borderWidth: 3,
+    borderColor: PALETTE[i % PALETTE.length],
+    borderWidth: 2.5,
     tension: 0.2,
-    pointRadius: 0
+    pointRadius: 0,
+    pointHitRadius: 12,
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: '#ffffff',
+    pointHoverBorderColor: PALETTE[i % PALETTE.length],
+    pointHoverBorderWidth: 2
   }));
 
   chartInstance = new Chart(document.getElementById('chart'), {
@@ -315,17 +337,49 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'nearest',
+        intersect: false
+      },
       scales: {
-        x: { type: 'linear', title: { display: true, text: 'Largura por folha (mm)' } },
-        y: { title: { display: true, text: 'Altura máxima H (mm)' }, min: heightMin, max: heightMax }
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Largura por folha (mm)', color: '#9fb3d1' },
+          grid: { color: 'rgba(255,255,255,.05)' },
+          ticks: { color: '#9fb3d1' }
+        },
+        y: {
+          title: { display: true, text: 'Altura máxima H (mm)', color: '#9fb3d1' },
+          min: heightMin, max: heightMax,
+          grid: { color: 'rgba(255,255,255,.05)' },
+          ticks: { color: '#9fb3d1' }
+        }
       },
       plugins: {
-        tooltip: { callbacks: { label: (ctx) => `H máximo = ${ctx.raw.y} mm` } },
+        tooltip: {
+          mode: 'nearest',
+          intersect: false,
+          backgroundColor: 'rgba(13,21,38,.97)',
+          borderColor: 'rgba(110,179,255,.3)',
+          borderWidth: 1,
+          titleColor: '#edf4ff',
+          bodyColor: '#9fb3d1',
+          padding: 12,
+          filter: (item, i, items) => i === 0,
+          callbacks: {
+            title: (items) => items[0]?.dataset.label || '',
+            label: (ctx) => [
+              ` L = ${ctx.parsed.x} mm`,
+              ` H máx = ${ctx.parsed.y} mm`,
+              ` Pressão = ${document.getElementById('pressure').value || 1500} Pa`
+            ]
+          }
+        },
         annotation: {
           annotations: {
-            crossV: { type: 'line', xMin: verifyW, xMax: verifyW, borderColor: '#ffffff', borderWidth: 2, borderDash: [6, 3] },
-            crossH: { type: 'line', yMin: verifyH, yMax: verifyH, borderColor: '#ffffff', borderWidth: 2, borderDash: [6, 3] },
-            point: { type: 'point', xValue: verifyW, yValue: verifyH, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 3, radius: 7, pointStyle: 'crossRot' }
+            crossV: { type: 'line', xMin: verifyW, xMax: verifyW, borderColor: 'rgba(255,255,255,.5)', borderWidth: 1.5, borderDash: [6, 3] },
+            crossH: { type: 'line', yMin: verifyH, yMax: verifyH, borderColor: 'rgba(255,255,255,.5)', borderWidth: 1.5, borderDash: [6, 3] },
+            point: { type: 'point', xValue: verifyW, yValue: verifyH, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 3, radius: 7 }
           }
         }
       }
@@ -354,9 +408,12 @@ function updateSelectedPanel() {
   document.getElementById('conjuntoName').textContent = combo.name;
   document.getElementById('profile1Code').textContent = p1;
   document.getElementById('profile2Code').textContent = p2;
-  document.getElementById('profile1Data').textContent = `Ix ${(combo.ixP1).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profile2Data').textContent = `Ix ${(combo.ixP2).toLocaleString('pt-BR')} mm⁴`;
-  document.getElementById('profileTotal').textContent = `${(combo.ixTotal).toLocaleString('pt-BR')} mm⁴`;
+  document.getElementById('profile1Ix').textContent = combo.ixP1.toLocaleString('pt-BR');
+  document.getElementById('profile1Wx').textContent = combo.wxP1.toLocaleString('pt-BR');
+  document.getElementById('profile2Ix').textContent = combo.ixP2.toLocaleString('pt-BR');
+  document.getElementById('profile2Wx').textContent = combo.wxP2.toLocaleString('pt-BR');
+  document.getElementById('profileTotal').textContent = combo.ixTotal.toLocaleString('pt-BR');
+  document.getElementById('profileWxTotal').textContent = (combo.wxP1 + combo.wxP2).toLocaleString('pt-BR');
 
   const img = document.getElementById('conjuntoImg');
   img.style.display = 'block';
@@ -369,12 +426,20 @@ function updateVerification() {
   const height = Number(document.getElementById('verifyH').value) || 1400;
   const q = Number(document.getElementById('pressure').value) || 1500;
   const combos = DATA[currentSystem] || [];
-  let html = `<strong>Verificação para L = ${width} mm | H = ${height} mm | Pressão = ${q} Pa</strong><br><br>`;
-  combos.forEach(combo => {
+  const sorted = (combos).slice().sort((a, b) => b.ixTotal - a.ixTotal);
+  let html = `<div style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+    L = <strong style="color:var(--text)">${width} mm</strong> &nbsp;·&nbsp;
+    H = <strong style="color:var(--text)">${height} mm</strong> &nbsp;·&nbsp;
+    p = <strong style="color:var(--text)">${q} Pa</strong>
+  </div>`;
+  sorted.forEach(combo => {
     const Hmax = calculateHeight(combo, width, q);
     const ok = Hmax >= height;
-    html += `<div style="padding:8px 0;border-bottom:1px solid #30456f;color:${ok ? 'var(--good)' : 'var(--bad)'}">
-      ${ok ? '✅' : '❌'} ${combo.name} — Hmax = ${Hmax} mm
+    const col = ok ? 'var(--good)' : 'var(--bad)';
+    html += `<div style="display:grid;grid-template-columns:16px 1fr auto;align-items:center;gap:10px;padding:9px 12px;margin-bottom:6px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid ${ok ? 'rgba(140,224,165,.2)' : 'rgba(255,139,139,.15)'};">
+      <span style="font-size:14px;">${ok ? '✅' : '❌'}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;">${combo.name}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${col};white-space:nowrap;">H máx = ${Hmax.toLocaleString('pt-BR')} mm</span>
     </div>`;
   });
   document.getElementById('verifyResult').innerHTML = html;
