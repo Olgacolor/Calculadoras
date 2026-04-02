@@ -909,8 +909,14 @@ function gerarRelatorio() {
     </div>`;
 
   get('reportContent').innerHTML = html;
-  get('reportOverlay').classList.add('active');
-  window.scrollTo(0, 0);
+  setTimeout(() => {
+    get('reportOverlay').classList.add('active');
+    window.scrollTo(0, 0);
+    // Previne propagação de toque no iOS: desabilita botão de print brevemente
+    const btnPrint = get('reportOverlay').querySelector('.btn-rprint');
+    btnPrint.style.pointerEvents = 'none';
+    setTimeout(() => { btnPrint.style.pointerEvents = ''; }, 350);
+  }, 80);
 }
 
 function fecharRelatorio() {
