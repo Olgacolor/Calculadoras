@@ -3,259 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Vidro Laminado · NBR 7199</title>
+<title>Vidro · NBR 7199:2025</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --bg: #0b1220;
-  --s1: #121a2b;
-  --s2: #182337;
-  --s3: #1e2c42;
-  --bd: rgba(255,255,255,0.09);
-  --bd2: rgba(255,255,255,0.05);
-  --txt: #e8f0ff;
-  --mut: #7a90b0;
-  --acc: #5ba8f5;
-  --acc2: #5cf0c8;
-  --ok: #3dd68c;
-  --ok-bg: rgba(61,214,140,0.12);
-  --ok-bd: rgba(61,214,140,0.3);
-  --bad: #f06070;
-  --bad-bg: rgba(240,96,112,0.12);
-  --bad-bd: rgba(240,96,112,0.3);
-  --warn: #f0c040;
-  --warn-bg: rgba(240,192,64,0.12);
-  --warn-bd: rgba(240,192,64,0.3);
-  --r: 16px;
-  --r2: 12px;
+  --bg:#0b1220; --s1:#121a2b; --s2:#182337; --s3:#1e2c42;
+  --bd:rgba(255,255,255,0.09); --bd2:rgba(255,255,255,0.05);
+  --txt:#e8f0ff; --mut:#7a90b0;
+  --acc:#5ba8f5; --acc2:#5cf0c8;
+  --ok:#3dd68c; --ok-bg:rgba(61,214,140,0.12); --ok-bd:rgba(61,214,140,0.3);
+  --bad:#f06070; --bad-bg:rgba(240,96,112,0.12); --bad-bd:rgba(240,96,112,0.3);
+  --warn:#f0c040; --warn-bg:rgba(240,192,64,0.12); --warn-bd:rgba(240,192,64,0.3);
+  --r:16px; --r2:12px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { font-size: 16px; }
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--txt);
-  min-height: 100vh;
-  padding-bottom: 32px;
-}
-.shell { max-width: 680px; margin: 0 auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:96px}
+.shell{max-width:680px;margin:0 auto;padding:16px 14px;display:flex;flex-direction:column;gap:12px}
 
 /* HEADER */
-.header {
-  background: var(--s1);
-  border: 1px solid var(--bd);
-  border-radius: var(--r);
-  padding: 18px 18px 16px;
-}
-.eyebrow {
-  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--acc2); margin-bottom: 8px;
-}
-.header h1 { font-size: 22px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; }
-.header p { font-size: 13px; color: var(--mut); margin-top: 6px; line-height: 1.5; }
+.header{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px 18px 16px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc2);margin-bottom:8px}
+.header h1{font-size:22px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
+.header p{font-size:13px;color:var(--mut);margin-top:6px;line-height:1.5}
 
 /* CARDS */
-.card {
-  background: var(--s1);
-  border: 1px solid var(--bd);
-  border-radius: var(--r);
-  overflow: hidden;
-}
-.card-head {
-  padding: 14px 16px 0;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.card-title { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--mut); }
-.card-body { padding: 12px 16px 16px; }
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.card-head{padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.card-body{padding:12px 16px 16px}
 
 /* FIELDS */
-.fgrid { display: grid; gap: 10px; }
-.fg2 { grid-template-columns: 1fr 1fr; }
-.fg3 { grid-template-columns: 1fr 1fr 1fr; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--mut); }
-input, select {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--bd);
-  border-radius: var(--r2);
-  color: var(--txt);
-  padding: 12px 13px;
-  font-size: 16px;
-  font-family: 'DM Sans', sans-serif;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  transition: border-color .15s;
-  min-height: 48px;
-}
-input:focus, select:focus { border-color: var(--acc); }
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a90b0' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 13px center;
-  padding-right: 36px;
-  cursor: pointer;
-}
+.fgrid{display:grid;gap:10px}
+.fg2{grid-template-columns:1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+input,select{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r2);color:var(--txt);padding:12px 13px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s;min-height:48px}
+input:focus,select:focus{border-color:var(--acc)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a90b0' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer}
 
-/* SEGMENT CONTROL */
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.seg button {
-  padding: 12px;
-  border: 1px solid var(--bd);
-  border-radius: var(--r2);
-  background: var(--bg);
-  color: var(--mut);
-  font-size: 14px;
-  font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: all .15s;
-  min-height: 48px;
-}
-.seg button.active {
-  background: rgba(91,168,245,0.15);
-  border-color: rgba(91,168,245,0.5);
-  color: var(--acc);
-}
+/* SEGMENT */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button{padding:12px;border:1px solid var(--bd);border-radius:var(--r2);background:var(--bg);color:var(--mut);font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;min-height:48px}
+.seg button.active{background:rgba(91,168,245,0.15);border-color:rgba(91,168,245,0.5);color:var(--acc)}
 
 /* PRESETS */
-.presets { display: flex; flex-wrap: wrap; gap: 8px; }
-.presets button {
-  border: 1px solid var(--bd);
-  border-radius: 99px;
-  background: var(--bg);
-  color: var(--mut);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: all .15s;
-  min-height: 40px;
-}
-.presets button.active {
-  background: rgba(91,168,245,0.15);
-  border-color: rgba(91,168,245,0.5);
-  color: var(--acc);
-}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.presets button{border:1px solid var(--bd);border-radius:99px;background:var(--bg);color:var(--mut);font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:8px 14px;cursor:pointer;transition:all .15s;min-height:40px}
+.presets button.active{background:rgba(91,168,245,0.15);border-color:rgba(91,168,245,0.5);color:var(--acc)}
 
-/* STATUS BANNER */
-.status {
-  border-radius: var(--r);
-  border: 1px solid;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.status.ok { background: var(--ok-bg); border-color: var(--ok-bd); }
-.status.fail { background: var(--bad-bg); border-color: var(--bad-bd); }
-.status-icon {
-  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 700;
-}
-.status.ok .status-icon { background: rgba(61,214,140,0.2); color: var(--ok); }
-.status.fail .status-icon { background: rgba(240,96,112,0.2); color: var(--bad); }
-.status-title { font-size: 17px; font-weight: 700; }
-.status.ok .status-title { color: var(--ok); }
-.status.fail .status-title { color: var(--bad); }
-.status-sub { font-size: 12px; color: var(--mut); margin-top: 3px; line-height: 1.4; }
+/* STATUS */
+.status{border-radius:var(--r);border:1px solid;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.status.ok{background:var(--ok-bg);border-color:var(--ok-bd)}
+.status.fail{background:var(--bad-bg);border-color:var(--bad-bd)}
+.status-icon{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.status.ok .status-icon{background:rgba(61,214,140,0.2);color:var(--ok)}
+.status.fail .status-icon{background:rgba(240,96,112,0.2);color:var(--bad)}
+.status-title{font-size:17px;font-weight:700}
+.status.ok .status-title{color:var(--ok)}
+.status.fail .status-title{color:var(--bad)}
+.status-sub{font-size:12px;color:var(--mut);margin-top:3px;line-height:1.4}
 
 /* METRIC GRID */
-.mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.metric {
-  background: var(--s2);
-  border: 1px solid var(--bd2);
-  border-radius: var(--r2);
-  padding: 14px;
-  position: relative;
-  overflow: hidden;
-}
-.metric::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  border-radius: 2px 2px 0 0;
-}
-.metric.c-acc::after { background: var(--acc); }
-.metric.c-acc2::after { background: var(--acc2); }
-.metric.c-ok::after { background: var(--ok); }
-.metric.c-bad::after { background: var(--bad); }
-.metric.c-warn::after { background: var(--warn); }
-.metric-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--mut); margin-bottom: 8px; }
-.metric-val { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; line-height: 1; color: var(--txt); }
-.metric-unit { font-size: 14px; color: var(--mut); margin-left: 2px; }
-.metric-sub { font-size: 11px; color: var(--mut); margin-top: 6px; font-family: 'DM Mono', monospace; line-height: 1.4; }
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);padding:14px;position:relative;overflow:hidden}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.metric.c-acc::after{background:var(--acc)}
+.metric.c-acc2::after{background:var(--acc2)}
+.metric.c-ok::after{background:var(--ok)}
+.metric.c-bad::after{background:var(--bad)}
+.metric.c-warn::after{background:var(--warn)}
+.metric-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin-bottom:8px}
+.metric-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1;color:var(--txt)}
+.metric-unit{font-size:14px;color:var(--mut);margin-left:2px}
+.metric-sub{font-size:11px;color:var(--mut);margin-top:6px;font-family:'DM Mono',monospace;line-height:1.4}
 
-/* SECTION TRANSVERSAL */
-.cross {
-  border: 1px solid var(--bd);
-  border-radius: var(--r2);
-  overflow: hidden;
-}
-.ply {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  transition: height .35s ease;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-}
-.ply.f1 { background: rgba(91,168,245,0.2); color: #90c8ff; border-bottom: 1px solid var(--bd); }
-.ply.intl { background: rgba(240,192,64,0.15); color: var(--mut); font-size: 11px; border-bottom: 1px solid var(--bd); justify-content: center; }
-.ply.intl.sgp { background: rgba(92,240,200,0.12); }
-.ply.f2 { background: rgba(92,240,200,0.18); color: #7cf4d2; }
-.cross-total { text-align: center; font-size: 11px; color: var(--mut); font-family: 'DM Mono', monospace; padding: 8px 0 4px; }
-
-/* GAMMA ROW */
-.gamma-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-.gamma-chip {
-  font-family: 'DM Mono', monospace;
-  font-size: 12px; font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid;
-  flex-shrink: 0;
-}
-.gc-low { background: var(--bad-bg); color: var(--bad); border-color: var(--bad-bd); }
-.gc-mid { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-bd); }
-.gc-hi  { background: var(--ok-bg);  color: var(--ok);  border-color: var(--ok-bd); }
-.gamma-desc { font-size: 12px; color: var(--mut); line-height: 1.4; }
+/* CROSS SECTION */
+.cross{border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden}
+.ply{display:flex;align-items:center;justify-content:space-between;padding:0 14px;transition:height .35s ease;font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ply.f1{background:rgba(91,168,245,0.2);color:#90c8ff;border-bottom:1px solid var(--bd)}
+.ply.intl{background:rgba(240,192,64,0.08);color:var(--mut);font-size:11px;border-bottom:1px solid var(--bd);justify-content:center}
+.ply.f2{background:rgba(92,240,200,0.18);color:#7cf4d2}
+.cross-total{text-align:center;font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;padding:8px 0 4px}
 
 /* DETAIL TABLE */
-.dtable { width: 100%; border-collapse: collapse; font-size: 13px; }
-.dtable td { padding: 9px 4px; border-bottom: 1px solid var(--bd2); }
-.dtable tr:last-child td { border-bottom: none; }
-.dtable .dk { color: var(--mut); }
-.dtable .dv { font-family: 'DM Mono', monospace; font-weight: 500; text-align: right; }
-.chip {
-  display: inline-block;
-  font-size: 11px; font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid;
-}
-.chip-ok  { background: var(--ok-bg);   color: var(--ok);  border-color: var(--ok-bd); }
-.chip-fail{ background: var(--bad-bg);  color: var(--bad); border-color: var(--bad-bd); }
-.chip-warn{ background: var(--warn-bg); color: var(--warn);border-color: var(--warn-bd); }
+.dtable{width:100%;border-collapse:collapse;font-size:13px}
+.dtable td{padding:9px 4px;border-bottom:1px solid var(--bd2)}
+.dtable tr:last-child td{border-bottom:none}
+.dtable .dk{color:var(--mut)}
+.dtable .dv{font-family:'DM Mono',monospace;font-weight:500;text-align:right}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;border:1px solid}
+.chip-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bd)}
+.chip-fail{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-bd)}
+.chip-warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-bd)}
+
+/* INFOBOX */
+.infobox{font-size:12px;color:var(--mut);line-height:1.5;padding:10px 12px;background:var(--s2);border-radius:var(--r2);margin-top:10px}
+.infobox span{color:var(--txt)}
 
 /* CHART */
-.chart-wrap { position: relative; width: 100%; height: 240px; }
+.chart-wrap{position:relative;width:100%;height:240px}
 
 /* NOTE */
-.note { font-size: 11px; color: var(--mut); line-height: 1.55; padding: 12px 16px; border-top: 1px solid var(--bd2); }
+.note{font-size:11px;color:var(--mut);line-height:1.55;padding:12px 16px;border-top:1px solid var(--bd2)}
 
-/* PRINT */
-@media print {
-  body { background: #fff; color: #000; }
-  .card { border: 1px solid #ccc; }
+/* FLOATING PRINT BUTTON */
+.fab{
+  position:fixed; bottom:24px; right:20px; z-index:100;
+  display:flex; align-items:center; gap:8px;
+  background:var(--acc); color:#0b1220;
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+  padding:14px 20px; border-radius:99px; border:none;
+  box-shadow:0 4px 20px rgba(91,168,245,0.35);
+  cursor:pointer; transition:all .15s;
 }
+.fab:active{transform:scale(0.96);box-shadow:0 2px 10px rgba(91,168,245,0.25)}
+.fab svg{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -263,29 +127,39 @@ select {
 
   <!-- HEADER -->
   <div class="header">
-    <div class="eyebrow">NBR 7199 · Vidro Laminado</div>
-    <h1>Seleção de espessura</h1>
-    <p>Cálculo de tensão e deflexão para fachadas e esquadrias. ASTM E1300 App. X9 — espessura efetiva.</p>
+    <div class="eyebrow">NBR 7199:2025 · Método normativo</div>
+    <h1>Seleção de vidro</h1>
+    <p>Verificação de resistência (e<sub>R</sub>) e flecha para fachadas e esquadrias. Laminado e monolítico.</p>
   </div>
 
-  <!-- GEOMETRIA E CARGA -->
+  <!-- PAINEL E CARGA -->
   <div class="card">
     <div class="card-head"><span class="card-title">Painel e carga</span></div>
     <div class="card-body">
       <div class="fgrid fg2">
         <div class="field"><label>Largura (mm)</label><input type="number" id="width" value="1200" min="200" max="6000" step="50" inputmode="numeric"></div>
         <div class="field"><label>Altura (mm)</label><input type="number" id="height" value="2400" min="200" max="6000" step="50" inputmode="numeric"></div>
-        <div class="field"><label>Pressão de ensaio (Pa)</label><input type="number" id="qBase" value="1000" min="50" max="6000" step="50" inputmode="numeric"></div>
-        <div class="field"><label>Apoio</label>
+        <div class="field"><label>P<sub>v</sub> — pressão de vento (Pa)</label><input type="number" id="pv" value="1000" min="50" max="6000" step="50" inputmode="numeric"></div>
+        <div class="field"><label>Tipo de apoio</label>
           <select id="apoio">
-            <option value="4">4 lados</option>
-            <option value="2">2 lados</option>
+            <option value="4">4 lados (perímetro)</option>
+            <option value="3menor">3 lados — borda livre = menor dim.</option>
+            <option value="3maior">3 lados — borda livre = maior dim.</option>
+            <option value="2">2 lados opostos</option>
           </select>
         </div>
       </div>
-      <div style="margin-top:10px; padding:10px 12px; background:var(--s2); border-radius:var(--r2); font-size:12px; color:var(--mut); line-height:1.5;">
-        NBR 7199: <span style="color:var(--txt)">q ensaio</span> para flecha · <span style="color:var(--txt)">1,5 × q</span> para tensão · limite <span style="color:var(--txt)">L/60</span> + cap 25 mm
+      <div class="fgrid fg2" style="margin-top:10px;">
+        <div class="field">
+          <label>Obra / projeto</label>
+          <input type="text" id="obra" placeholder="Ex.: Titanium Tower — Fachada Norte" style="font-family:'DM Sans',sans-serif;">
+        </div>
+        <div class="field">
+          <label>Responsável técnico</label>
+          <input type="text" id="resp" placeholder="Ex.: João Silva" style="font-family:'DM Sans',sans-serif;">
+        </div>
       </div>
+      <div class="infobox" id="infoApoio" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -294,35 +168,26 @@ select {
     <div class="card-head"><span class="card-title">Composição</span></div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div class="seg" id="familySeg">
-        <button data-fam="laminated" class="active">Laminado</button>
-        <button data-fam="monolithic">Monolítico</button>
+        <button data-fam="laminado" class="active">Laminado</button>
+        <button data-fam="monolitico">Monolítico</button>
       </div>
 
       <!-- LAMINADO -->
       <div id="blockLam">
         <div class="presets" id="presets" style="margin-bottom:10px;">
-          <button data-p="3,3,0.38">3+3</button>
-          <button data-p="4,4,0.38">4+4</button>
-          <button data-p="6,4,0.38">6+4</button>
-          <button data-p="6,6,0.38" class="active">6+6</button>
-          <button data-p="8,6,0.38">8+6</button>
-          <button data-p="10,6,0.38">10+6</button>
+          <button data-p="3,3">3+3</button>
+          <button data-p="4,4">4+4</button>
+          <button data-p="6,4">6+4</button>
+          <button data-p="6,6" class="active">6+6</button>
+          <button data-p="8,6">8+6</button>
+          <button data-p="10,6">10+6</button>
         </div>
-        <div class="fgrid fg3" style="margin-bottom:10px;">
+        <div class="fgrid fg2" style="margin-bottom:10px;">
           <div class="field"><label>F. externa (mm)</label>
             <select id="h1">
               <option>3</option><option>4</option><option>5</option>
               <option value="6" selected>6</option><option>8</option>
               <option>10</option><option>12</option><option>15</option><option>19</option>
-            </select>
-          </div>
-          <div class="field"><label>Interlayer (mm)</label>
-            <select id="hint">
-              <option value="0.38" selected>0,38</option>
-              <option value="0.76">0,76</option>
-              <option value="1.14">1,14</option>
-              <option value="1.52">1,52</option>
-              <option value="2.28">2,28</option>
             </select>
           </div>
           <div class="field"><label>F. interna (mm)</label>
@@ -332,54 +197,31 @@ select {
               <option>10</option><option>12</option><option>15</option><option>19</option>
             </select>
           </div>
-        </div>
-        <div class="fgrid fg2" style="margin-bottom:10px;">
-          <div class="field"><label>Tipo F1 (exterior)</label>
-            <select id="glassType1">
-              <option value="23.3">Recozido</option>
-              <option value="46.6">Semi-temperado</option>
-              <option value="93.1" selected>Temperado</option>
+          <div class="field"><label>Tipo F1 (exterior) · ε₃</label>
+            <select id="gt1">
+              <option value="1.00" selected>Recozido (float) · 1,00</option>
+              <option value="0.61">Temperado · 0,61</option>
+              <option value="0.80">Termoendurecido · 0,80</option>
             </select>
           </div>
-          <div class="field"><label>Tipo F2 (interior)</label>
-            <select id="glassType2">
-              <option value="23.3" selected>Recozido</option>
-              <option value="46.6">Semi-temperado</option>
-              <option value="93.1">Temperado</option>
+          <div class="field"><label>Tipo F2 (interior) · ε₃</label>
+            <select id="gt2">
+              <option value="1.00" selected>Recozido (float) · 1,00</option>
+              <option value="0.61">Temperado · 0,61</option>
+              <option value="0.80">Termoendurecido · 0,80</option>
             </select>
           </div>
-          <div class="field"><label>Interlayer</label>
-            <select id="itype">
-              <option value="pvb" selected>PVB</option>
-              <option value="sgp">SGP (SentryGlas)</option>
-            </select>
-          </div>
-        </div>
-        <div class="fgrid fg2" id="pvbConds">
-          <div class="field"><label>Temperatura (°C)</label>
-            <input type="number" id="temp" value="20" min="-10" max="60" step="5" inputmode="numeric">
-          </div>
-          <div class="field"><label>Duração da carga</label>
-            <select id="dur">
-              <option value="3" selected>3 s (rajada)</option>
-              <option value="30">30 s</option>
-              <option value="300">5 min</option>
-              <option value="3600">1 hora</option>
-              <option value="86400">24 horas</option>
-            </select>
-          </div>
-        </div>
-        <div class="gamma-row">
-          <span class="gamma-chip gc-low" id="gammaChip">Γ = —</span>
-          <span class="gamma-desc" id="gammaDesc">aguardando cálculo</span>
         </div>
         <!-- SEÇÃO TRANSVERSAL -->
-        <div class="cross" id="crossSec" style="margin-top:12px;">
+        <div class="cross" id="crossSec">
           <div class="ply f1" id="plyF1" style="height:52px;"><span>Exterior (F1)</span><span id="lF1">—</span></div>
-          <div class="ply intl" id="plyInt" style="height:22px;"><span id="lInt">—</span></div>
+          <div class="ply intl" style="height:20px;"><span>interlayer</span></div>
           <div class="ply f2" id="plyF2" style="height:52px;"><span>Interior (F2)</span><span id="lF2">—</span></div>
         </div>
         <div class="cross-total" id="crossTotal"></div>
+        <div class="infobox" style="margin-top:8px;">
+          ε₂ = <span>1,30</span> (2 vidros, Tab. 4) · e<sub>R</sub> = (F1+F2)/(0,9·ε₂·MÁX(ε₃)) · e<sub>F</sub> = (F1+F2)/ε₂
+        </div>
       </div>
 
       <!-- MONOLÍTICO -->
@@ -388,17 +230,20 @@ select {
           <div class="field"><label>Espessura (mm)</label>
             <select id="monoH">
               <option>3</option><option>4</option><option>5</option><option>6</option>
-              <option>8</option><option value="10" selected>10</option><option>12</option>
-              <option>15</option><option>19</option>
+              <option>8</option><option value="10" selected>10</option>
+              <option>12</option><option>15</option><option>19</option>
             </select>
           </div>
-          <div class="field"><label>Tipo de vidro</label>
-            <select id="monoType">
-              <option value="23.3">Recozido</option>
-              <option value="46.6">Semi-temperado</option>
-              <option value="93.1" selected>Temperado</option>
+          <div class="field"><label>Tipo de vidro · ε₃</label>
+            <select id="monoGt">
+              <option value="1.00" selected>Recozido (float) · 1,00</option>
+              <option value="0.61">Temperado · 0,61</option>
+              <option value="0.80">Termoendurecido · 0,80</option>
             </select>
           </div>
+        </div>
+        <div class="infobox" style="margin-top:10px;">
+          e<sub>R</sub> = e<sub>i</sub>/ε₃ · e<sub>F</sub> = e<sub>i</sub>
         </div>
       </div>
     </div>
@@ -415,31 +260,31 @@ select {
 
   <!-- MÉTRICAS -->
   <div class="mgrid">
-    <div class="metric c-bad" id="mSigCard">
-      <div class="metric-lbl">Tensão máx.</div>
-      <div class="metric-val"><span id="mSig">—</span><span class="metric-unit">MPa</span></div>
-      <div class="metric-sub" id="mSigSub">—</div>
+    <div class="metric c-acc" id="mE1Card">
+      <div class="metric-lbl">e₁ — referência</div>
+      <div class="metric-val"><span id="mE1">—</span><span class="metric-unit">mm</span></div>
+      <div class="metric-sub" id="mE1Sub">—</div>
     </div>
-    <div class="metric c-bad" id="mDefCard">
-      <div class="metric-lbl">Deflexão</div>
-      <div class="metric-val"><span id="mDef">—</span><span class="metric-unit">mm</span></div>
-      <div class="metric-sub" id="mDefSub">—</div>
+    <div class="metric c-bad" id="mERCard">
+      <div class="metric-lbl">e<sub>R</sub> — resistência</div>
+      <div class="metric-val"><span id="mER">—</span><span class="metric-unit">mm</span></div>
+      <div class="metric-sub" id="mERSub">—</div>
     </div>
-    <div class="metric c-acc">
-      <div class="metric-lbl">h<sub>ef,w</sub> (flecha)</div>
-      <div class="metric-val"><span id="mHefW">—</span><span class="metric-unit">mm</span></div>
-      <div class="metric-sub" id="mHefWSub">—</div>
+    <div class="metric c-acc2" id="mEFCard">
+      <div class="metric-lbl">e<sub>F</sub> — esp. equivalente</div>
+      <div class="metric-val"><span id="mEF">—</span><span class="metric-unit">mm</span></div>
+      <div class="metric-sub" id="mEFSub">—</div>
     </div>
-    <div class="metric c-acc2">
-      <div class="metric-lbl">h<sub>ef,σ</sub> (tensão)</div>
-      <div class="metric-val"><span id="mHefS">—</span><span class="metric-unit">mm</span></div>
-      <div class="metric-sub" id="mHefSSub">—</div>
+    <div class="metric c-bad" id="mFCard">
+      <div class="metric-lbl">f — flecha</div>
+      <div class="metric-val"><span id="mF">—</span><span class="metric-unit">mm</span></div>
+      <div class="metric-sub" id="mFSub">—</div>
     </div>
   </div>
 
   <!-- DETALHES -->
   <div class="card">
-    <div class="card-head"><span class="card-title">Verificação detalhada</span></div>
+    <div class="card-head"><span class="card-title">Memorial de cálculo</span></div>
     <div class="card-body">
       <table class="dtable" id="detailTable"></table>
     </div>
@@ -447,349 +292,360 @@ select {
 
   <!-- GRÁFICO -->
   <div class="card">
-    <div class="card-head">
-      <span class="card-title">Comparativo de configurações</span>
-    </div>
+    <div class="card-head"><span class="card-title">Comparativo de configurações</span></div>
     <div class="card-body" style="padding-bottom:8px;">
-      <p style="font-size:12px;color:var(--mut);margin-bottom:12px;">Utilização de tensão e deflexão por composição — barra amarela = atual. Linha = limite 1,0.</p>
+      <p style="font-size:12px;color:var(--mut);margin-bottom:12px;">Utilização de resistência e flecha por composição — barra amarela = atual. Linha = limite 1,0.</p>
       <div class="chart-wrap"><canvas id="compChart"></canvas></div>
     </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--bd2);">
+      <div id="minConfig" style="font-size:13px;"></div>
+    </div>
     <div class="note">
-      Configurações simétricas e assimétricas ordenadas por espessura de vidro total crescente. Mesmo interlayer e condições da seleção atual.
+      Configurações ordenadas por espessura total crescente. Mesmo tipo de vidro (ε₃) e condições geométricas da seleção atual.
     </div>
   </div>
 
-  <!-- NOTA DE RODAPÉ -->
+  <!-- RODAPÉ -->
   <div style="font-size:11px;color:var(--mut);text-align:center;padding:0 8px;line-height:1.6;">
-    NBR 7199:2016 · ASTM E1300-16 App. X9 · Wölfel-Bennison para Γ ·
-    Pressão de projeto = 1,5 × pressão de ensaio · Limite flecha: L/60 e máx. 25 mm
+    ABNT NBR 7199:2025 · Tabelas 4, 5, 6 e 7 · P = 1,5 × P<sub>v</sub> · c = 1,0 ·
+    Limite flecha: l/60 cap 30 mm (4 lados) · l/100 cap 50 mm (c/ lado livre)
   </div>
 
 </div>
 
-<script>
-const E = 70e9;
-const GLASS_LABEL = {'23.3':'Recozido','46.6':'Semi-temperado','93.1':'Temperado'};
+<!-- BOTÃO FLUTUANTE -->
+<button class="fab" id="btnRelatorio" onclick="gerarRelatorio()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Relatório
+</button>
 
-// Tabela G(T, t) — PVB Saflex Clear (âncora: 20°C/3s = 10,9 MPa)
-const GT = [0,10,20,30,40,50];
-const GD = [1,3,30,300,3600,86400];
-const GV = [
-  [1200,500,120,30,6,0.8],
-  [300,120,28,7,1.2,0.15],
-  [30,10.9,2.8,0.6,0.10,0.012],
-  [6,2.2,0.55,0.12,0.02,0.003],
-  [1.2,0.45,0.11,0.025,0.004,0.0006],
-  [0.25,0.09,0.022,0.005,0.001,0.0001]
+<script>
+// ─── TABELAS DA NORMA ───────────────────────────────────────────────────────
+
+const TAB6 = [
+  [0.10,2.1143],[0.20,2.1000],[0.30,2.1000],[0.40,1.8714],
+  [0.50,1.6429],[0.60,1.4143],[0.70,1.1857],[0.80,0.9714],
+  [0.90,0.8000],[1.00,0.6571]
 ];
 
-function logInterp(x,x0,x1,y0,y1){
-  if(x<=x0)return y0; if(x>=x1)return y1;
-  const t=(Math.log(x)-Math.log(x0))/(Math.log(x1)-Math.log(x0));
-  return Math.exp(Math.log(y0)+t*(Math.log(y1)-Math.log(y0)));
-}
-function lookupG(T,D){
-  T=Math.max(GT[0],Math.min(T,GT[GT.length-1]));
-  D=Math.max(GD[0],Math.min(D,GD[GD.length-1]));
-  let ti=GT.length-2; for(let i=0;i<GT.length-1;i++){if(T>=GT[i]&&T<=GT[i+1]){ti=i;break;}}
-  let di=GD.length-2; for(let i=0;i<GD.length-1;i++){if(D>=GD[i]&&D<=GD[i+1]){di=i;break;}}
-  const gLo=logInterp(D,GD[di],GD[di+1],GV[ti][di],GV[ti][di+1]);
-  const gHi=logInterp(D,GD[di],GD[di+1],GV[ti+1][di],GV[ti+1][di+1]);
-  return logInterp(T,GT[ti],GT[ti+1],gLo,gHi);
-}
-function calcGamma(h1,h2,hi,G_MPa,a,alpha){
-  if(G_MPa<=0)return 0;
-  const G=G_MPa*1e6;
-  const hs1=(h2+hi)/2, hs2=(h1+hi)/2;
-  const Is=h1*hs1*hs1+h2*hs2*hs2;
-  const I0=(h1**3+h2**3)/12;
-  return 1/(1+(alpha*E*Is*hi)/(G*a*a*I0*12));
+const TAB7 = [
+  [0.300,0.68571],[0.333,0.73143],[0.350,0.80000],[0.400,0.91429],
+  [0.500,1.14286],[0.667,1.51429],[0.700,1.56286],[0.800,1.71000],
+  [0.900,1.85714],[1.000,2.00000],[1.100,2.05714],[1.200,2.11429],
+  [1.300,2.17143],[1.400,2.22857],[1.500,2.28571],[1.750,2.31429],
+  [2.000,2.35714],[3.000,2.37143],[4.000,2.38571],[5.000,2.38571]
+];
+
+function interp(tbl, x) {
+  if (x <= tbl[0][0]) return tbl[0][1];
+  if (x >= tbl[tbl.length-1][0]) return tbl[tbl.length-1][1];
+  for (let i = 0; i < tbl.length-1; i++) {
+    const [x0,y0] = tbl[i], [x1,y1] = tbl[i+1];
+    if (x >= x0 && x <= x1) { const t=(x-x0)/(x1-x0); return y0+t*(y1-y0); }
+  }
+  return tbl[tbl.length-1][1];
 }
 
-function betaS(r){
-  const T=[[1,.2874],[1.2,.3346],[1.4,.377],[1.5,.394],[1.6,.4026],[1.8,.4226],[2,.4358],[2.5,.4552],[3,.468],[4,.483],[5,.5]];
-  if(r<=1)return T[0][1]; if(r>=5)return T[T.length-1][1];
-  for(let i=0;i<T.length-1;i++)if(r>=T[i][0]&&r<=T[i+1][0]){const t=(r-T[i][0])/(T[i+1][0]-T[i][0]);return T[i][1]+t*(T[i+1][1]-T[i][1]);}
-}
-function alphaD(r){
-  const T=[[1,.01309],[1.2,.01794],[1.4,.02081],[1.5,.02285],[1.6,.02375],[1.8,.02612],[2,.02873],[2.5,.03159],[3,.03427],[4,.03748],[5,.04165]];
-  if(r<=1)return T[0][1]; if(r>=5)return T[T.length-1][1];
-  for(let i=0;i<T.length-1;i++)if(r>=T[i][0]&&r<=T[i+1][0]){const t=(r-T[i][0])/(T[i+1][0]-T[i][0]);return T[i][1]+t*(T[i+1][1]-T[i][1]);}
-}
+// ─── TIPOS DE VIDRO ──────────────────────────────────────────────────────────
 
-function coeffs(w,h,sup){
-  const a=Math.min(w,h), b=Math.max(w,h);
-  if(Number(sup)===2)return{a,ratio:b/a,beta:0.5,alpha:(5/384)*12};
-  const ratio=b/a; return{a,ratio,beta:betaS(ratio),alpha:alphaD(ratio)};
-}
+const GT_LABEL = { '1.00':'Recozido (float)', '0.61':'Temperado', '0.80':'Termoendurecido' };
+function gtLabel(eps3) { return GT_LABEL[eps3.toFixed(2)] || `ε₃ = ${eps3}`; }
 
-function calcLam(h1mm,h2mm,himm,itype,qS,qD,wm,hm,sup,temp,dur){
-  const {a,ratio,beta,alpha}=coeffs(wm,hm,sup);
-  const h1=h1mm/1000,h2=h2mm/1000,hi=himm/1000;
-  let G,gamma;
-  if(itype==='sgp'){G=150;gamma=0.90;}
-  else{G=lookupG(temp,dur);gamma=calcGamma(h1,h2,hi,G,a,Number(sup)===4?9.6:12);}
-  const hs1=(h2+hi)/2,hs2=(h1+hi)/2;
-  const Is=h1*hs1*hs1+h2*hs2*hs2;
-  const hw3=h1**3+h2**3+12*gamma*Is;
-  const hefw=Math.cbrt(hw3)*1000;
-  const hefs1=Math.sqrt((hw3*h1)/(h1*h1+12*gamma*hs1*hs1))*1000;
-  const hefs2=Math.sqrt((hw3*h2)/(h2*h2+12*gamma*hs2*hs2))*1000;
-  const sig1=beta*qS*a*a/((hefs1/1000)**2)/1e6;
-  const sig2=beta*qS*a*a/((hefs2/1000)**2)/1e6;
-  const defl=alpha*qD*(a**4)/(E*hw3)*1000;
-  return{sig1,sig2,sigma:Math.max(sig1,sig2),defl,hefw,hefs1,hefs2,ratio,gamma,G,a};
-}
-function calcMono(hmm,qS,qD,wm,hm,sup){
-  const {a,ratio,beta,alpha}=coeffs(wm,hm,sup);
-  const h=hmm/1000;
-  const sigma=beta*qS*a*a/(h*h)/1e6;
-  const defl=alpha*qD*(a**4)/(E*h**3)*1000;
-  return{sigma,defl,hefw:hmm,hefs1:hmm,hefs2:hmm,ratio,a};
-}
+// ─── CÁLCULO PRINCIPAL ──────────────────────────────────────────────────────
 
-function get(id){return document.getElementById(id);}
-function fv(id){return parseFloat(get(id).value)||0;}
+function calcNBR({ wMM, hMM, Pv, apoio, panes, family }) {
+  const c   = 1.0;
+  const lM  = Math.min(wMM, hMM) / 1000;
+  const LM  = Math.max(wMM, hMM) / 1000;
+  const S   = LM * lM;
+  const P   = Pv * 1.5;
+  const ratioLL = LM / lM;
 
-let family='laminated';
-let compChart=null;
+  // ── e₁ (§ 4.7.3) ──
+  let e1;
+  if (apoio === '4') {
+    e1 = ratioLL <= 2.5 ? Math.sqrt(S * P / 100) : lM * Math.sqrt(P) / 6.3;
+  } else if (apoio === '3menor') {
+    e1 = lM * Math.sqrt(P) / 6.3;
+  } else if (apoio === '3maior') {
+    e1 = ratioLL <= 7.5 ? Math.sqrt(LM * 3 * lM * P / 100) : 3 * lM * Math.sqrt(P) / 6.3;
+  } else {
+    e1 = lM * Math.sqrt(P) / 6.3;
+  }
 
-// Segment control
-get('familySeg').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-  get('familySeg').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  family=b.dataset.fam;
-  get('blockLam').style.display=family==='laminated'?'':'none';
-  get('blockMono').style.display=family==='monolithic'?'':'none';
-  calc();
-}));
+  // ── eR e eF (§ 4.7.6 e § 4.7.7.5) ──
+  let eR, eF, eps2, eps3vals, maxEps3;
+  if (family === 'laminado') {
+    const sumH = panes.reduce((s, p) => s + p.h, 0);
+    eps2 = panes.length === 2 ? 1.30 : panes.length === 3 ? 1.50 : 1.60;
+    eps3vals = panes.map(p => p.eps3);
+    maxEps3 = Math.max(...eps3vals);
+    eR = sumH / (0.9 * eps2 * maxEps3);
+    eF = sumH / eps2;
+  } else {
+    const { h, eps3 } = panes[0];
+    eps2 = null; eps3vals = [eps3]; maxEps3 = eps3;
+    eR = h / eps3;
+    eF = h;
+  }
 
-// Presets
-get('presets').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-  get('presets').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  const[a,c,i]=b.dataset.p.split(',').map(Number);
-  get('h1').value=a; get('h2').value=c; get('hint').value=i.toFixed(2);
-  calc();
-}));
+  const e1c = e1 * c;
+  const okR = eR >= e1c;
+  const uR  = e1c / eR;
 
-// PVB/SGP toggle
-get('itype').addEventListener('change',()=>{
-  get('pvbConds').style.display=get('itype').value==='pvb'?'grid':'none';
-  calc();
-});
+  // ── α e b (§ 4.7.7.4) ──
+  let alpha, b, fLim;
+  if (apoio === '4') {
+    alpha = interp(TAB6, lM / LM);
+    b = lM;
+    fLim = Math.min(lM * 1000 / 60, 30);
+  } else if (apoio === '3menor') {
+    alpha = interp(TAB7, LM / lM);
+    b = lM;
+    fLim = Math.min(lM * 1000 / 100, 50);
+  } else if (apoio === '3maior') {
+    alpha = interp(TAB7, lM / LM);
+    b = LM;
+    fLim = Math.min(LM * 1000 / 100, 50);
+  } else {
+    alpha = 2.1143; b = lM; fLim = null;
+  }
 
-function updateCross(h1,h2,hi,itype){
-  const total=h1+hi+h2;
-  const MAX=130,MINI=20,MININT=16;
-  const p1=Math.max(MINI,(h1/total)*(MAX-MININT));
-  const p2=Math.max(MINI,(h2/total)*(MAX-MININT));
-  const pi=Math.max(MININT,(hi/total)*MAX);
-  get('plyF1').style.height=p1+'px';
-  get('plyInt').style.height=pi+'px';
-  get('plyF2').style.height=p2+'px';
-  get('plyInt').className='ply intl'+(itype==='sgp'?' sgp':'');
-  get('lF1').textContent=h1+' mm';
-  get('lF2').textContent=h2+' mm';
-  get('lInt').textContent=(itype==='sgp'?'SGP ':'PVB ')+hi.toFixed(2)+' mm';
-  get('crossTotal').textContent='Total nominal: '+(h1+hi+h2).toFixed(2)+' mm';
+  // ── f (§ 4.7.7.2) ──
+  const f   = alpha * (P / 1.5) * Math.pow(b, 4) / Math.pow(eF, 3);
+  const okF = fLim !== null ? f <= fLim : true;
+  const uF  = fLim !== null ? f / fLim : null;
+
+  return { lM, LM, S, P, Pv, ratioLL, c, e1, e1c, okR, uR,
+           eps2, eps3vals, maxEps3, eR, eF,
+           alpha, b, f, fLim, okF, uF,
+           ok: okR && okF, apoio, family };
 }
 
-function chip(ok,v){
-  if(ok) return `<span class="chip chip-ok">ATENDE</span>`;
-  if(v<=1.1) return `<span class="chip chip-warn">NO LIMITE</span>`;
+// ─── HELPERS ────────────────────────────────────────────────────────────────
+
+function get(id) { return document.getElementById(id); }
+function fv(id)  { return parseFloat(get(id).value) || 0; }
+function fmt(v, dec=2) { return v.toFixed(dec).replace('.',','); }
+
+function chip(ok, u) {
+  if (ok) return `<span class="chip chip-ok">ATENDE</span>`;
+  if (u !== undefined && u <= 1.1) return `<span class="chip chip-warn">NO LIMITE</span>`;
   return `<span class="chip chip-fail">NÃO ATENDE</span>`;
 }
 
-function calc(){
-  const w=Math.max(200,fv('width'))||1200;
-  const h=Math.max(200,fv('height'))||2400;
-  const qBase=Math.max(50,fv('qBase'))||1000;
-  const sup=get('apoio').value;
-  const qS=qBase*1.5, qD=qBase;
-  const wm=w/1000, hm=h/1000;
-  const aMin=Math.min(w,h);
-  const limDefl=Math.min(aMin/60, 25); // L/60 com cap 25mm (NBR 7199)
+const APOIO_LABEL = {
+  '4':'4 lados (perímetro)',
+  '3menor':'3 lados — borda livre = menor dim.',
+  '3maior':'3 lados — borda livre = maior dim.',
+  '2':'2 lados opostos'
+};
 
-  let r, admSig1, admSig2;
+let family = 'laminado';
+let compChart = null;
 
-  if(family==='laminated'){
-    const h1=parseFloat(get('h1').value);
-    const h2=parseFloat(get('h2').value);
-    const hi=parseFloat(get('hint').value);
-    const itype=get('itype').value;
-    const temp=fv('temp')||20;
-    const dur=parseFloat(get('dur').value)||3;
-    admSig1=parseFloat(get('glassType1').value);
-    admSig2=parseFloat(get('glassType2').value);
-    r=calcLam(h1,h2,hi,itype,qS,qD,wm,hm,sup,temp,dur);
-    // sigma governante considera cada folha contra sua admissível
-    r.uSig1=r.sig1/admSig1;
-    r.uSig2=r.sig2/admSig2;
-    r.uSigMax=Math.max(r.uSig1,r.uSig2);
-    r.sigmaGov=r.uSig1>=r.uSig2?r.sig1:r.sig2;
-    r.admGov=r.uSig1>=r.uSig2?admSig1:admSig2;
-    r.govFolha=r.uSig1>=r.uSig2?'F1':'F2';
-    updateCross(h1,h2,hi,itype);
-    const gc=get('gammaChip');
-    gc.textContent=`Γ = ${r.gamma.toFixed(3)}`;
-    gc.className='gamma-chip '+(r.gamma>=0.5?'gc-hi':r.gamma>=0.1?'gc-mid':'gc-low');
-    get('gammaDesc').textContent=itype==='sgp'
-      ? 'SGP — Γ fixo = 0,90'
-      : `G = ${r.G.toFixed(2)} MPa @ ${fv('temp')}°C / ${get('dur').options[get('dur').selectedIndex].text}`;
-    get('mHefW').textContent=r.hefw.toFixed(2);
-    get('mHefWSub').textContent=`Monolít. equiv.: ${(Math.cbrt(h1**3+h2**3)).toFixed(2)} mm`;
-    get('mHefS').textContent=r.hefs1.toFixed(2);
-    get('mHefSSub').textContent=`F1: ${r.hefs1.toFixed(2)} mm · F2: ${r.hefs2.toFixed(2)} mm`;
-  } else {
-    const monoH=parseFloat(get('monoH').value);
-    admSig1=admSig2=parseFloat(get('monoType').value);
-    r=calcMono(monoH,qS,qD,wm,hm,sup);
-    r.uSigMax=r.sigma/admSig1;
-    r.sigmaGov=r.sigma; r.admGov=admSig1; r.govFolha='';
-    get('mHefW').textContent=monoH.toFixed(0);
-    get('mHefWSub').textContent='monolítico: hef = h real';
-    get('mHefS').textContent=monoH.toFixed(0);
-    get('mHefSSub').textContent='—';
-  }
+// ─── INPUTS ──────────────────────────────────────────────────────────────────
 
-  const uSig=r.uSigMax;
-  const uDef=r.defl/limDefl;
-  const ok=uSig<=1&&uDef<=1;
-
-  // Status
-  const sc=get('statusCard');
-  sc.className='status '+(ok?'ok':'fail');
-  get('statusIcon').textContent=ok?'✓':'✕';
-  get('statusTitle').textContent=ok?'Composição atende':'Composição não atende';
-  get('statusSub').textContent=`σ gov.(${r.govFolha||'—'}): ${r.sigmaGov.toFixed(2)} MPa (${(uSig*100).toFixed(0)}% adm.) · δ: ${r.defl.toFixed(1)} mm (${(uDef*100).toFixed(0)}% lim.)`;
-
-  // Metric cards
-  get('mSig').textContent=r.sigmaGov.toFixed(2);
-  get('mSigSub').textContent=`${r.govFolha} · ${(uSig*100).toFixed(0)}% de ${r.admGov} MPa · qproj=${qS} Pa`;
-  get('mSigCard').className='metric '+(uSig<=1?'c-ok':uSig<=1.1?'c-warn':'c-bad');
-
-  get('mDef').textContent=r.defl.toFixed(1);
-  get('mDefSub').textContent=`${(uDef*100).toFixed(0)}% de ${limDefl.toFixed(1)} mm · qens=${qD} Pa`;
-  get('mDefCard').className='metric '+(uDef<=1?'c-ok':uDef<=1.1?'c-warn':'c-bad');
-
-  // Detail table
-  const rows=[
-    ['Pressão de ensaio', `${qD} Pa`],
-    ['Pressão de projeto (×1,5)', `${qS} Pa`],
-    ['Deflexão δ', `${r.defl.toFixed(2)} mm`, uDef<=1],
-    ['Limite L/60 (cap 25 mm)', `${limDefl.toFixed(1)} mm`],
-    ['Razão de aspecto', r.ratio.toFixed(3)],
-  ];
-  if(family==='laminated'){
-    rows.push(['σ F1 (exterior)', `${r.sig1.toFixed(2)} MPa`, r.uSig1<=1]);
-    rows.push(['σ adm. F1', `${admSig1} MPa — ${GLASS_LABEL[admSig1]}`]);
-    rows.push(['σ F2 (interior)', `${r.sig2.toFixed(2)} MPa`, r.uSig2<=1]);
-    rows.push(['σ adm. F2', `${admSig2} MPa — ${GLASS_LABEL[admSig2]}`]);
-    rows.push(['h_ef,w (deflexão)', `${r.hefw.toFixed(2)} mm`]);
-    rows.push(['h_ef,σ F1', `${r.hefs1.toFixed(2)} mm`]);
-    rows.push(['h_ef,σ F2', `${r.hefs2.toFixed(2)} mm`]);
-    rows.push(['Coef. Γ interlayer', r.gamma.toFixed(4)]);
-  } else {
-    rows.push(['Tensão atuante σ', `${r.sigma.toFixed(2)} MPa`, uSig<=1]);
-    rows.push(['Tensão admissível', `${admSig1} MPa`]);
-  }
-  get('detailTable').innerHTML=rows.map(([k,v,okVal])=>`<tr>
-    <td class="dk">${k}</td>
-    <td class="dv" style="text-align:right;">${typeof okVal!=='undefined'?chip(okVal,okVal?0:1.5)+' ':''}<span>${v}</span></td>
-  </tr>`).join('');
-
-  renderChart();
+function getInputs() {
+  const wMM = Math.max(200, fv('width'))  || 1200;
+  const hMM = Math.max(200, fv('height')) || 2400;
+  const Pv  = Math.max(50,  fv('pv'))     || 1000;
+  const apoio = get('apoio').value;
+  const panes = family === 'laminado'
+    ? [
+        { h: parseFloat(get('h1').value), eps3: parseFloat(get('gt1').value) },
+        { h: parseFloat(get('h2').value), eps3: parseFloat(get('gt2').value) }
+      ]
+    : [{ h: parseFloat(get('monoH').value), eps3: parseFloat(get('monoGt').value) }];
+  return { wMM, hMM, Pv, apoio, family, panes };
 }
 
-const CONFIGS=[
+// ─── RENDERIZAÇÃO ────────────────────────────────────────────────────────────
+
+function updateCross(h1, h2) {
+  const total = h1 + h2;
+  const MAX=130, MINI=22;
+  const p1 = Math.max(MINI, (h1/total)*(MAX-16));
+  const p2 = Math.max(MINI, (h2/total)*(MAX-16));
+  get('plyF1').style.height = p1+'px';
+  get('plyF2').style.height = p2+'px';
+  get('lF1').textContent = h1+' mm';
+  get('lF2').textContent = h2+' mm';
+  get('crossTotal').textContent = 'Total vidro: '+total+' mm';
+}
+
+function updateInfoApoio(apoio) {
+  const msgs = {
+    '4':      '<span>4 lados:</span> e₁ = √(S·P/100) se L/l ≤ 2,5; ou e₁ = l·√P/6,3 se L/l > 2,5 · b = l · Limite l/60, cap 30 mm',
+    '3menor': '<span>3 lados, borda livre = menor:</span> e₁ = l·√P/6,3 · b = l (borda livre) · Limite l/100, cap 50 mm',
+    '3maior': '<span>3 lados, borda livre = maior:</span> e₁ = √(L·3·l·P/100) se L/l ≤ 7,5 · b = L (borda livre) · Limite L/100, cap 50 mm',
+    '2':      '<span>2 lados opostos:</span> e₁ = l·√P/6,3 · α = 2,1143 · Limite: a definir em projeto (§ 4.7.7.3)',
+  };
+  get('infoApoio').innerHTML = msgs[apoio] || '';
+}
+
+function calc() {
+  const inp = getInputs();
+  const r   = calcNBR(inp);
+
+  if (family === 'laminado') updateCross(inp.panes[0].h, inp.panes[1].h);
+
+  // Status
+  get('statusCard').className = 'status '+(r.ok?'ok':'fail');
+  get('statusIcon').textContent = r.ok ? '✓' : '✕';
+  get('statusTitle').textContent = r.ok ? 'Composição atende' : 'Composição não atende';
+  get('statusSub').textContent = [
+    `eR = ${fmt(r.eR)} mm (mín. ${fmt(r.e1c)} mm) · ${fmt(r.uR*100,0)}% da demanda`,
+    r.fLim !== null
+      ? `f = ${fmt(r.f)} mm · limite ${fmt(r.fLim)} mm (${fmt((r.uF||0)*100,0)}%)`
+      : `f = ${fmt(r.f)} mm · limite a definir`
+  ].join(' · ');
+
+  // Cards
+  get('mE1').textContent = fmt(r.e1);
+  get('mE1Sub').textContent = `e₁×c = ${fmt(r.e1c)} mm`;
+  get('mE1Card').className = 'metric c-acc';
+
+  get('mER').textContent = fmt(r.eR);
+  get('mERSub').textContent = `${r.okR?'✓':'✗'} eR ${r.okR?'≥':'<'} ${fmt(r.e1c)} mm · ${fmt(r.uR*100,0)}% da demanda`;
+  get('mERCard').className = 'metric '+(r.okR?'c-ok':r.uR<=1.1?'c-warn':'c-bad');
+
+  get('mEF').textContent = fmt(r.eF);
+  get('mEFSub').textContent = family==='laminado'
+    ? `(${inp.panes.map(p=>p.h).join('+')} mm) / ε₂ ${fmt(r.eps2||1.30)}`
+    : 'eF = espessura nominal';
+  get('mEFCard').className = 'metric c-acc2';
+
+  get('mF').textContent = fmt(r.f);
+  get('mFSub').textContent = r.fLim !== null
+    ? `${r.okF?'✓':'✗'} lim ${fmt(r.fLim)} mm · α = ${fmt(r.alpha,4)}`
+    : `α = ${fmt(r.alpha,4)} · limite a definir`;
+  get('mFCard').className = 'metric '+(r.okF?'c-ok':(r.uF||0)<=1.1?'c-warn':'c-bad');
+
+  // Memorial
+  const rows = [
+    ['Pᵥ — pressão de vento',      `${inp.Pv} Pa`],
+    ['P = 1,5 × Pᵥ',              `${r.P.toFixed(0)} Pa`],
+    ['Dimensões (largura × altura)', `${inp.wMM} × ${inp.hMM} mm`],
+    ['Área S = L × l',             `${fmt(r.S,4)} m²`],
+    ['Espessura de referência e₁',  `${fmt(r.e1)} mm`],
+    ['Limite mínimo e₁ × c',       `${fmt(r.e1c)} mm`],
+  ];
+
+  if (family === 'laminado') {
+    rows.push(['ε₂ (Tab. 4 — 2 vidros)', fmt(r.eps2||1.30,2)]);
+    rows.push(['ε₃ F1 — '+gtLabel(r.eps3vals[0]), fmt(r.eps3vals[0],2)]);
+    rows.push(['ε₃ F2 — '+gtLabel(r.eps3vals[1]), fmt(r.eps3vals[1],2)]);
+    rows.push(['MÁX(ε₃)', fmt(r.maxEps3,2)]);
+    rows.push(['Σ espessuras F1+F2', `${inp.panes.map(p=>p.h).join(' + ')} = ${inp.panes.reduce((s,p)=>s+p.h,0)} mm`]);
+  } else {
+    rows.push(['ε₃ — '+gtLabel(r.eps3vals[0]), fmt(r.eps3vals[0],2)]);
+    rows.push(['Espessura nominal', `${inp.panes[0].h} mm`]);
+  }
+
+  rows.push(['Verificação eR ≥ e₁·c', `${fmt(r.eR)} ≥ ${fmt(r.e1c)} mm`, r.okR, r.uR]);
+  rows.push(['eF — esp. equivalente flecha', `${fmt(r.eF)} mm`]);
+  rows.push(['b — vão de referência', `${fmt(r.b*1000,0)} mm`]);
+  rows.push(['α — coef. deformação (Tab.'+(r.apoio==='4'?'6':'7')+')', fmt(r.alpha,5)]);
+  rows.push(['Flecha f', `${fmt(r.f)} mm`, r.fLim !== null ? r.okF : undefined, r.uF??undefined]);
+  rows.push(['Limite de flecha',
+             r.fLim !== null ? `${fmt(r.fLim)} mm` : 'a definir em projeto (§ 4.7.7.3)']);
+
+  get('detailTable').innerHTML = rows.map(([k,v,okVal,u]) => `<tr>
+    <td class="dk">${k}</td>
+    <td class="dv">${typeof okVal!=='undefined' ? chip(okVal, u)+' ' : ''}<span>${v}</span></td>
+  </tr>`).join('');
+
+  renderChart(inp, r);
+}
+
+// ─── GRÁFICO ─────────────────────────────────────────────────────────────────
+
+const CONFIGS_LAM = [
   {h1:3,h2:3},{h1:4,h2:4},{h1:4,h2:5},{h1:5,h2:5},
   {h1:6,h2:4},{h1:6,h2:5},{h1:6,h2:6},{h1:8,h2:4},
   {h1:8,h2:6},{h1:8,h2:8},{h1:10,h2:6},{h1:10,h2:8},
   {h1:10,h2:10},{h1:12,h2:8},{h1:12,h2:10},{h1:12,h2:12}
 ];
-const MONO_H=[3,4,5,6,8,10,12,15,19];
+const CONFIGS_MONO = [3,4,5,6,8,10,12,15,19];
 
-function renderChart(){
-  const w=Math.max(200,fv('width'))||1200;
-  const h=Math.max(200,fv('height'))||2400;
-  const qBase=fv('qBase')||1000;
-  const sup=get('apoio').value;
-  const qS=qBase*1.5,qD=qBase;
-  const wm=w/1000,hm=h/1000;
-  const aMin=Math.min(w,h);
-  const limDefl=Math.min(aMin/60,25);
+function renderChart(inp, r) {
+  const sorted = family === 'laminado'
+    ? [...CONFIGS_LAM].sort((a,b)=>(a.h1+a.h2)-(b.h1+b.h2))
+    : CONFIGS_MONO;
 
-  let labels=[],uSigs=[],uDefs=[],isCurrent=[];
+  const labels=[], uRs=[], uFs=[], isCurrent=[];
+  const eps2 = r.eps2 || 1;
+  const maxEps3 = r.maxEps3;
+  const curH1 = inp.panes[0].h;
+  const curH2 = family==='laminado' ? inp.panes[1].h : null;
 
-  if(family==='laminated'){
-    const hi=parseFloat(get('hint').value);
-    const itype=get('itype').value;
-    const temp=fv('temp')||20;
-    const dur=parseFloat(get('dur').value)||3;
-    const admSig1=parseFloat(get('glassType1').value);
-    const admSig2=parseFloat(get('glassType2').value);
-    const h1cur=parseFloat(get('h1').value);
-    const h2cur=parseFloat(get('h2').value);
-    const sorted=[...CONFIGS].sort((a,b)=>(a.h1+a.h2)-(b.h1+b.h2));
-    sorted.forEach(c=>{
-      const rr=calcLam(c.h1,c.h2,hi,itype,qS,qD,wm,hm,sup,temp,dur);
-      const uS=Math.max(rr.sig1/admSig1, rr.sig2/admSig2);
-      labels.push(`${c.h1}+${c.h2}`);
-      uSigs.push(parseFloat(uS.toFixed(3)));
-      uDefs.push(parseFloat((rr.defl/limDefl).toFixed(3)));
-      isCurrent.push(c.h1===h1cur&&c.h2===h2cur);
-    });
+  let minCfg = null; // primeira config que atende os dois critérios
+
+  sorted.forEach(cfg => {
+    let sumH, lbl, isCur;
+    if (family === 'laminado') {
+      sumH = cfg.h1+cfg.h2; lbl = `${cfg.h1}+${cfg.h2}`;
+      isCur = cfg.h1===curH1 && cfg.h2===curH2;
+    } else {
+      sumH = cfg; lbl = `${cfg} mm`; isCur = cfg===curH1;
+    }
+    const eR_c = family==='laminado' ? sumH/(0.9*eps2*maxEps3) : sumH/maxEps3;
+    const eF_c = family==='laminado' ? sumH/eps2 : sumH;
+    const f_c  = r.alpha * inp.Pv * Math.pow(r.b,4) / Math.pow(eF_c,3);
+    const uR_c = r.e1c / eR_c;
+    const uF_c = r.fLim ? f_c/r.fLim : f_c/30;
+
+    if (!minCfg && uR_c <= 1.0 && uF_c <= 1.0) minCfg = { lbl, uR: uR_c, uF: uF_c };
+
+    labels.push(lbl);
+    uRs.push(parseFloat(uR_c.toFixed(3)));
+    uFs.push(parseFloat(uF_c.toFixed(3)));
+    isCurrent.push(isCur);
+  });
+
+  // Composição mínima
+  const mc = get('minConfig');
+  if (minCfg) {
+    const isCurMin = minCfg.lbl === (family==='laminado' ? `${curH1}+${curH2}` : `${curH1} mm`);
+    mc.innerHTML = `<span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);">Espessura mínima que atende</span><br>
+      <span style="font-size:15px;font-weight:700;color:${isCurMin?'var(--acc2)':'var(--ok)'};">${minCfg.lbl}${family==='laminado'?' mm':''}</span>
+      <span style="font-size:12px;color:var(--mut);margin-left:8px;">resistência ${fmt(minCfg.uR*100,0)}% · flecha ${fmt(minCfg.uF*100,0)}%</span>
+      ${isCurMin ? '<span style="font-size:11px;color:var(--acc2);margin-left:6px;">← seleção atual</span>' : ''}`;
   } else {
-    const admSig=parseFloat(get('monoType').value);
-    const mhCur=parseFloat(get('monoH').value);
-    MONO_H.forEach(mh=>{
-      const rr=calcMono(mh,qS,qD,wm,hm,sup);
-      labels.push(`${mh} mm`);
-      uSigs.push(parseFloat((rr.sigma/admSig).toFixed(3)));
-      uDefs.push(parseFloat((rr.defl/limDefl).toFixed(3)));
-      isCurrent.push(mh===mhCur);
-    });
+    mc.innerHTML = `<span style="font-size:13px;color:var(--bad);">Nenhuma configuração padrão atende para essas condições.</span>`;
   }
 
-  const bgSig=isCurrent.map(c=>c?'rgba(240,192,64,0.9)':'rgba(91,168,245,0.85)');
-  const bgDef=isCurrent.map(c=>c?'rgba(240,192,64,0.6)':'rgba(92,240,200,0.75)');
+  const bgR = isCurrent.map(c=>c?'rgba(240,192,64,0.9)':'rgba(91,168,245,0.85)');
+  const bgF = isCurrent.map(c=>c?'rgba(240,192,64,0.6)':'rgba(92,240,200,0.75)');
 
-  if(compChart)compChart.destroy();
-  compChart=new Chart(get('compChart'),{
+  if (compChart) compChart.destroy();
+  compChart = new Chart(get('compChart'), {
     type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'Util. tensão',data:uSigs,backgroundColor:bgSig,borderRadius:4,borderSkipped:false},
-        {label:'Util. deflexão',data:uDefs,backgroundColor:bgDef,borderRadius:4,borderSkipped:false}
-      ]
-    },
+    data:{ labels, datasets:[
+      {label:'Util. resistência', data:uRs, backgroundColor:bgR, borderRadius:4, borderSkipped:false},
+      {label:'Util. flecha',      data:uFs, backgroundColor:bgF, borderRadius:4, borderSkipped:false}
+    ]},
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{
-          display:true,
-          labels:{color:'#7a90b0',font:{size:11},boxWidth:10,padding:14}
-        },
+        legend:{display:true,labels:{color:'#7a90b0',font:{size:11},boxWidth:10,padding:14}},
         tooltip:{
-          backgroundColor:'#182337',
-          borderColor:'rgba(255,255,255,0.1)',
-          borderWidth:1,
-          titleColor:'#e8f0ff',
-          bodyColor:'#7a90b0',
-          callbacks:{
-            label:ctx=>`${ctx.dataset.label}: ${(ctx.raw*100).toFixed(0)}%`
-          }
+          backgroundColor:'#182337',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,
+          titleColor:'#e8f0ff',bodyColor:'#7a90b0',
+          callbacks:{label:ctx=>`${ctx.dataset.label}: ${(ctx.raw*100).toFixed(0)}%`}
         }
       },
       scales:{
-        x:{
-          grid:{color:'rgba(255,255,255,0.05)'},
-          ticks:{color:'#7a90b0',font:{size:10},maxRotation:45,autoSkip:false}
-        },
+        x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#7a90b0',font:{size:10},maxRotation:45,autoSkip:false}},
         y:{
-          min:0,max:Math.max(1.5,...uSigs,...uDefs)+0.1,
+          min:0, max:Math.max(1.5,...uRs,...uFs)+0.1,
           grid:{color:'rgba(255,255,255,0.05)'},
           ticks:{color:'#7a90b0',font:{size:11},callback:v=>v.toFixed(1)},
           title:{display:true,text:'Utilização (1,0 = limite)',color:'#7a90b0',font:{size:11}}
@@ -802,27 +658,194 @@ function renderChart(){
       beforeDraw(ch){
         const{ctx,chartArea,scales}=ch;
         const y=scales.y.getPixelForValue(1.0);
-        ctx.save();
-        ctx.setLineDash([5,4]);
-        ctx.strokeStyle='#f06070';
-        ctx.lineWidth=1.5;
-        ctx.beginPath();
-        ctx.moveTo(chartArea.left,y);
-        ctx.lineTo(chartArea.right,y);
-        ctx.stroke();
-        ctx.restore();
+        ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#f06070';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(chartArea.left,y);ctx.lineTo(chartArea.right,y);
+        ctx.stroke();ctx.restore();
       }
     }]
   });
 }
 
-// Bind events
-['width','height','qBase','apoio','h1','h2','hint','glassType1','glassType2','itype','temp','dur','monoH','monoType'].forEach(id=>{
-  const el=get(id); if(!el)return;
-  el.addEventListener('change',calc);
-  if(el.tagName==='INPUT')el.addEventListener('input',calc);
+// ─── RELATÓRIO ───────────────────────────────────────────────────────────────
+
+function gerarRelatorio() {
+  const inp = getInputs();
+  const r   = calcNBR(inp);
+  const obra = (get('obra').value || '').trim();
+  const resp = (get('resp').value || '').trim();
+  const data = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+  const composicao = family === 'laminado'
+    ? `Laminado ${inp.panes[0].h}+${inp.panes[1].h} mm (${gtLabel(inp.panes[0].eps3)} + ${gtLabel(inp.panes[1].eps3)})`
+    : `Monolítico ${inp.panes[0].h} mm (${gtLabel(inp.panes[0].eps3)})`;
+
+  const resOk    = r.ok;
+  const resColor = resOk ? '#16a34a' : '#dc2626';
+  const resBg    = resOk ? '#f0fdf4' : '#fef2f2';
+  const resBd    = resOk ? '#bbf7d0' : '#fecaca';
+  const resTxt   = resOk ? 'APROVADA conforme ABNT NBR 7199:2025' : 'REPROVADA — não atende ABNT NBR 7199:2025';
+
+  function row(k, v, status) {
+    const badge = status === true
+      ? '<span style="display:inline-block;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:5px">ATENDE</span>'
+      : status === false
+      ? '<span style="display:inline-block;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:5px">NÃO ATENDE</span>'
+      : '';
+    return `<tr>
+      <td style="padding:5px 10px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:11.5px;width:55%">${k}</td>
+      <td style="padding:5px 10px;border-bottom:1px solid #e5e7eb;font-family:monospace;font-size:11.5px;text-align:right">${badge}${v}</td>
+    </tr>`;
+  }
+
+  function section(title) {
+    return `<tr><td colspan="2" style="padding:8px 10px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;background:#f9fafb;border-top:1px solid #d1d5db">${title}</td></tr>`;
+  }
+
+  const eFLabel = family==='laminado'
+    ? `(${inp.panes.map(p=>p.h).join('+')} mm) / ε₂ ${r.eps2.toFixed(2)} = ${r.eF.toFixed(2)} mm`
+    : `${inp.panes[0].h} mm`;
+
+  const eRFormula = family==='laminado'
+    ? `(${inp.panes.map(p=>p.h).join('+')} mm) / (0,9 × ε₂ ${r.eps2.toFixed(2)} × MÁX(ε₃) ${r.maxEps3.toFixed(2)}) = ${r.eR.toFixed(2)} mm`
+    : `${inp.panes[0].h} mm / ε₃ ${r.maxEps3.toFixed(2)} = ${r.eR.toFixed(2)} mm`;
+
+  const alphaRatio = r.apoio==='4' ? r.lM/r.LM
+                   : r.apoio==='3menor' ? r.LM/r.lM
+                   : r.apoio==='3maior' ? r.lM/r.LM
+                   : null;
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Memorial de Cálculo de Vidro${obra ? ' — '+obra : ''}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#111827;font-size:12px;padding:20px 28px}
+  @page{size:A4;margin:15mm 15mm}
+  @media print{body{padding:0;font-size:11px}}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:2px solid #e5e7eb;margin-bottom:14px}
+  .header-logo{height:30px;display:block;margin-bottom:6px}
+  .header-title{font-size:15px;font-weight:700;color:#111827}
+  .header-sub{font-size:10px;color:#6b7280;margin-top:2px}
+  .header-right{text-align:right;font-size:10px;color:#6b7280;line-height:1.7}
+  .obra{background:#f0f9ff;border:1px solid #bae6fd;border-radius:5px;padding:7px 12px;margin-bottom:12px;font-size:12px;color:#0369a1;font-weight:600}
+  table{width:100%;border-collapse:collapse;margin-bottom:12px;border:1px solid #e5e7eb;border-radius:5px;overflow:hidden}
+  .result{border:2px solid ${resBd};background:${resBg};border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px;margin-top:2px}
+  .result-icon{width:30px;height:30px;border-radius:50%;background:${resColor};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+  .result-title{font-size:13px;font-weight:700;color:${resColor};line-height:1.3}
+  .result-sub{font-size:10px;color:#6b7280;margin-top:2px;line-height:1.5}
+  .norma{font-size:9px;color:#9ca3af;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:8px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <img src="../../assets/olgacolor-logo.png" alt="Olgacolor" class="header-logo">
+    <div class="header-title">Memorial de Cálculo de Vidro</div>
+    <div class="header-sub">ABNT NBR 7199:2025</div>
+  </div>
+  <div class="header-right">
+    Data: ${data}<br>
+    ${resp ? `Responsável: ${resp}<br>` : ''}
+    Norma: ABNT NBR 7199:2025<br>
+    Fator c = 1,0
+  </div>
+</div>
+
+${obra ? `<div class="obra">Obra / Projeto: ${obra}</div>` : ''}
+
+<table>
+  ${section('Dados do painel')}
+  ${row('Dimensões (largura × altura)', `${fmt(inp.wMM,0)} × ${fmt(inp.hMM,0)} mm`)}
+  ${row('Área S', `${fmt(r.S,4)} m²`)}
+  ${row('Condição de apoio', APOIO_LABEL[inp.apoio])}
+  ${row('Pᵥ — pressão de vento', `${inp.Pv} Pa`)}
+  ${row('P = 1,5 × Pᵥ', `${r.P.toFixed(0)} Pa`)}
+  ${section('Composição')}
+  ${row('Tipo', composicao)}
+  ${family==='laminado' ? row('ε₂ (Tab. 4 — 2 vidros laminados)', r.eps2.toFixed(2)) : ''}
+  ${family==='laminado'
+    ? row('ε₃ F1 — '+gtLabel(r.eps3vals[0]), r.eps3vals[0].toFixed(2))
+    : row('ε₃ — '+gtLabel(r.eps3vals[0]), r.eps3vals[0].toFixed(2))}
+  ${family==='laminado' ? row('ε₃ F2 — '+gtLabel(r.eps3vals[1]), r.eps3vals[1].toFixed(2)) : ''}
+  ${family==='laminado' ? row('MÁX(ε₃)', r.maxEps3.toFixed(2)) : ''}
+  ${section('Verificação da resistência (§ 4.7.6)')}
+  ${row('Espessura de referência e₁', `${r.e1.toFixed(2)} mm`)}
+  ${row('Limite mínimo e₁ × c', `${r.e1c.toFixed(2)} mm`)}
+  ${row('eR  =  '+eRFormula, `${r.eR.toFixed(2)} mm`, r.okR)}
+  ${section('Verificação da flecha (§ 4.7.7)')}
+  ${row('eF  =  '+eFLabel, `${r.eF.toFixed(2)} mm`)}
+  ${row('b — vão de referência', `${fmt(r.b*1000,0)} mm`)}
+  ${row('α (Tab.'+(r.apoio==='4'?'6':'7')+(alphaRatio!==null?' — razão '+alphaRatio.toFixed(3):'')+')' , r.alpha.toFixed(5))}
+  ${row('Flecha  f = α × Pᵥ × b⁴ / eF³', `${r.f.toFixed(2)} mm`, r.fLim !== null ? r.okF : undefined)}
+  ${r.fLim !== null
+    ? row('Limite de flecha  ('+( r.apoio==='4'?'l/60, cap 30 mm':'l/100, cap 50 mm')+')', `${r.fLim.toFixed(2)} mm`)
+    : row('Limite de flecha', 'a definir em projeto (§ 4.7.7.3)')}
+</table>
+
+<div class="result">
+  <div class="result-icon">${resOk ? '✓' : '✕'}</div>
+  <div>
+    <div class="result-title">Composição ${resTxt}</div>
+    <div class="result-sub">
+      Resistência: eR = ${r.eR.toFixed(2)} mm ${r.okR?'≥':'<'} ${r.e1c.toFixed(2)} mm (${(r.uR*100).toFixed(0)}% da demanda)
+      &nbsp;·&nbsp;
+      Flecha: f = ${r.f.toFixed(2)} mm ${r.fLim!==null?(r.okF?'≤':'>'):'—'} ${r.fLim!==null?r.fLim.toFixed(2)+' mm':'a definir'}${r.fLim!==null?' ('+((r.uF||0)*100).toFixed(0)+'%)':''}
+    </div>
+  </div>
+</div>
+
+<div class="norma">
+  ABNT NBR 7199:2025 — Aplicações de vidros na construção civil — Requisitos ·
+  Fórmulas: §§ 4.7.3, 4.7.4, 4.7.5, 4.7.6.3, 4.7.7.2, 4.7.7.5 · Tabelas 4, 5, 6 e 7
+</div>
+
+</body>
+</html>`;
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none';
+  document.body.appendChild(iframe);
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    iframe.contentWindow.print();
+    setTimeout(() => document.body.removeChild(iframe), 2000);
+  }, 400);
+}
+
+// ─── EVENTOS ─────────────────────────────────────────────────────────────────
+
+get('familySeg').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+  get('familySeg').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  family = b.dataset.fam;
+  get('blockLam').style.display  = family==='laminado'  ? '' : 'none';
+  get('blockMono').style.display = family==='monolitico'? '' : 'none';
+  calc();
+}));
+
+get('presets').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+  get('presets').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  const [a,c2] = b.dataset.p.split(',').map(Number);
+  get('h1').value = a; get('h2').value = c2;
+  calc();
+}));
+
+get('apoio').addEventListener('change', () => { updateInfoApoio(get('apoio').value); calc(); });
+
+['width','height','pv','apoio','h1','h2','gt1','gt2','monoH','monoGt'].forEach(id => {
+  const el = get(id); if (!el) return;
+  el.addEventListener('change', calc);
+  if (el.tagName==='INPUT') el.addEventListener('input', calc);
 });
 
+// Init
+updateInfoApoio('4');
 calc();
 </script>
 </body>

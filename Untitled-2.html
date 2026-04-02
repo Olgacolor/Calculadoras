@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Estrutural Caixilhos • R07</title>
+    <style>
+        :root { --bg:#0a1120; --card:#161f38; --accent:#5ba8f5; --accent2:#5cf0c8; --text:#e0f0ff; --text-light:#8ba8d0; }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; padding:20px; min-height:100vh; }
+        .container { max-width:1200px; margin:0 auto; background:var(--card); border-radius:20px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+        header { background:linear-gradient(90deg,#5ba8f5,#5cf0c8); color:#0a1120; padding:28px; text-align:center; font-size:1.95rem; font-weight:600; }
+        .section { padding:40px; }
+        h2 { color:var(--accent2); margin-bottom:25px; border-bottom:2px solid var(--accent); padding-bottom:10px; }
+        .inputs { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+        label { display:block; margin-bottom:8px; color:var(--text-light); font-size:0.95rem; }
+        input, select { width:100%; padding:16px 20px; background:#0f172a; border:2px solid #334155; border-radius:14px; color:var(--text); font-size:1.25rem; font-family:'DM Mono',monospace; }
+        button.calc { background:var(--accent); color:#0a1120; border:none; padding:18px 40px; border-radius:14px; font-weight:600; font-size:1.1rem; cursor:pointer; margin-top:30px; transition:all .3s; }
+        button.calc:hover { transform:translateY(-3px); }
+        .resultado { background:#0f172a; border-radius:16px; padding:30px; margin-top:30px; }
+        .badge { padding:14px 32px; border-radius:50px; font-size:1.35rem; font-weight:600; display:inline-flex; align-items:center; gap:10px; }
+        .ok { background:#5cf0c8; color:#0a1120; }
+        .fail { background:#ff4757; color:white; }
+        table { width:100%; margin-top:20px; border-collapse:collapse; }
+        th, td { padding:16px; text-align:left; border-bottom:1px solid #334155; font-family:'DM Mono',monospace; }
+        th { color:var(--accent2); }
+        .status-ok { color:#5cf0c8; }
+        .status-fail { color:#ff4757; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>📐 Calculadora Estrutural Caixilhos • R07</header>
+        
+        <div class="section">
+            <h2>1. Defina o Projeto</h2>
+            <div class="inputs">
+                <div><label>Sistema</label><select id="sistema"><option value="DELICATO DUE">DELICATO DUE</option><option value="LOCK_SL_COLATO">LOCK_SL_COLATO</option></select></div>
+                <div><label>Tipo de Montante</label><select id="tipo"><option value="ma2p">Mão de Amigo 2 Perfis</option><option value="ma3p">Mão de Amigo 3 Perfis</option><option value="central">Fechamento Central</option></select></div>
+                <div><label>Largura do vão (mm)</label><input type="number" id="largura" value="4000"></div>
+                <div><label>Altura do vão (mm)</label><input type="number" id="altura" value="3500"></div>
+                <div><label>Pressão de ensaio (Pa)</label><input type="number" id="pressao" value="1060"></div>
+            </div>
+            <button onclick="calcular()" class="calc">CALCULAR DESEMPENHO ESTRUTURAL</button>
+        </div>
+
+        <div class="section" id="resultado_area" style="display:none;">
+            <h2>2. Análise Estrutural</h2>
+            <div class="resultado">
+                <div id="badge" class="badge"></div>
+                <table>
+                    <thead><tr><th>Critério</th><th>Valor Admissível</th><th>Valor Resultante</th><th>Status</th></tr></thead>
+                    <tbody id="tabela"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            const L = parseFloat(document.getElementById('largura').value); // largura vão
+            const H = parseFloat(document.getElementById('altura').value);  // altura vão
+            const P_ensaio = parseFloat(document.getElementById('pressao').value);
+
+            const P_seg = P_ensaio * 1.5; // ← FATOR DE SEGURANÇA 1.5 (exatamente como na R07)
+
+            // DELICATO DUE (Ix e Wx fixos)
+            const Ix = 3292958;   // mm⁴ total
+            const Wx = 23053;     // mm³ por perfil
+
+            const E = 70000;
+
+            // Carga linear (N/mm)
+            const w_ensaio = P_ensaio * (L / 2) / 1000;
+            const w_seg = P_seg * (L / 2) / 1000;
+
+            // Flecha (usa pressão de ensaio)
+            const flecha_result = (5 / 384) * w_ensaio * Math.pow(H, 4) / (E * Ix);
+            const flecha_adm = L / 175;
+
+            // Momento e tensão (usa pressão de segurança)
+            const M_total_seg = w_seg * Math.pow(H, 2) / 8;
+            const M_p1 = M_total_seg / 2;
+            const tensao_result = M_p1 / Wx;
+            const tensao_adm = 100;
+
+            const atende_flecha = flecha_result <= flecha_adm;
+            const atende_tensao = tensao_result <= tensao_adm;
+            const atende_geral = atende_flecha && atende_tensao;
+
+            // Render
+            document.getElementById('badge').innerHTML = atende_geral 
+                ? '✅ O CONJUNTO DE PERFIS ATENDE' 
+                : '❌ O CONJUNTO DE PERFIS NÃO ATENDE';
+            document.getElementById('badge').className = 'badge ' + (atende_geral ? 'ok' : 'fail');
+
+            document.getElementById('tabela').innerHTML = `
+                <tr>
+                    <td>Flecha</td>
+                    <td>${flecha_adm.toFixed(2)} mm</td>
+                    <td>${flecha_result.toFixed(2)} mm</td>
+                    <td class="${atende_flecha ? 'status-ok' : 'status-fail'}">${atende_flecha ? '✅ APROVADO' : '❌ REPROVADO'}</td>
+                </tr>
+                <tr>
+                    <td>Tensão máxima</td>
+                    <td>${tensao_adm} MPa</td>
+                    <td>${tensao_result.toFixed(2)} MPa</td>
+                    <td class="${atende_tensao ? 'status-ok' : 'status-fail'}">${atende_tensao ? '✅ APROVADO' : '❌ REPROVADO'}</td>
+                </tr>
+            `;
+
+            document.getElementById('resultado_area').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
