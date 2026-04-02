@@ -258,7 +258,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="fgrid fg2">
         <div class="field"><label>Largura (mm)</label><input type="number" id="width" value="1200" min="200" max="6000" step="50" inputmode="numeric"></div>
         <div class="field"><label>Altura (mm)</label><input type="number" id="height" value="2400" min="200" max="6000" step="50" inputmode="numeric"></div>
-        <div class="field"><label>P<sub>v</sub> — pressão de vento (Pa)</label><input type="number" id="pv" value="1000" min="50" max="6000" step="50" inputmode="numeric"></div>
+        <div class="field"><label>P<sub>e</sub> — pressão de ensaio (Pa)</label><input type="number" id="pv" value="1000" min="50" max="6000" step="50" inputmode="numeric"></div>
         <div class="field"><label>Tipo de apoio</label>
           <select id="apoio">
             <option value="4">4 lados (perímetro)</option>
@@ -414,7 +414,23 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="card-head"><span class="card-title">Comparativo de configurações</span></div>
     <div class="card-body" style="padding-bottom:8px;">
       <p style="font-size:12px;color:var(--mut);margin-bottom:12px;">Utilização de resistência e flecha por composição — barra amarela = atual. Linha = limite 1,0.</p>
-      <div class="chart-wrap"><canvas id="compChart"></canvas></div>
+      <div class="chart-wrap" style="position:relative;">
+        <canvas id="compChart"></canvas>
+        <!-- Thumbs down: acima da linha = não atende -->
+        <div id="thumbDown" style="position:absolute;right:2px;top:8px;opacity:0.7;pointer-events:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 2H19C19.5523 2 20 2.44772 20 3V13C20 13.5523 19.5523 14 19 14H17V2Z" fill="#f06070"/>
+            <path d="M15 2H7.5C6.67157 2 6 2.67157 6 3.5V11.3787C6 11.7765 6.15804 12.158 6.43934 12.4393L10.5858 16.5858C10.851 16.851 11 17.2107 11 17.5858V20.5C11 21.3284 11.6716 22 12.5 22C13.3284 22 14 21.3284 14 20.5V16C14 15.4477 14.4477 15 15 15H15.5C15.7761 15 16 14.7761 16 14.5V2.5C16 2.22386 15.7761 2 15.5 2H15Z" fill="#f06070"/>
+          </svg>
+        </div>
+        <!-- Thumbs up: abaixo da linha = atende -->
+        <div id="thumbUp" style="position:absolute;right:2px;top:160px;opacity:0.7;pointer-events:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 22H19C19.5523 22 20 21.5523 20 21V11C20 10.4477 19.5523 10 19 10H17V22Z" fill="#3dd68c"/>
+            <path d="M15 22H7.5C6.67157 22 6 21.3284 6 20.5V12.6213C6 12.2235 6.15804 11.842 6.43934 11.5607L10.5858 7.41421C10.851 7.14902 11 6.78929 11 6.41421V3.5C11 2.67157 11.6716 2 12.5 2C13.3284 2 14 2.67157 14 3.5V8C14 8.55228 14.4477 9 15 9H15.5C15.7761 9 16 9.22386 16 9.5V21.5C16 21.7761 15.7761 22 15.5 22H15Z" fill="#3dd68c"/>
+          </svg>
+        </div>
+      </div>
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--bd2);">
       <div id="minConfig" style="font-size:13px;"></div>
@@ -426,7 +442,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
   <!-- RODAPÉ -->
   <div style="font-size:11px;color:var(--mut);text-align:center;padding:0 8px;line-height:1.6;">
-    ABNT NBR 7199:2025 · Tabelas 4, 5, 6 e 7 · P = 1,5 × P<sub>v</sub> · c = 1,0 ·
+    ABNT NBR 7199:2025 · Tabelas 4, 5, 6 e 7 · P = 1,5 × P<sub>e</sub> · c = 1,0 ·
     Limite flecha: l/60 cap 30 mm (4 lados) · l/100 cap 50 mm (c/ lado livre)
   </div>
 
@@ -661,8 +677,8 @@ function calc() {
 
   // Memorial
   const rows = [
-    ['Pᵥ — pressão de vento',      `${inp.Pv} Pa`],
-    ['P = 1,5 × Pᵥ',              `${r.P.toFixed(0)} Pa`],
+    ['Pₑ — pressão de ensaio',      `${inp.Pv} Pa`],
+    ['P = 1,5 × Pₑ',              `${r.P.toFixed(0)} Pa`],
     ['Dimensões (largura × altura)', `${inp.wMM} × ${inp.hMM} mm`],
     ['Área S = L × l',             `${fmt(r.S,4)} m²`],
     ['Espessura de referência e₁',  `${fmt(r.e1)} mm`],
@@ -782,7 +798,20 @@ function renderChart(inp, r) {
           title:{display:true,text:'Utilização (1,0 = limite)',color:'#7a90b0',font:{size:11}}
         }
       },
-      animation:{duration:200}
+      animation:{
+        duration:200,
+        onComplete() {
+          // Posiciona os ícones baseado na posição real da linha 1.0 no canvas
+          const ch = compChart;
+          if (!ch) return;
+          const yPx = ch.scales.y.getPixelForValue(1.0);
+          const wrap = get('compChart').parentElement;
+          const td = get('thumbDown');
+          const tu = get('thumbUp');
+          if (td) td.style.top = Math.max(4, yPx - 30) + 'px';
+          if (tu) tu.style.top = Math.min(wrap.offsetHeight - 30, yPx + 8) + 'px';
+        }
+      }
     },
     plugins:[{
       id:'limitLine',
@@ -867,8 +896,8 @@ function gerarRelatorio() {
       ${rrow('Dimensões (largura × altura)', `${inp.wMM} × ${inp.hMM} mm`)}
       ${rrow('Área S', `${fmt(r.S,4)} m²`)}
       ${rrow('Condição de apoio', APOIO_LABEL[inp.apoio])}
-      ${rrow('Pᵥ — pressão de vento', `${inp.Pv} Pa`)}
-      ${rrow('P = 1,5 × Pᵥ', `${r.P.toFixed(0)} Pa`)}
+      ${rrow('Pₑ — pressão de ensaio', `${inp.Pv} Pa`)}
+      ${rrow('P = 1,5 × Pₑ', `${r.P.toFixed(0)} Pa`)}
       ${rsection('Composição')}
       ${rrow('Tipo', composicao)}
       ${family==='laminado' ? rrow('ε₂ (Tab. 4 — 2 vidros laminados)', r.eps2.toFixed(2)) : ''}
@@ -885,7 +914,7 @@ function gerarRelatorio() {
       ${rrow('eF = ' + eFLabel, `${r.eF.toFixed(2)} mm`)}
       ${rrow('b — vão de referência', `${fmt(r.b*1000,0)} mm`)}
       ${rrow('α (Tab.'+(r.apoio==='4'?'6':'7')+(alphaRatio!==null?' — razão '+alphaRatio.toFixed(3):'')+')' , r.alpha.toFixed(5))}
-      ${rrow('Flecha f = α × Pᵥ × b⁴ / eF³', `${r.f.toFixed(2)} mm`, r.fLim!==null ? r.okF : undefined)}
+      ${rrow('Flecha f = α × Pₑ × b⁴ / eF³', `${r.f.toFixed(2)} mm`, r.fLim!==null ? r.okF : undefined)}
       ${r.fLim!==null
         ? rrow('Limite de flecha ('+(r.apoio==='4'?'l/60, cap 30 mm':'l/100, cap 50 mm')+')', `${r.fLim.toFixed(2)} mm`)
         : rrow('Limite de flecha', 'a definir em projeto (§ 4.7.7.3)')}
