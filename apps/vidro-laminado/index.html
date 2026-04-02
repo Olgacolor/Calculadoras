@@ -909,10 +909,12 @@ function gerarRelatorio() {
     </div>`;
 
   get('reportContent').innerHTML = html;
+  // Título dinâmico: Obra — NBR 7199:2025 (aparece no PDF gerado pelo browser)
+  const tituloOriginal = document.title;
+  document.title = obra ? `${obra} — NBR 7199:2025` : 'Memorial de Cálculo — NBR 7199:2025';
   setTimeout(() => {
     get('reportOverlay').classList.add('active');
     window.scrollTo(0, 0);
-    // Previne propagação de toque no iOS: desabilita botão de print brevemente
     const btnPrint = get('reportOverlay').querySelector('.btn-rprint');
     btnPrint.style.pointerEvents = 'none';
     setTimeout(() => { btnPrint.style.pointerEvents = ''; }, 350);
@@ -920,6 +922,8 @@ function gerarRelatorio() {
 }
 
 function fecharRelatorio() {
+  // Restaura título original ao fechar
+  document.title = 'Vidro · NBR 7199:2025';
   get('reportOverlay').classList.remove('active');
 }
 
