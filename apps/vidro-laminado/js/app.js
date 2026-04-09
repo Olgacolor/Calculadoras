@@ -3,16 +3,33 @@
 
   const state = {
     family: "laminado",
+    pressureMode: "auto",
     snapshot: null
   };
 
+  function resolveAutoPressure() {
+    if (!window.NBR10821) return null;
+    return window.NBR10821.resolve({
+      uf: app.UI.get("windState").value,
+      city: app.UI.get("windCity").value,
+      floors: Number(app.UI.get("buildingFloors").value)
+    });
+  }
+
   function readInputs() {
+    const pressureMeta = state.pressureMode === "auto"
+      ? { mode: "auto", context: resolveAutoPressure() }
+      : { mode: "manual", context: null };
+
+    const autoPe = pressureMeta.context ? pressureMeta.context.pe : null;
+
     return {
       wMM: Number(app.UI.get("width").value),
       hMM: Number(app.UI.get("height").value),
-      Pv: Number(app.UI.get("pv").value),
+      Pv: state.pressureMode === "auto" ? autoPe : Number(app.UI.get("pv").value),
       apoio: app.UI.get("apoio").value,
       family: state.family,
+      pressureMeta: pressureMeta,
       panes: state.family === "laminado"
         ? [
           { h: Number(app.UI.get("h1").value), eps3: Number(app.UI.get("gt1").value) },
@@ -27,7 +44,9 @@
   function syncNormalizedInputs(inputs) {
     app.UI.get("width").value = inputs.wMM;
     app.UI.get("height").value = inputs.hMM;
-    app.UI.get("pv").value = inputs.Pv;
+    if (state.pressureMode === "manual") {
+      app.UI.get("pv").value = inputs.Pv;
+    }
     app.UI.get("apoio").value = inputs.apoio;
 
     if (inputs.family === "laminado") {
@@ -42,12 +61,15 @@
   }
 
   function calculateAndRender() {
-    const validation = app.Engine.validateInputs(readInputs());
+    const rawInputs = readInputs();
+    const validation = app.Engine.validateInputs(rawInputs);
     const inputs = validation.normalized;
+    inputs.pressureMeta = rawInputs.pressureMeta;
     const result = app.Engine.calcNBR(inputs);
 
     syncNormalizedInputs(inputs);
     app.UI.updateInfoApoio(inputs.apoio);
+    app.UI.renderPressureContext(inputs);
     app.UI.updateCross(inputs);
     app.UI.renderValidation(validation.issues, validation.assumptions);
     app.UI.renderStatus(inputs, result);
@@ -74,6 +96,39 @@
     });
   }
 
+  function setPressureMode(nextMode) {
+    state.pressureMode = nextMode === "manual" ? "manual" : "auto";
+    app.UI.get("pressureModeSeg").querySelectorAll("button").forEach((button) => {
+      button.classList.toggle("active", button.dataset.mode === state.pressureMode);
+    });
+    app.UI.get("pressureAutoBox").style.display = state.pressureMode === "auto" ? "" : "none";
+    app.UI.get("pressureManualBox").style.display = state.pressureMode === "manual" ? "" : "none";
+  }
+
+  function populatePressureFields() {
+    if (!window.NBR10821) return;
+    const states = window.NBR10821.getStates();
+    const stateSelect = app.UI.get("windState");
+    const citySelect = app.UI.get("windCity");
+    const preferredUf = states.some((item) => item.uf === "SP") ? "SP" : (states[0] ? states[0].uf : "");
+
+    stateSelect.innerHTML = states.map((item) => `<option value="${item.uf}">${item.uf} - ${item.estado}</option>`).join("");
+    stateSelect.value = preferredUf;
+
+    function renderCities() {
+      const cities = window.NBR10821.getCities(stateSelect.value);
+      citySelect.innerHTML = cities.map((item) => `<option value="${item.cidade}">${item.cidade}</option>`).join("");
+      const preferredCity = cities.some((item) => item.cidade === "São Paulo") ? "São Paulo" : (cities[0] ? cities[0].cidade : "");
+      citySelect.value = preferredCity;
+    }
+
+    renderCities();
+    stateSelect.addEventListener("change", function () {
+      renderCities();
+      calculateAndRender();
+    });
+  }
+
   function bindEvents() {
     app.UI.get("familySeg").querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", function () {
@@ -93,11 +148,24 @@
       });
     });
 
+    app.UI.get("pressureModeSeg").querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", function () {
+        setPressureMode(button.dataset.mode);
+        calculateAndRender();
+      });
+    });
+
     ["width", "height", "pv", "apoio", "h1", "h2", "gt1", "gt2", "monoH", "monoGt"].forEach((id) => {
       const element = app.UI.get(id);
       if (!element) return;
       element.addEventListener("change", calculateAndRender);
       if (element.tagName === "INPUT") element.addEventListener("input", calculateAndRender);
+    });
+
+    ["windCity", "buildingFloors"].forEach((id) => {
+      const element = app.UI.get(id);
+      if (!element) return;
+      element.addEventListener("change", calculateAndRender);
     });
 
     app.UI.get("btnRelatorio").addEventListener("click", app.Report.gerarRelatorio);
@@ -113,6 +181,8 @@
   };
 
   setFamily("laminado");
+  setPressureMode("auto");
+  populatePressureFields();
   bindEvents();
   calculateAndRender();
 }());

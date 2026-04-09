@@ -34,11 +34,13 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 
 .fgrid{display:grid;gap:10px}
 .fg2{grid-template-columns:1fr 1fr}
+.span2{grid-column:1 / -1}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
 input,select{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r2);color:var(--txt);padding:12px 13px;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s;min-height:48px}
 input:focus,select:focus{border-color:var(--acc)}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a90b0' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer}
+select option{color:#101826;background:#f8fafc}
 
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .seg button{padding:12px;border:1px solid var(--bd);border-radius:var(--r2);background:var(--bg);color:var(--mut);font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;min-height:48px}
@@ -103,6 +105,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 .infobox{font-size:12px;color:var(--mut);line-height:1.5;padding:10px 12px;background:var(--s2);border-radius:var(--r2);margin-top:10px}
 .infobox span{color:var(--txt)}
+.inline-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--bg);font-size:12px;font-weight:700;color:var(--txt);line-height:1.4}
+.subtle{font-size:12px;color:var(--mut);line-height:1.5}
 .validation-groups{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .validation-group{background:linear-gradient(180deg, rgba(24,35,55,0.95), rgba(11,18,32,0.95));border:1px solid var(--bd2);border-radius:16px;padding:12px}
 .validation-group-title{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin-bottom:10px}
@@ -224,9 +228,40 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="card-head"><span class="card-title">Painel e carga</span></div>
     <div class="card-body">
       <div class="fgrid fg2">
+        <div class="field span2">
+          <label>Método da pressão de ensaio</label>
+          <div class="seg" id="pressureModeSeg">
+            <button data-mode="auto" class="active">Automática</button>
+            <button data-mode="manual">Manual</button>
+          </div>
+        </div>
+        <div class="field span2" id="pressureAutoBox">
+          <div class="fgrid fg2">
+            <div class="field"><label>UF</label><select id="windState"></select></div>
+            <div class="field"><label>Cidade de referência</label><select id="windCity"></select></div>
+            <div class="field"><label>Pavimentos</label>
+              <select id="buildingFloors">
+                <option value="2">Até 2 pavimentos (até 6 m)</option>
+                <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
+                <option value="10">Até 10 pavimentos (até 30 m)</option>
+                <option value="20">Até 20 pavimentos (até 60 m)</option>
+                <option value="30">Até 30 pavimentos (até 90 m)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Pe adotada</label>
+              <div class="inline-chip" id="pressureSummary">Carregando base normativa...</div>
+            </div>
+          </div>
+          <div class="subtle" id="pressureHelp" style="margin-top:8px;">Selecione UF, cidade e faixa de pavimentos para obter a pressão de ensaio pela tabela.</div>
+        </div>
+        <div class="field span2" id="pressureManualBox" style="display:none;">
+          <label>P<sub>e</sub> — pressão de ensaio (Pa)</label>
+          <input type="number" id="pv" value="1000" min="50" max="6000" step="50" inputmode="numeric">
+          <div class="subtle">Use o modo manual quando a pressão vier definida em projeto, memorial externo ou requisito específico de ensaio.</div>
+        </div>
         <div class="field"><label>Largura (mm)</label><input type="number" id="width" value="1200" min="200" max="6000" step="50" inputmode="numeric"></div>
         <div class="field"><label>Altura (mm)</label><input type="number" id="height" value="2400" min="200" max="6000" step="50" inputmode="numeric"></div>
-        <div class="field"><label>P<sub>e</sub> — pressão de ensaio (Pa)</label><input type="number" id="pv" value="1000" min="50" max="6000" step="50" inputmode="numeric"></div>
         <div class="field"><label>Tipo de apoio</label>
           <select id="apoio">
             <option value="4">4 lados (perímetro)</option>
@@ -469,6 +504,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script src="./js/constants.js"></script>
 <script src="./js/engine.js"></script>
+<script src="../../assets/nbr10821/data.js"></script>
+<script src="../../assets/nbr10821/index.js"></script>
 <script src="./js/ui.js"></script>
 <script src="./js/report.js"></script>
 <script src="./js/app.js"></script>

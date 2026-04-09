@@ -28,6 +28,9 @@
     const composicao = inputs.family === "laminado"
       ? `Laminado ${inputs.panes[0].h}+${inputs.panes[1].h} mm (${engine.gtLabel(inputs.panes[0].eps3)} + ${engine.gtLabel(inputs.panes[1].eps3)})`
       : `Monolitico ${inputs.panes[0].h} mm (${engine.gtLabel(inputs.panes[0].eps3)})`;
+    const pressureLabel = inputs.pressureMeta && inputs.pressureMeta.mode === "auto"
+      ? "Automatica (NBR 10821)"
+      : "Manual";
 
     const eFLabel = inputs.family === "laminado"
       ? `(${inputs.panes.map((pane) => pane.h).join("+")} mm) / eps2 ${result.eps2.toFixed(2)} = ${result.eF.toFixed(2)} mm`
@@ -89,8 +92,12 @@
         ${rrow("Dimensoes (largura x altura)", `${inputs.wMM} x ${inputs.hMM} mm`)}
         ${rrow("Area S", `${app.UI.fmt(result.S, 4)} m²`)}
         ${rrow("Condicao de apoio", constants.APOIO_LABEL[inputs.apoio])}
+        ${rrow("Metodo da pressao", pressureLabel)}
         ${rrow("Pe - pressao de ensaio", `${inputs.Pv} Pa`)}
         ${rrow("P = 1,5 x Pe", `${result.P.toFixed(0)} Pa`)}
+        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Cidade de referencia", `${inputs.pressureMeta.context.cidade}/${inputs.pressureMeta.context.uf}`) : ""}
+        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Regiao normativa", `${inputs.pressureMeta.context.region} (${inputs.pressureMeta.context.isopleta} m/s)`) : ""}
+        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Faixa de pavimentos", `Ate ${inputs.pressureMeta.context.pavimentos}`) : ""}
         ${rsection("Composicao")}
         ${rrow("Tipo", composicao)}
         ${inputs.family === "laminado" ? rrow("eps2 (Tab. 4 - 2 vidros)", result.eps2.toFixed(2)) : ""}

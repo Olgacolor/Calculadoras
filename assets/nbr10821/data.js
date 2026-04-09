@@ -1,5 +1,5 @@
-window.LevitareData = window.LevitareData || {};
-window.LevitareData.isopletasCidades = {
+window.NBR10821 = window.NBR10821 || {};
+window.NBR10821.data = {
     "meta":  {
                  "source":  "lista_isopletas_elgin.json",
                  "generatedAt":  "2026-04-09T19:40:19-03:00",

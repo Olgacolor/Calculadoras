@@ -1055,7 +1055,8 @@
   </div>
 </div>
 
-<script src="data/isopletas-cidades.js"></script>
+<script src="../../assets/nbr10821/data.js"></script>
+<script src="../../assets/nbr10821/index.js"></script>
 <script src="../vidro-laminado/js/constants.js"></script>
 <script src="../vidro-laminado/js/engine.js"></script>
 <script>
@@ -1142,23 +1143,8 @@
     closeReportButton: document.getElementById("closeReportButton")
   };
 
-  const cityData = window.LevitareData && window.LevitareData.isopletasCidades;
   const vidroConstants = window.VidroApp && window.VidroApp.Constants;
   const vidroEngine = window.VidroApp && window.VidroApp.Engine;
-  const NBR_REGION_BY_ISOPLETA = {
-    30: "I",
-    35: "II",
-    40: "III",
-    45: "IV",
-    50: "V"
-  };
-  const NBR_PRESSURE_TABLE = {
-    2: { I: 350, II: 470, III: 610, IV: 770, V: 950 },
-    5: { I: 420, II: 580, III: 750, IV: 950, V: 1180 },
-    10: { I: 500, II: 680, III: 890, IV: 1130, V: 1400 },
-    20: { I: 600, II: 815, III: 1060, IV: 1350, V: 1660 },
-    30: { I: 660, II: 890, III: 1170, IV: 1480, V: 1820 }
-  };
 
   const brl = (value) => "R$ " + Number(value || 0).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
@@ -1288,7 +1274,7 @@
   }
 
   function renderStateOptions() {
-    const states = cityData && cityData.states ? cityData.states : [];
+    const states = window.NBR10821 ? window.NBR10821.getStates() : [];
     if (!states.length) {
       refs.windState.innerHTML = `<option value="">Base indisponível</option>`;
       refs.windCity.innerHTML = `<option value="">Sem cidades</option>`;
@@ -1304,9 +1290,9 @@
   }
 
   function renderCityOptions(uf) {
-    const states = cityData && cityData.states ? cityData.states : [];
+    const states = window.NBR10821 ? window.NBR10821.getStates() : [];
     const stateItem = states.find((item) => item.uf === uf) || states[0];
-    const cities = stateItem ? stateItem.cidades : [];
+    const cities = window.NBR10821 ? window.NBR10821.getCities(stateItem ? stateItem.uf : uf) : [];
     if (!cities.length) {
       refs.windCity.innerHTML = `<option value="">Sem cidades</option>`;
       return;
@@ -1322,42 +1308,15 @@
     refs.windCity.value = preferredCity;
   }
 
-  function getLocationEntry() {
-    const states = cityData && cityData.states ? cityData.states : [];
-    const stateItem = states.find((item) => item.uf === refs.windState.value) || states[0];
-    if (!stateItem) return null;
-
-    const city = stateItem.cidades.find((item) => item.cidade === refs.windCity.value) || stateItem.cidades[0];
-    if (!city) return null;
-
-    return {
-      uf: stateItem.uf,
-      estado: stateItem.estado,
-      cidade: city.cidade,
-      isopleta: Number(city.isopleta)
-    };
-  }
-
   function getNormativeContext() {
-    const location = getLocationEntry();
     const floors = normalizeInt(refs.buildingFloors.value, 5, 2, 30);
     refs.buildingFloors.value = floors;
-    if (!location) return null;
-
-    const region = NBR_REGION_BY_ISOPLETA[location.isopleta] || "I";
-    const pe = NBR_PRESSURE_TABLE[floors] && NBR_PRESSURE_TABLE[floors][region];
-    const ps = pe ? Math.round(pe * 1.5) : null;
-    const pa = pe ? Math.round(pe * 0.2) : null;
-
-    return {
-      ...location,
-      floors,
-      region,
-      pe,
-      ps,
-      pa,
-      support: "4 lados"
-    };
+    if (!window.NBR10821) return null;
+    return window.NBR10821.resolve({
+      uf: refs.windState.value,
+      city: refs.windCity.value,
+      floors: floors
+    });
   }
 
   function updateLeafWidthChip(commit = false) {

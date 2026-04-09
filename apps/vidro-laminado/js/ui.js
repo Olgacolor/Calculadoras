@@ -24,6 +24,33 @@
     get("infoApoio").innerHTML = constants.SUPPORT_INFO[apoio] || "";
   }
 
+  function renderPressureContext(inputs) {
+    const summary = get("pressureSummary");
+    const help = get("pressureHelp");
+    const autoBox = get("pressureAutoBox");
+    const manualBox = get("pressureManualBox");
+    if (!summary || !help || !autoBox || !manualBox) return;
+
+    autoBox.style.display = inputs.pressureMeta && inputs.pressureMeta.mode === "auto" ? "" : "none";
+    manualBox.style.display = inputs.pressureMeta && inputs.pressureMeta.mode === "manual" ? "" : "none";
+
+    if (inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context) {
+      const context = inputs.pressureMeta.context;
+      summary.textContent = `${context.cidade}/${context.uf} • ${context.isopleta} m/s • Região ${context.region} • Pe ${context.pe} Pa`;
+      help.textContent = `Tabela 1 da NBR 10821 para até ${context.pavimentos} pavimentos. Ps de referência ${context.ps} Pa e Pa ${context.pa} Pa.`;
+      return;
+    }
+
+    if (inputs.pressureMeta && inputs.pressureMeta.mode === "manual") {
+      summary.textContent = `Pe manual = ${fmt(inputs.Pv, 0)} Pa`;
+      help.textContent = "Pressão informada manualmente pelo usuário ou definida em projeto.";
+      return;
+    }
+
+    summary.textContent = "Seleção normativa indisponível";
+    help.textContent = "Escolha UF, cidade e pavimentos para calcular a pressão automaticamente.";
+  }
+
   function updateCross(inputs) {
     if (inputs.family !== "laminado") return;
     const h1 = inputs.panes[0].h;
@@ -128,6 +155,7 @@
     const rows = [
       ["Versao da calculadora", constants.APP_META.version],
       ["Norma de referencia", constants.APP_META.normRef],
+      ["Metodo da pressao", inputs.pressureMeta && inputs.pressureMeta.mode === "auto" ? "Automatico (NBR 10821)" : "Manual"],
       ["Pe - pressao de ensaio", `${inputs.Pv} Pa`],
       ["P = 1,5 x Pe", `${result.P.toFixed(0)} Pa`],
       ["Dimensoes (largura x altura)", `${inputs.wMM} x ${inputs.hMM} mm`],
@@ -135,6 +163,13 @@
       ["Espessura de referencia e1", `${fmt(result.e1)} mm`],
       ["Limite minimo e1 x c", `${fmt(result.e1c)} mm`]
     ];
+
+    if (inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context) {
+      rows.push(["Cidade de referencia", `${inputs.pressureMeta.context.cidade}/${inputs.pressureMeta.context.uf}`]);
+      rows.push(["Isopleta basica", `${inputs.pressureMeta.context.isopleta} m/s`]);
+      rows.push(["Regiao normativa", inputs.pressureMeta.context.region]);
+      rows.push(["Faixa de pavimentos", `Ate ${inputs.pressureMeta.context.pavimentos}`]);
+    }
 
     if (inputs.family === "laminado") {
       rows.push(["eps2 (Tab. 4 - 2 vidros)", fmt(result.eps2 || 1.3, 2)]);
@@ -309,6 +344,7 @@
   app.UI = {
     get,
     fmt,
+    renderPressureContext,
     renderChart,
     renderMemorial,
     renderMetrics,
