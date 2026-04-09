@@ -3,936 +3,2014 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Levitare — Custo de Venda</title>
+<title>Levitare - Custo de Venda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:   #0b1220;
-    --s1:   #121a2b;
-    --s2:   #1a2540;
-    --s3:   #243058;
-    --acc:  #5ba8f5;
-    --acc2: #5cf0c8;
-    --warn: #f59e5b;
-    --err:  #f55b5b;
-    --txt:  #e4eaf4;
-    --muted:#7a8aaa;
-    --border:#1f2f4a;
-    --r: 10px;
-    --r2: 6px;
+    --bg: #0b1220;
+    --bg-2: #10192d;
+    --card: #121a2b;
+    --surface: #1a2540;
+    --surface-2: #223156;
+    --line: #213251;
+    --text: #e4eaf4;
+    --muted: #7f8daa;
+    --accent: #5ba8f5;
+    --accent-2: #5cf0c8;
+    --warn: #f5b25b;
+    --bad: #f56f6f;
+    --good: #46d39b;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
   }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: var(--txt);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
+    margin: 0;
     min-height: 100vh;
-    padding-bottom: 60px;
+    background:
+      radial-gradient(circle at top left, rgba(91, 168, 245, 0.14), transparent 30%),
+      radial-gradient(circle at top right, rgba(92, 240, 200, 0.08), transparent 22%),
+      linear-gradient(180deg, #09111d 0%, #0b1220 100%);
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.5;
+    padding-bottom: 64px;
+    color-scheme: dark;
   }
 
-  /* ── HEADER ── */
   header {
-    background: var(--s1);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px 18px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
+    backdrop-filter: blur(14px);
+    background: rgba(9, 17, 29, 0.84);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
+
   .header-inner {
-    max-width: 680px;
-    margin: auto;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 18px 20px;
     display: flex;
-    align-items: baseline;
-    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
   }
-  .logo {
-    font-size: 20px;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand img {
+    height: 34px;
+    display: block;
+  }
+
+  .brand-copy strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .brand-copy span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+  }
+
+  .header-badge {
+    border: 1px solid rgba(91, 168, 245, 0.28);
+    background: rgba(91, 168, 245, 0.1);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: -0.3px;
-    color: var(--acc);
   }
-  .logo span { color: var(--acc2); }
-  .tagline {
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 20px 0;
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-bottom: 18px;
+  }
+
+  .hero,
+  .quick-panel,
+  .card {
+    background: rgba(18, 26, 43, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .hero {
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto -40px -60px auto;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 168, 245, 0.22), transparent 70%);
+  }
+
+  .eyebrow,
+  .card-title,
+  .subcard-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero h1 {
+    margin: 10px 0 12px;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+  }
+
+  .hero p {
+    max-width: 640px;
+    margin: 0;
+    color: #c2cedf;
+    font-size: 15px;
+  }
+
+  .hero-points {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .hero-point {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #d6e0ee;
+  }
+
+  .quick-panel {
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  .quick-metric {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .quick-metric strong {
+    display: block;
+    font-size: 13px;
+    color: #dce7f5;
+    margin-bottom: 4px;
+  }
+
+  .quick-metric span {
+    display: block;
     font-size: 12px;
     color: var(--muted);
-    font-weight: 400;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
   }
 
-  /* ── MAIN ── */
-  main {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 28px 16px 0;
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 18px;
+    align-items: start;
   }
 
-  /* ── CARDS ── */
+  .stack {
+    display: grid;
+    gap: 16px;
+  }
+
   .card {
-    background: var(--s1);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px;
-    margin-bottom: 16px;
+    padding: 22px;
   }
+
   .card-title {
-    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .card-title::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .span-2 { grid-column: 1 / -1; }
+
+  .field {
+    display: grid;
+    gap: 7px;
+  }
+
+  .field label {
+    font-size: 13px;
     font-weight: 600;
+    color: #c8d3e4;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, rgba(32, 45, 78, 0.92), rgba(28, 40, 68, 0.92));
+    color: var(--text);
+    font-family: "DM Mono", monospace;
+    font-size: 16px;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .field select option {
+    color: #0f172a;
+    background: #f8fafc;
+  }
+
+  .field textarea {
+    min-height: 92px;
+    resize: vertical;
+    padding: 12px 14px;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .field select {
+    font-family: "DM Sans", sans-serif;
+    font-weight: 600;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(91, 168, 245, 0.14);
+    background: linear-gradient(180deg, rgba(35, 51, 89, 0.96), rgba(30, 44, 74, 0.96));
+  }
+
+  .hint,
+  .unit,
+  .helper {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .helper strong {
+    color: #d9e2f1;
+    font-weight: 600;
+  }
+
+  .segmented,
+  .plan-pills,
+  .color-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .seg-btn,
+  .plan-pill,
+  .color-pill {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+  }
+
+  .seg-btn {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .plan-pill,
+  .color-pill {
+    padding: 12px 14px;
+    min-width: 110px;
+  }
+
+  .seg-btn:hover,
+  .plan-pill:hover,
+  .color-pill:hover {
+    transform: translateY(-1px);
+    border-color: rgba(91, 168, 245, 0.6);
+    color: #dce6f5;
+  }
+
+  .seg-btn.active,
+  .plan-pill.active,
+  .color-pill.active {
+    border-color: var(--accent);
+    background: rgba(91, 168, 245, 0.12);
+    color: var(--text);
+  }
+
+  .color-pill small {
+    display: block;
+    font-family: "DM Mono", monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .subcard {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(25, 37, 64, 0.86), rgba(20, 30, 52, 0.86));
+    border-radius: 14px;
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .subcard-title {
+    margin-bottom: 2px;
+  }
+
+  .subcard-note {
+    font-size: 13px;
+    color: #c2cedf;
+  }
+
+  .glass-chip,
+  .inline-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-chip.ok { color: var(--accent-2); }
+  .glass-chip.warn { color: var(--warn); }
+  .glass-chip.bad { color: #ffb0b0; }
+
+  .banner {
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .banner.visible { display: flex; }
+  .banner.error {
+    border: 1px solid rgba(245, 111, 111, 0.35);
+    background: rgba(245, 111, 111, 0.12);
+    color: #ffd1d1;
+  }
+  .banner.warn {
+    border: 1px solid rgba(245, 178, 91, 0.35);
+    background: rgba(245, 178, 91, 0.12);
+    color: #ffe0b8;
+  }
+  .banner.info {
+    border: 1px solid rgba(91, 168, 245, 0.28);
+    background: rgba(91, 168, 245, 0.1);
+    color: #d7e8ff;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn,
+  .ghost-btn {
+    min-height: 50px;
+    border: none;
+    border-radius: 13px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  .btn {
+    padding: 0 20px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    color: white;
+    box-shadow: 0 18px 35px rgba(59, 130, 246, 0.22);
+  }
+
+  .ghost-btn {
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #d6e2f2;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .btn:hover,
+  .ghost-btn:hover,
+  .report-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  #results {
+    display: none;
+    gap: 16px;
+  }
+
+  #results.visible {
+    display: grid;
+  }
+
+  .hero-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .hero-card {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 18px;
+    background: linear-gradient(180deg, rgba(20, 30, 52, 0.92), rgba(16, 24, 42, 0.92));
+  }
+
+  .hero-card.primary {
+    background: linear-gradient(135deg, rgba(91, 168, 245, 0.18), rgba(33, 49, 86, 0.96));
+    border-color: rgba(91, 168, 245, 0.3);
+  }
+
+  .hero-card.secondary {
+    background: linear-gradient(135deg, rgba(92, 240, 200, 0.12), rgba(24, 43, 51, 0.96));
+    border-color: rgba(92, 240, 200, 0.2);
+  }
+
+  .hero-card.alert {
+    background: linear-gradient(135deg, rgba(245, 178, 91, 0.12), rgba(46, 36, 23, 0.96));
+    border-color: rgba(245, 178, 91, 0.22);
+  }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-title::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 12px;
-    background: var(--acc);
-    border-radius: 2px;
   }
 
-  /* ── FORM GRID ── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .form-grid .span2 { grid-column: 1 / -1; }
-
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.3px;
-  }
-  .field input, .field select {
-    background: var(--s2);
-    border: 1px solid var(--border);
-    border-radius: var(--r2);
-    color: var(--txt);
-    font-family: 'DM Mono', monospace;
-    font-size: 16px;
-    height: 48px;
-    padding: 0 14px;
-    transition: border-color .15s, background .15s;
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-  }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--acc);
-    background: var(--s3);
-  }
-  .field .unit {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: -2px;
-  }
-
-  /* select arrow */
-  .field select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-    cursor: pointer;
-  }
-
-  /* ── COLOR PILLS ── */
-  .color-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .color-pill {
-    flex: 1;
-    min-width: 110px;
-    background: var(--s2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r2);
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all .15s;
-    text-align: center;
-  }
-  .color-pill:hover { border-color: var(--acc); background: var(--s3); }
-  .color-pill.active {
-    border-color: var(--acc);
-    background: rgba(91,168,245,.12);
-  }
-  .color-pill .pill-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--txt);
-    display: block;
-  }
-  .color-pill .pill-price {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    display: block;
-    margin-top: 2px;
-  }
-  .color-pill.active .pill-name { color: var(--acc); }
-
-  /* ── BUTTON ── */
-  .btn-calc {
-    width: 100%;
-    height: 52px;
-    background: linear-gradient(135deg, var(--acc) 0%, #4892dc 100%);
-    border: none;
-    border-radius: var(--r);
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: opacity .15s, transform .1s;
-    margin-top: 4px;
-  }
-  .btn-calc:hover { opacity: .92; }
-  .btn-calc:active { transform: scale(.99); }
-
-  /* ── RESULTS ── */
-  #results { display: none; }
-  #results.visible { display: block; }
-
-  /* warning banner */
-  .warn-banner {
-    background: rgba(245,158,91,.12);
-    border: 1px solid rgba(245,158,91,.4);
-    border-radius: var(--r);
-    padding: 14px 18px;
-    color: var(--warn);
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  /* hero total */
-  .hero-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .hero-card {
-    background: var(--s1);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px;
-    text-align: center;
-  }
-  .hero-card.accent { border-color: rgba(91,168,245,.3); }
-  .hero-card.accent2 { border-color: rgba(92,240,200,.3); }
-  .hero-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
   .hero-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 22px;
-    font-weight: 500;
-    line-height: 1;
-  }
-  .hero-card.accent .hero-value { color: var(--acc); }
-  .hero-card.accent2 .hero-value { color: var(--acc2); }
-  .hero-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 6px;
+    margin-top: 8px;
+    font-family: "DM Mono", monospace;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.8px;
   }
 
-  /* cost breakdown */
-  .breakdown-list { display: flex; flex-direction: column; gap: 10px; }
+  .hero-sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #c9d4e4;
+  }
+
+  .breakdown-list,
+  .detail-grid,
+  .observations {
+    display: grid;
+    gap: 12px;
+  }
+
   .breakdown-item {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
     align-items: center;
-    gap: 12px;
   }
+
   .breakdown-name {
-    font-size: 13px;
-    color: var(--txt);
-    white-space: nowrap;
-  }
-  .breakdown-bar-wrap {
-    position: relative;
-    height: 4px;
-    background: var(--s2);
-    border-radius: 2px;
-    margin-top: 4px;
-    overflow: hidden;
-  }
-  .breakdown-bar {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    border-radius: 2px;
-    transition: width .5s cubic-bezier(.4,0,.2,1);
-  }
-  .breakdown-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  /* tech info grid */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .info-item {
-    background: var(--s2);
-    border-radius: var(--r2);
-    padding: 12px 14px;
-  }
-  .info-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .info-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--txt);
-  }
-  .info-value.ok { color: var(--acc2); }
-  .info-value.warn { color: var(--warn); }
-
-  /* disclaimer */
-  .disclaimer {
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    padding: 0 8px;
-    line-height: 1.6;
-  }
-  .disclaimer strong { color: rgba(122,138,170,.8); }
-
-  /* divider */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  /* quantity badge */
-  .qty-note {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* btn pdf */
-  .btn-pdf {
-    width: 100%;
-    height: 48px;
-    background: transparent;
-    border: 1.5px solid var(--acc2);
-    border-radius: var(--r);
-    color: var(--acc2);
-    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background .15s, opacity .15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    color: #dce5f4;
+  }
+
+  .breakdown-bar-wrap {
+    margin-top: 8px;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .breakdown-bar {
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  .breakdown-value {
+    font-family: "DM Mono", monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-item {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 14px;
+  }
+
+  .detail-item span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+
+  .detail-item strong {
+    font-family: "DM Mono", monospace;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .detail-item strong.good { color: var(--good); }
+  .detail-item strong.warn { color: var(--warn); }
+
+  .observations {
     margin-top: 4px;
   }
-  .btn-pdf:hover { background: rgba(92,240,200,.08); }
-  .btn-pdf:active { opacity: .8; }
 
-  /* ── RELATÓRIO OVERLAY ── */
+  .obs-item {
+    border-left: 3px solid rgba(91, 168, 245, 0.7);
+    padding-left: 12px;
+    font-size: 13px;
+    color: #c8d3e4;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 92px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .sidebar-card {
+    padding: 20px;
+  }
+
+  .sidebar-card p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: #c0cbdc;
+  }
+
+  .sidebar-list {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  .sidebar-list li {
+    font-size: 13px;
+    color: #d7e0ee;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .sidebar-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  .report-btn {
+    min-height: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #dbe6f5;
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
   #reportOverlay {
-    display: none;
     position: fixed;
     inset: 0;
-    background: #fff;
-    z-index: 100;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    display: none;
+    background: rgba(6, 10, 18, 0.8);
+    backdrop-filter: blur(12px);
+    z-index: 40;
+    padding: 24px;
+    overflow: auto;
   }
-  #reportOverlay.visible { display: block; }
+
+  #reportOverlay.visible {
+    display: block;
+  }
+
+  .report-shell {
+    max-width: 980px;
+    margin: 0 auto;
+    background: white;
+    color: #111827;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  }
 
   .report-toolbar {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    z-index: 10;
+    padding: 16px 18px;
+    background: #0f172a;
+    color: white;
+    position: sticky;
+    top: 0;
   }
-  .report-toolbar-title {
-    font-family: 'DM Sans', sans-serif;
+
+  .report-toolbar strong {
     font-size: 14px;
-    font-weight: 600;
-    color: #111827;
+    letter-spacing: 0.3px;
   }
-  .report-toolbar-actions { display: flex; gap: 8px; }
-  .btn-rprint {
-    height: 36px;
-    padding: 0 16px;
-    background: #2563eb;
+
+  .report-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .report-actions button {
+    min-height: 38px;
+    border-radius: 10px;
     border: none;
-    border-radius: 6px;
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .btn-rclose {
-    height: 36px;
     padding: 0 14px;
-    background: #f3f4f6;
-    border: none;
-    border-radius: 6px;
-    color: #374151;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
+    font-family: "DM Sans", sans-serif;
+    font-weight: 700;
     cursor: pointer;
   }
 
+  .print-btn { background: #2563eb; color: white; }
+  .close-btn { background: rgba(255, 255, 255, 0.1); color: white; }
+
   #reportContent {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 28px 24px 48px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #111827;
-    line-height: 1.5;
+    padding: 28px;
+  }
+
+  @media (max-width: 980px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      position: static;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .grid,
+    .hero-row,
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header-inner,
+    main {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .hero,
+    .quick-panel,
+    .card {
+      padding: 18px;
+    }
   }
 
   @media print {
-    header, main, .report-toolbar { display: none !important; }
+    body { background: white; }
     #reportOverlay {
-      display: block !important;
-      position: static !important;
-      overflow: visible !important;
+      position: static;
+      display: block;
+      background: white;
+      padding: 0;
+      overflow: visible;
     }
-    #reportContent { padding: 0 !important; }
-    @page { margin: 16mm 12mm; }
-  }
-
-  @media (max-width: 420px) {
-    .form-grid { grid-template-columns: 1fr; }
-    .form-grid .span2 { grid-column: 1; }
-    .hero-row { grid-template-columns: 1fr; }
-    .info-grid { grid-template-columns: 1fr; }
-    .color-group { flex-direction: column; }
-    .color-pill { min-width: 0; }
+    .report-toolbar { display: none; }
+    .report-shell {
+      box-shadow: none;
+      border-radius: 0;
+      max-width: none;
+    }
   }
 </style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
-    <img src="assets/logo.png" alt="Olgacolor" style="height:32px;display:block">
-    <div class="tagline" style="margin-left:4px">Custo de venda</div>
+    <div class="brand">
+      <img src="assets/logo.png" alt="Olgacolor">
+      <div class="brand-copy">
+        <strong>Levitare</strong>
+        <span>Orçamento orientativo de materiais</span>
+      </div>
+    </div>
   </div>
 </header>
 
 <main>
-
-  <!-- CLIENTE / OBRA -->
-  <div class="card">
-    <div class="card-title">Identificação</div>
-    <div class="form-grid">
-      <div class="field span2">
-        <label>Cliente</label>
-        <input type="text" id="cliente" placeholder="Nome do cliente" style="font-family:'DM Sans',sans-serif">
-      </div>
-      <div class="field span2">
-        <label>Obra / ambiente</label>
-        <input type="text" id="obra" placeholder="Ex: Sala de estar — Bloco B" style="font-family:'DM Sans',sans-serif">
+  <section class="intro">
+    <div class="hero">
+      <div class="eyebrow">Sistema Magnético</div>
+      <h1>Preço rápido, leitura técnica mais clara e espessura assistida.</h1>
+      <p>Esta versão do Levitare junta o cálculo comercial com uma sugestão técnica de vidro baseada no app de espessura, mas sem jogar o usuário para o resultado a cada clique.</p>
+      <div class="hero-points">
+        <div class="hero-point">Folhas manuais</div>
+        <div class="hero-point">Planos automáticos</div>
+        <div class="hero-point">Espessura calculada ou manual</div>
+        <div class="hero-point">Relatório consistente</div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- INPUTS -->
-  <div class="card">
-    <div class="card-title">Dimensões da porta</div>
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Largura total</label>
-        <input type="number" id="largura" value="5000" min="500" max="12000" step="1">
-        <span class="unit">mm</span>
-      </div>
-
-      <div class="field">
-        <label>Altura</label>
-        <input type="number" id="altura" value="2700" min="500" max="5000" step="1">
-        <span class="unit">mm</span>
-      </div>
-
-      <div class="field">
-        <label>Nº de folhas</label>
-        <select id="folhas">
-          <option value="2">2 folhas</option>
-          <option value="3">3 folhas</option>
-          <option value="4">4 folhas</option>
-          <option value="5">5 folhas</option>
-          <option value="6">6 folhas</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Planos / trilhos</label>
-        <input type="number" id="planos" value="2" min="1" max="20" step="1">
-        <span class="unit">plano(s)</span>
-      </div>
-
-      <div class="field">
-        <label>Espessura do vidro</label>
-        <select id="espessura">
-          <option value="8">8 mm</option>
-          <option value="10">10 mm</option>
-          <option value="12" selected>12 mm</option>
-          <option value="15">15 mm</option>
-          <option value="19">19 mm</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Quantidade</label>
-        <input type="number" id="quantidade" value="1" min="1" max="100" step="1">
-        <span class="unit">porta(s)</span>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Acabamento</div>
-    <div class="color-group" id="colorGroup">
-      <div class="color-pill active" data-key="Madeira" data-price="60">
-        <span class="pill-name">Madeira</span>
-      </div>
-      <div class="color-pill" data-key="Inox escovado" data-price="55">
-        <span class="pill-name">Anodizado</span>
-      </div>
-      <div class="color-pill" data-key="Anod-Pint" data-price="45">
-        <span class="pill-name">Pintura</span>
-      </div>
-    </div>
-  </div>
-
-  <button class="btn-calc" onclick="calcular()">Calcular custo</button>
-
-  <!-- RESULTS -->
-  <div id="results">
-    <div style="height:20px"></div>
-
-    <div id="warnBanner" class="warn-banner" style="display:none">
-      <span>⚠</span>
-      <span id="warnText"></span>
-    </div>
-
-    <div class="hero-row">
-      <div class="hero-card accent">
-        <div class="hero-label">Total materiais</div>
-        <div class="hero-value" id="rTotal">—</div>
-        <div class="hero-sub" id="rQtyNote"></div>
-      </div>
-      <div class="hero-card accent2">
-        <div class="hero-label">Custo por m²</div>
-        <div class="hero-value" id="rM2">—</div>
-        <div class="hero-sub" id="rArea"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Composição do custo</div>
-      <div class="breakdown-list" id="breakdownList"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Detalhes técnicos</div>
-      <div class="info-grid" id="infoGrid"></div>
-    </div>
-
-    <div class="card">
-      <p class="disclaimer">
-        <strong>* Orçamento orientativo de materiais.</strong><br>
-        Sistema de fecho MR Brasil incluso.<br>
-        Não inclui arremates, parafusos, silicone e contramarco.
-      </p>
-    </div>
-
-    <button class="btn-pdf" onclick="gerarRelatorio()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M3 2h7l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10 2v3h3M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Gerar relatório PDF
-    </button>
-
-  </div>
-
-
-<script>
-// ── COLOR PILLS ──
-let selectedColor = { key: 'Madeira', price: 60 };
-let lastResult = null;  // stores last calculated data for PDF
-document.querySelectorAll('.color-pill').forEach(pill => {
-  pill.addEventListener('click', () => {
-    document.querySelectorAll('.color-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    selectedColor = { key: pill.dataset.key, price: parseFloat(pill.dataset.price) };
-  });
-});
-
-// ── FORMATTERS ──
-const brl = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const num = (v, dec=2) => v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-
-// ── CORE CALCULATION (mirrors Levitare_rev4.xlsx) ──
-function calcular() {
-  const width    = parseFloat(document.getElementById('largura').value);
-  const height   = parseFloat(document.getElementById('altura').value);
-  const nFolhas  = parseInt(document.getElementById('folhas').value);
-  const nPlanos  = parseInt(document.getElementById('planos').value);
-  const espVidro = parseFloat(document.getElementById('espessura').value);
-  const qty      = parseInt(document.getElementById('quantidade').value);
-  const priceKg  = selectedColor.price;
-
-  if (!width || !height || isNaN(qty) || qty < 1) return;
-
-  // ── derived dimensions ──
-  const larguraFolha = width / nFolhas;           // mm  (Apoio B6)
-  const areaTotal    = width * height / 1e6;      // m²  (Cálculo F14)
-
-  // ── profile weights (kg/m) ──
-  const w = { LEV001:1.57, OM005:1.25, OM002:1.284, OM006:1.784,
-              OM009:2.054, LEV002:0.22, OM011:0.138, OM012:0.333,
-              OM018:0.513, GSK046:0.174, FK048:0.054 };
-
-  // ── aluminum quantities (meters) — Apoio M-P columns ──
-  const O10 = larguraFolha * nFolhas / 1000;              // LEV001  (carro, total largura)
-  const O11 = 2 * height / 1000;                          // OM005   (montantes lat, 2×alt)
-  const O12 = width * nPlanos / 1000;                     // OM005   (trilho inf, larg×planos)
-  const O13 = O11;                                        // OM002   (mont lateral)
-  const O14 = O12;                                        // OM006   (marco sup)
-  const O15 = ((nFolhas * 2) - 2) * height / 1000;       // OM009   (montantes centrais)
-  const O16 = width * nPlanos / 1000;                     // LEV002  (trilho)
-  const O17 = O11 * 2;                                    // OM011   (arremate marco 2×alt)
-  const O18 = O12 * 2;                                    // OM012   (arremate inf 2×larg×planos)
-  const O19 = O10 * 2;                                    // OM018   (base vidro, largura)
-  const O20 = nFolhas * height / 1000 * 2;                // OM018   (base vidro, altura)
-  const O21 = O13;                                        // GSK046  (click mont lat)
-  const O22 = O15;                                        // FK048   (click mão de amigo)
-
-  // ── total raw aluminum weight ──
-  const sumP = O10*w.LEV001 + O11*w.OM005 + O12*w.OM005 + O13*w.OM002
-             + O14*w.OM006  + O15*w.OM009 + O16*w.LEV002 + O17*w.OM011
-             + O18*w.OM012  + O19*w.OM018 + O20*w.OM018  + O21*w.GSK046
-             + O22*w.FK048;
-
-  const P24   = sumP * 1.1;       // +10% sobra/perda
-  const P27   = P24 * 1.15;       // +15% fator acabamento
-  const aluKg = P27;              // kg alumínio por porta  (Apoio C19)
-
-  // ── COST: alumínio ──
-  const costAlu = aluKg * priceKg * qty;          // (Cálculo F24)
-
-  // ── COST: trilho magnético (R$300/m) ──
-  const trilhoM    = nPlanos * qty * width / 1000; // metros totais (Apoio C12)
-  const costTrilho = trilhoM * 300;               // (Apoio E12)
-
-  // ── COST: carrinhos magnéticos (R$1.000/un) ──
-  // peso vidro por folha
-  const pesoVidroFolha = larguraFolha * height / 1e6 * espVidro * 2.5;  // kg (Apoio B10)
-
-  // peso alumínio por folha (Apoio U17)
-  const T13 = height * 2 / 1000;
-  const U13 = T13 * w.OM009;                        // mont central por folha
-  const T14 = larguraFolha / 1000;
-  const U14 = T14 * w.LEV001;                       // carro por folha
-  const T15 = (O19 + O20) / nFolhas;
-  const U15 = T15 * w.OM018;                        // base vidro por folha
-  const U17 = U13 + U14 + U15;                      // kg alu por folha
-
-  const pesoTotalFolha = pesoVidroFolha + U17;       // kg total folha (Apoio U21)
-  const maxCarr        = Math.floor(larguraFolha / 200);         // max carrinhos (Apoio U22)
-  const carrPerFolha   = Math.ceil(pesoTotalFolha / 25); // (Apoio U23 — 25 kg/carrinho)
-  const totalCarr      = carrPerFolha * nFolhas * qty;
-  const costCarr       = totalCarr * 1000;           // (Apoio E13)
-
-  // ── COST: acessórios (R$650 × folhas × 1.15) ──
-  const costAcess = nFolhas * qty * 650 * 1.15;  // Apoio: E14=B9×D14×D9, B21=E14×1.15
-
-  // ── TOTAL ──
-  const total  = costAlu + costTrilho + costCarr + costAcess;
-  const custoM2 = total / (areaTotal * qty);
-
-  // ── VALIDATION ──
-  const overweight = carrPerFolha > maxCarr;
-
-  // ── RENDER ──
-  renderResults({
-    total, custoM2, areaTotal, qty,
-    costAlu, costTrilho, costCarr, costAcess,
-    aluKg, pesoTotalFolha, pesoVidroFolha, U17,
-    carrPerFolha, totalCarr, maxCarr, nFolhas,
-    larguraFolha, height, espVidro, overweight, nPlanos
-  });
-}
-
-function renderResults(r) {
-  lastResult = r;
-  // show panel
-  const panel = document.getElementById('results');
-  panel.classList.add('visible');
-  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-
-  // warning
-  const wb = document.getElementById('warnBanner');
-  if (r.overweight) {
-    wb.style.display = 'flex';
-    document.getElementById('warnText').textContent =
-      `Peso da folha (${num(r.pesoTotalFolha)} kg) excede capacidade de ${num(r.carrPerFolha)} carrinhos. Consultar engenharia.`;
-  } else {
-    wb.style.display = 'none';
-  }
-
-  // hero
-  document.getElementById('rTotal').textContent = brl(r.total);
-  document.getElementById('rM2').textContent    = brl(r.custoM2);
-  document.getElementById('rArea').textContent  = num(r.areaTotal * r.qty, 2) + ' m²';
-  document.getElementById('rQtyNote').textContent =
-    r.qty > 1 ? `${r.qty} porta${r.qty > 1 ? 's' : ''}` : '1 porta';
-
-  // breakdown
-  const items = [
-    { name: 'Alumínio',           value: r.costAlu,    color: '#5ba8f5' },
-    { name: 'Trilho magnético',   value: r.costTrilho, color: '#8b7cf5' },
-    { name: 'Carrinhos magnéticos', value: r.costCarr, color: '#5cf0c8' },
-    { name: 'Acessórios diversos', value: r.costAcess, color: '#f5c85b' },
-  ];
-  const maxV = Math.max(...items.map(i => i.value));
-  const bd = document.getElementById('breakdownList');
-  bd.innerHTML = items.map(item => `
-    <div class="breakdown-item">
-      <div>
-        <div class="breakdown-name">${item.name}</div>
-        <div class="breakdown-bar-wrap">
-          <div class="breakdown-bar" style="width:${(item.value/maxV*100).toFixed(1)}%;background:${item.color}"></div>
+  <section class="layout">
+    <div class="stack">
+      <div class="card">
+        <div class="card-title">Identificação</div>
+        <div class="grid">
+          <div class="field span-2">
+            <label for="cliente">Cliente</label>
+            <input id="cliente" type="text" placeholder="Nome do cliente" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div class="field span-2">
+            <label for="obra">Obra / ambiente</label>
+            <input id="obra" type="text" placeholder="Ex.: Sala de estar - Bloco B" style="font-family:'DM Sans',sans-serif">
+          </div>
         </div>
       </div>
-      <div class="breakdown-value" style="color:${item.color}">${brl(item.value)}</div>
-    </div>
-    <div class="divider" style="margin:6px 0"></div>
-  `).join('') + `
-    <div class="breakdown-item">
-      <div class="breakdown-name" style="font-weight:600">TOTAL</div>
-      <div class="breakdown-value" style="color:var(--acc);font-size:16px">${brl(r.total)}</div>
-    </div>`;
 
-  // tech info
-  const infos = [
-    { label: 'Largura por folha',      value: num(r.larguraFolha, 0) + ' mm' },
-    { label: 'Peso total da folha',    value: num(r.pesoTotalFolha, 1) + ' kg' },
-    { label: 'Carrinhos / folha',      value: r.carrPerFolha + ' un  (máx ' + num(r.maxCarr, 1) + ')',
-      cls: r.overweight ? 'warn' : 'ok' },
-    { label: 'Total de carrinhos',     value: r.totalCarr + ' un' },
-    { label: 'Metros de trilho',       value: num(r.nPlanos * r.qty * (r.larguraFolha * r.nFolhas) / 1000, 2) + ' m' },
-  ];
-  document.getElementById('infoGrid').innerHTML = infos.map(i => `
-    <div class="info-item">
-      <div class="info-label">${i.label}</div>
-      <div class="info-value ${i.cls || ''}">${i.value}</div>
-    </div>`).join('');
-}
+      <div class="card">
+        <div class="card-title">Configuração da Porta</div>
+        <div class="grid">
+          <div class="field">
+            <label for="largura">Largura total</label>
+            <input id="largura" type="number" value="5000" min="500" max="12000" step="50" inputmode="numeric">
+            <span class="unit">mm</span>
+          </div>
+          <div class="field">
+            <label for="altura">Altura</label>
+            <input id="altura" type="number" value="2700" min="500" max="5000" step="50" inputmode="numeric">
+            <span class="unit">mm</span>
+          </div>
 
-function fecharRelatorio() {
-  document.getElementById('reportOverlay').classList.remove('visible');
-}
+          <div class="field">
+            <label for="folhas">Número de folhas</label>
+            <input id="folhas" type="number" value="4" min="2" max="12" step="1" inputmode="numeric">
+            <span class="helper">Informe livremente. O app monta as opções válidas de planos a partir desse valor.</span>
+          </div>
+          <div class="field">
+            <label>Planos / trilhos válidos</label>
+            <div id="planosPills" class="plan-pills"></div>
+            <input id="planos" type="hidden" value="2">
+            <span id="planosHint" class="helper">Selecione um dos arranjos permitidos.</span>
+          </div>
 
-function gerarRelatorio() {
-  const r = lastResult;
-  if (!r) return;
-
-  const width      = parseFloat(document.getElementById('largura').value);
-  const height     = parseFloat(document.getElementById('altura').value);
-  const acabamento = document.querySelector('.color-pill.active .pill-name').textContent;
-  const espVidro   = document.getElementById('espessura').value;
-  const qty        = parseInt(document.getElementById('quantidade').value);
-  const cliente    = document.getElementById('cliente').value.trim();
-  const obra       = document.getElementById('obra').value.trim();
-  const today      = new Date().toLocaleDateString('pt-BR');
-
-  const clienteHtml = (cliente || obra) ? `
-    <div style="margin-bottom:18px;padding:12px 16px;background:#f3f4f6;border-radius:8px">
-      ${cliente ? `<div style="font-size:15px;font-weight:600;color:#111827">${cliente}</div>` : ''}
-      ${obra    ? `<div style="font-size:12px;color:#6b7280;margin-top:2px">${obra}</div>`    : ''}
-    </div>` : '';
-
-  const warnHtml = r.overweight
-    ? `<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:10px 14px;color:#92400e;font-size:12px;margin-bottom:16px">⚠ Peso da folha (${num(r.pesoTotalFolha)} kg) excede capacidade de ${r.carrPerFolha} carrinhos. Consultar engenharia.</div>`
-    : '';
-
-  const di = (label, value) =>
-    `<div style="background:#f3f4f6;border-radius:6px;padding:9px 14px;flex:1;min-width:110px">
-      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px">${label}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:#111827">${value}</div>
-    </div>`;
-
-  const ti = (label, value, color) =>
-    `<div style="background:#f9fafb;border-radius:6px;padding:10px 14px">
-      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">${label}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${color||'#111827'}">${value}</div>
-    </div>`;
-
-  const sec = t => `<div style="font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#6b7280;margin:20px 0 10px">${t}</div>`;
-
-  document.getElementById('reportContent').innerHTML = `
-    <!-- cabeçalho -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111827;padding-bottom:14px;margin-bottom:22px">
-      <div>
-        <img src="assets/logo.png" alt="Olgacolor" style="height:36px;display:block">
-        <div style="font-size:12px;color:#6b7280;margin-top:6px">Porta de correr — Sistema magnético</div>
+          <div class="field">
+            <label for="quantidade">Quantidade</label>
+            <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
+            <span class="unit">porta(s)</span>
+          </div>
+          <div class="field">
+            <label>Largura por folha</label>
+            <div id="larguraFolhaChip" class="inline-chip">Aguardando dimensões</div>
+            <span class="helper">Esta largura alimenta o cálculo de peso e a sugestão de espessura.</span>
+          </div>
+        </div>
       </div>
-      <div style="text-align:right;font-size:11px;color:#6b7280;line-height:1.8">
-        <span style="color:#111827;font-size:13px;font-weight:600;display:block">Orçamento orientativo</span>
-        Emitido em ${today}<br>
-        Qtd: ${qty} porta${qty > 1 ? 's' : ''}
+
+      <div class="card">
+        <div class="card-title">Vidro</div>
+        <div class="grid">
+          <div class="field span-2">
+            <label>Modo de espessura</label>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-mode="auto">Calculada</button>
+              <button type="button" class="seg-btn" data-mode="manual">Manual</button>
+            </div>
+            <span class="helper">No modo calculado, o app usa a lógica do calculador de vidro para sugerir uma composição mínima.</span>
+          </div>
+
+          <div id="glassAutoBox" class="subcard span-2">
+            <div>
+              <div class="subcard-title">Entradas essenciais para sugestão</div>
+              <div class="subcard-note">A pressão vem da combinação entre UF, cidade e pavimentos segundo a lógica da NBR 10821.</div>
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label>Tipo de vidro</label>
+                <input id="glassFamily" type="hidden" value="laminado">
+                <div class="inline-chip">Vidro laminado</div>
+                <span class="helper">O Levitare considera sempre composição laminada neste fluxo.</span>
+              </div>
+              <div class="field">
+                <label for="glassHeat">Tratamento das chapas</label>
+                <select id="glassHeat">
+                  <option value="1.00" selected>Recozido (float)</option>
+                  <option value="0.80">Termoendurecido</option>
+                  <option value="0.61">Temperado</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="windState">UF</label>
+                <select id="windState"></select>
+              </div>
+              <div class="field">
+                <label for="windCity">Cidade de referência</label>
+                <select id="windCity"></select>
+              </div>
+              <div class="field">
+                <label for="buildingFloors">Pavimentos</label>
+                <select id="buildingFloors">
+                  <option value="2">Até 2 pavimentos (até 6 m)</option>
+                  <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
+                  <option value="10">Até 10 pavimentos (até 30 m)</option>
+                  <option value="20">Até 20 pavimentos (até 60 m)</option>
+                  <option value="30">Até 30 pavimentos (até 90 m)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Base normativa</label>
+                <div id="glassNormChip" class="inline-chip">Carregando cidade e isopleta...</div>
+                <span id="glassNormHelp" class="helper">O app converte a isopleta da cidade para uma região normativa e calcula a pressão de ensaio usada na sugestão.</span>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label>Sugestão atual</label>
+                <div id="glassChip" class="glass-chip">Calculando composição mínima...</div>
+                <span id="glassHelp" class="helper">O cálculo considera a largura útil de cada folha, a altura total da porta e a pressão derivada da NBR 10821.</span>
+              </div>
+              <div class="field">
+                <label>Espessura adotada no custo</label>
+                <div id="glassChosenChip" class="inline-chip">Aguardando cálculo</div>
+                <span id="glassChosenHelp" class="helper">Quando o modo estiver em calculada, o custo usa a espessura total equivalente da sugestão.</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="glassManualBox" class="subcard span-2" style="display:none">
+            <div>
+              <div class="subcard-title">Espessura manual</div>
+              <div class="subcard-note">Use este modo quando você já tiver uma definição técnica e quiser sobrepor a sugestão do app.</div>
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label for="espessuraManual">Espessura total do vidro</label>
+                <input id="espessuraManual" type="number" value="12" min="4" max="40" step="1" inputmode="numeric">
+                <span class="unit">mm</span>
+              </div>
+              <div class="field">
+                <label>Espessura mínima que atende</label>
+                <div id="manualCompareChip" class="glass-chip warn">Aguardando sugestão automática para comparar.</div>
+                <span id="manualCompareHelp" class="helper">O app continua calculando a referência técnica ao fundo para mostrar qual composição atende neste cenário.</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="glassAlert" class="banner info span-2">
+            <span>i</span>
+            <span id="glassAlertText"></span>
+          </div>
+        </div>
       </div>
+
+      <div class="card">
+        <div class="card-title">Acabamento</div>
+        <div id="colorGroup" class="color-group"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ação</div>
+        <div class="stack">
+          <div id="errorBanner" class="banner error">
+            <span>!</span>
+            <span id="errorText"></span>
+          </div>
+          <div id="dirtyBanner" class="banner info">
+            <span>i</span>
+            <span>As entradas foram alteradas depois do último cálculo. Clique em <strong>Calcular custo</strong> para atualizar o resultado.</span>
+          </div>
+          <div class="actions">
+            <button id="calcButton" class="btn" type="button">Calcular custo</button>
+            <button id="resetButton" class="ghost-btn" type="button">Voltar ao padrão</button>
+          </div>
+        </div>
+      </div>
+
+      <section id="results">
+        <div id="warnBanner" class="banner warn">
+          <span>!</span>
+          <span id="warnText"></span>
+        </div>
+
+        <div class="hero-row">
+          <div class="hero-card primary">
+            <div class="hero-label">Total de materiais</div>
+            <div class="hero-value" id="rTotal">-</div>
+            <div class="hero-sub" id="rQtyNote"></div>
+          </div>
+          <div class="hero-card secondary">
+            <div class="hero-label">Custo por m²</div>
+            <div class="hero-value" id="rM2">-</div>
+            <div class="hero-sub" id="rArea"></div>
+          </div>
+          <div class="hero-card alert">
+            <div class="hero-label">Vidro adotado</div>
+            <div class="hero-value" id="rGlass">-</div>
+            <div class="hero-sub" id="rGlassMode"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Composição do custo</div>
+          <div id="breakdownList" class="breakdown-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Leitura técnica</div>
+          <div id="detailGrid" class="detail-grid"></div>
+          <div id="observations" class="observations"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Memória comercial</div>
+          <p class="helper">Orçamento orientativo de materiais. Sistema de fecho MR Brasil incluso. Não inclui arremates, parafusos, silicone e contramarco.</p>
+          <div class="actions" style="margin-top:14px">
+            <button id="reportButton" class="report-btn" type="button">Gerar relatório PDF</button>
+          </div>
+        </div>
+      </section>
     </div>
 
-    ${warnHtml}
+    <aside class="sidebar">
+      <div class="card sidebar-card">
+        <div class="card-title">Regras aplicadas</div>
+        <ul class="sidebar-list">
+          <li>Para 2 folhas, o sistema fixa 2 planos.</li>
+          <li>Para número ímpar de folhas acima de 2, os planos seguem o mesmo número de folhas.</li>
+          <li>Para número par acima de 2, o app oferece duas opções: n/2 ou n.</li>
+          <li>A espessura automática usa a largura de cada folha e a altura total da porta.</li>
+        </ul>
+      </div>
 
-    ${clienteHtml}
-
-    ${sec('Dimensões')}
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      ${di('Largura total', num(width,0)+' mm')}
-      ${di('Altura', num(height,0)+' mm')}
-      ${di('Área / porta', num(r.areaTotal,2)+' m²')}
-      ${di('Folhas', r.nFolhas)}
-    </div>
-
-    ${sec('Custo de materiais')}
-    <table style="width:100%;border-collapse:collapse">
-      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Alumínio</td>
-          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costAlu)}</td></tr>
-      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Trilho magnético</td>
-          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costTrilho)}</td></tr>
-      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Carrinhos magnéticos</td>
-          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costCarr)}</td></tr>
-      <tr><td style="padding:9px 0;border-bottom:1px solid #e5e7eb;color:#111827">Acessórios diversos</td>
-          <td style="padding:9px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:#111827">${brl(r.costAcess)}</td></tr>
-      <tr><td style="padding-top:12px;border-top:2px solid #111827;font-weight:600;font-size:14px;color:#111827">TOTAL${qty > 1 ? ' ('+qty+' portas)' : ''}</td>
-          <td style="padding-top:12px;border-top:2px solid #111827;text-align:right;font-family:'DM Mono',monospace;font-weight:600;font-size:15px;color:#2563eb">${brl(r.total)}</td></tr>
-    </table>
-
-    ${sec('Detalhes técnicos')}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      ${ti('Acabamento', acabamento)}
-      ${ti('Espessura vidro', espVidro+' mm')}
-      ${ti('Custo por m²', brl(r.custoM2))}
-      ${ti('Largura por folha', num(r.larguraFolha,0)+' mm')}
-      ${ti('Peso total da folha', num(r.pesoTotalFolha,1)+' kg')}
-      ${ti('Carrinhos / folha', r.carrPerFolha+' un (máx '+num(r.maxCarr,1)+')', r.overweight?'#d97706':'#059669')}
-      ${ti('Total de carrinhos', r.totalCarr+' un')}
-      ${ti('Sistema de fecho', 'MR Brasil')}
-    </div>
-
-    <div style="margin-top:28px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:10.5px;color:#9ca3af;line-height:1.7">
-      <strong style="color:#6b7280">* Orçamento orientativo de materiais.</strong><br>
-      Não inclui arremates, parafusos, silicone e contramarco.<br>
-      Valores sujeitos a alteração sem aviso prévio.
-    </div>
-  `;
-
-  const overlay = document.getElementById('reportOverlay');
-  overlay.classList.add('visible');
-  overlay.scrollTop = 0;
-}
-
-function imprimirRelatorio() {
-  const content = document.getElementById('reportContent').innerHTML;
-  const logo    = document.querySelector('#reportOverlay img') 
-                  ? document.querySelector('#reportOverlay img').outerHTML 
-                  : '';
-
-  // Monta HTML completo para o iframe
-  const printHtml = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',sans-serif;font-size:13px;color:#111827;line-height:1.5;padding:20px 28px;background:#fff}
-  @page{margin:16mm 12mm}
-</style>
-</head>
-<body>${content}</body>
-</html>`;
-
-  // Cria iframe invisível
-  let frame = document.getElementById('_printFrame');
-  if (frame) frame.remove();
-  frame = document.createElement('iframe');
-  frame.id = '_printFrame';
-  frame.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none';
-  document.body.appendChild(frame);
-
-  frame.onload = function() {
-    try {
-      frame.contentWindow.focus();
-      frame.contentWindow.print();
-    } catch(e) { window.print(); }
-  };
-
-  frame.contentDocument.open();
-  frame.contentDocument.write(printHtml);
-  frame.contentDocument.close();
-}
-</script>
+      <div class="card sidebar-card">
+        <div class="card-title">Boas práticas</div>
+        <p>Use o modo calculado para ter uma referência rápida e depois troque para manual quando já existir definição técnica ou comercial fechada.</p>
+        <p>Se o sistema pedir muitos carrinhos por folha ou se a largura útil ficar muito alta, trate o orçamento como sujeito a validação de engenharia.</p>
+      </div>
+    </aside>
+  </section>
+</main>
 
 <div id="reportOverlay">
-  <div class="report-toolbar">
-    <span class="report-toolbar-title">Orçamento orientativo</span>
-    <div class="report-toolbar-actions">
-      <button class="btn-rprint" onclick="imprimirRelatorio()">Imprimir / PDF</button>
-      <button class="btn-rclose" onclick="fecharRelatorio()">Fechar</button>
+  <div class="report-shell">
+    <div class="report-toolbar">
+      <strong>Relatório orientativo Levitare</strong>
+      <div class="report-actions">
+        <button type="button" class="print-btn" id="printButton">Imprimir / PDF</button>
+        <button type="button" class="close-btn" id="closeReportButton">Fechar</button>
+      </div>
     </div>
+    <div id="reportContent"></div>
   </div>
-  <div id="reportContent"></div>
 </div>
 
+<script src="data/isopletas-cidades.js"></script>
+<script src="../vidro-laminado/js/constants.js"></script>
+<script src="../vidro-laminado/js/engine.js"></script>
+<script>
+(() => {
+  const CONFIG = {
+    finishes: [
+      { key: "Madeira", label: "Madeira", priceKg: 60 },
+      { key: "Inox escovado", label: "Anodizado", priceKg: 55 },
+      { key: "Anod-Pint", label: "Pintura", priceKg: 45 }
+    ],
+    perfisKgM: {
+      LEV001: 1.57, OM005: 1.25, OM002: 1.284, OM006: 1.784,
+      OM009: 2.054, LEV002: 0.22, OM011: 0.138, OM012: 0.333,
+      OM018: 0.513, GSK046: 0.174, FK048: 0.054
+    },
+    precoTrilhoM: 300,
+    precoCarrinho: 1000,
+    precoAcessoriosFolha: 650,
+    fatorPerdaAluminio: 1.1,
+    fatorAcabamento: 1.15,
+    capacidadeCarrinhoKg: 25
+  };
+
+  const state = {
+    glassMode: "auto",
+    selectedFinish: CONFIG.finishes[0],
+    selectedPlan: 2,
+    lastGlassSuggestion: null,
+    lastResult: null,
+    dirty: false
+  };
+
+  const refs = {
+    cliente: document.getElementById("cliente"),
+    obra: document.getElementById("obra"),
+    largura: document.getElementById("largura"),
+    altura: document.getElementById("altura"),
+    folhas: document.getElementById("folhas"),
+    planos: document.getElementById("planos"),
+    planosPills: document.getElementById("planosPills"),
+    planosHint: document.getElementById("planosHint"),
+    quantidade: document.getElementById("quantidade"),
+    larguraFolhaChip: document.getElementById("larguraFolhaChip"),
+    glassFamily: document.getElementById("glassFamily"),
+    glassHeat: document.getElementById("glassHeat"),
+    windState: document.getElementById("windState"),
+    windCity: document.getElementById("windCity"),
+    buildingFloors: document.getElementById("buildingFloors"),
+    glassNormChip: document.getElementById("glassNormChip"),
+    glassNormHelp: document.getElementById("glassNormHelp"),
+    glassChip: document.getElementById("glassChip"),
+    glassHelp: document.getElementById("glassHelp"),
+    glassChosenChip: document.getElementById("glassChosenChip"),
+    glassChosenHelp: document.getElementById("glassChosenHelp"),
+    glassAutoBox: document.getElementById("glassAutoBox"),
+    glassManualBox: document.getElementById("glassManualBox"),
+    espessuraManual: document.getElementById("espessuraManual"),
+    manualCompareChip: document.getElementById("manualCompareChip"),
+    manualCompareHelp: document.getElementById("manualCompareHelp"),
+    glassAlert: document.getElementById("glassAlert"),
+    glassAlertText: document.getElementById("glassAlertText"),
+    errorBanner: document.getElementById("errorBanner"),
+    errorText: document.getElementById("errorText"),
+    dirtyBanner: document.getElementById("dirtyBanner"),
+    colorGroup: document.getElementById("colorGroup"),
+    calcButton: document.getElementById("calcButton"),
+    resetButton: document.getElementById("resetButton"),
+    results: document.getElementById("results"),
+    warnBanner: document.getElementById("warnBanner"),
+    warnText: document.getElementById("warnText"),
+    rTotal: document.getElementById("rTotal"),
+    rQtyNote: document.getElementById("rQtyNote"),
+    rM2: document.getElementById("rM2"),
+    rArea: document.getElementById("rArea"),
+    rGlass: document.getElementById("rGlass"),
+    rGlassMode: document.getElementById("rGlassMode"),
+    breakdownList: document.getElementById("breakdownList"),
+    detailGrid: document.getElementById("detailGrid"),
+    observations: document.getElementById("observations"),
+    reportButton: document.getElementById("reportButton"),
+    reportOverlay: document.getElementById("reportOverlay"),
+    reportContent: document.getElementById("reportContent"),
+    printButton: document.getElementById("printButton"),
+    closeReportButton: document.getElementById("closeReportButton")
+  };
+
+  const cityData = window.LevitareData && window.LevitareData.isopletasCidades;
+  const vidroConstants = window.VidroApp && window.VidroApp.Constants;
+  const vidroEngine = window.VidroApp && window.VidroApp.Engine;
+  const NBR_REGION_BY_ISOPLETA = {
+    30: "I",
+    35: "II",
+    40: "III",
+    45: "IV",
+    50: "V"
+  };
+  const NBR_PRESSURE_TABLE = {
+    2: { I: 350, II: 470, III: 610, IV: 770, V: 950 },
+    5: { I: 420, II: 580, III: 750, IV: 950, V: 1180 },
+    10: { I: 500, II: 680, III: 890, IV: 1130, V: 1400 },
+    20: { I: 600, II: 815, III: 1060, IV: 1350, V: 1660 },
+    30: { I: 660, II: 890, III: 1170, IV: 1480, V: 1820 }
+  };
+
+  const brl = (value) => "R$ " + Number(value || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const num = (value, decimals = 0) => Number(value || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+
+  const escapeHtml = (value) => String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+
+  function setBanner(node, text, visible, variant) {
+    if (!node) return;
+    node.classList.remove("visible", "error", "warn", "info");
+    if (variant) node.classList.add(variant);
+    if (!visible) return;
+    node.classList.add("visible");
+    const textNode = node.querySelector("span:last-child");
+    if (textNode) textNode.innerHTML = text;
+  }
+
+  function showError(message) {
+    refs.errorText.textContent = message;
+    refs.errorBanner.classList.add("visible");
+  }
+
+  function clearError() {
+    refs.errorBanner.classList.remove("visible");
+  }
+
+  function clearResultsPreview() {
+    refs.results.classList.remove("visible");
+    refs.warnBanner.classList.remove("visible");
+    refs.reportOverlay.classList.remove("visible");
+    state.lastResult = null;
+  }
+
+  function markDirty() {
+    if (!state.lastResult) return;
+    clearResultsPreview();
+    state.dirty = true;
+    refs.dirtyBanner.classList.add("visible");
+  }
+
+  function clearDirty() {
+    state.dirty = false;
+    refs.dirtyBanner.classList.remove("visible");
+  }
+
+  function normalizeInt(value, fallback, min, max) {
+    const numeric = Number.parseInt(value, 10);
+    if (!Number.isFinite(numeric)) return fallback;
+    return Math.min(max, Math.max(min, numeric));
+  }
+
+  function normalizeFloat(value, fallback, min, max) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return fallback;
+    return Math.min(max, Math.max(min, numeric));
+  }
+
+  function getFolhas(commit = false) {
+    const raw = refs.folhas.value;
+    const numeric = Number.parseInt(raw, 10);
+    const folhas = Number.isFinite(numeric) ? Math.min(12, Math.max(2, numeric)) : 4;
+    if (commit) refs.folhas.value = folhas;
+    return folhas;
+  }
+
+  function getPlanOptions(folhas) {
+    if (folhas <= 2) return [2];
+    if (folhas % 2 !== 0) return [folhas];
+    return [folhas / 2, folhas];
+  }
+
+  function renderPlanOptions(commit = false) {
+    const folhas = getFolhas(commit);
+    const options = getPlanOptions(folhas);
+    if (!options.includes(state.selectedPlan)) {
+      state.selectedPlan = options[0];
+    }
+
+    refs.planos.value = state.selectedPlan;
+    refs.planosHint.textContent = options.length === 1
+      ? "Para esta quantidade de folhas, existe apenas um arranjo válido de planos."
+      : "Para esta quantidade de folhas, você pode escolher um arranjo enxuto ou um arranjo integral.";
+
+    refs.planosPills.innerHTML = options.map((option) => `
+      <button type="button" class="plan-pill ${option === state.selectedPlan ? "active" : ""}" data-plan="${option}">
+        ${option} plano${option > 1 ? "s" : ""}
+      </button>
+    `).join("");
+
+    refs.planosPills.querySelectorAll(".plan-pill").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.selectedPlan = Number(button.dataset.plan);
+        refs.planos.value = String(state.selectedPlan);
+        renderPlanOptions();
+        markDirty();
+      });
+    });
+  }
+
+  function renderFinishOptions() {
+    refs.colorGroup.innerHTML = CONFIG.finishes.map((finish) => `
+      <button type="button" class="color-pill ${finish.key === state.selectedFinish.key ? "active" : ""}" data-finish="${finish.key}">
+        <strong>${finish.label}</strong>
+      </button>
+    `).join("");
+
+    refs.colorGroup.querySelectorAll(".color-pill").forEach((button) => {
+      button.addEventListener("click", () => {
+        const finish = CONFIG.finishes.find((item) => item.key === button.dataset.finish);
+        if (!finish) return;
+        state.selectedFinish = finish;
+        renderFinishOptions();
+        markDirty();
+      });
+    });
+  }
+
+  function renderStateOptions() {
+    const states = cityData && cityData.states ? cityData.states : [];
+    if (!states.length) {
+      refs.windState.innerHTML = `<option value="">Base indisponível</option>`;
+      refs.windCity.innerHTML = `<option value="">Sem cidades</option>`;
+      return;
+    }
+    refs.windState.innerHTML = states.map((stateItem) => `
+      <option value="${stateItem.uf}">${stateItem.uf} - ${stateItem.estado}</option>
+    `).join("");
+
+    const preferredUf = states.some((stateItem) => stateItem.uf === "SP") ? "SP" : (states[0] ? states[0].uf : "");
+    refs.windState.value = preferredUf;
+    renderCityOptions(preferredUf);
+  }
+
+  function renderCityOptions(uf) {
+    const states = cityData && cityData.states ? cityData.states : [];
+    const stateItem = states.find((item) => item.uf === uf) || states[0];
+    const cities = stateItem ? stateItem.cidades : [];
+    if (!cities.length) {
+      refs.windCity.innerHTML = `<option value="">Sem cidades</option>`;
+      return;
+    }
+
+    refs.windCity.innerHTML = cities.map((city) => `
+      <option value="${escapeHtml(city.cidade)}">${city.cidade}</option>
+    `).join("");
+
+    const preferredCity = cities.some((city) => city.cidade === "São Paulo")
+      ? "São Paulo"
+      : (cities[0] ? cities[0].cidade : "");
+    refs.windCity.value = preferredCity;
+  }
+
+  function getLocationEntry() {
+    const states = cityData && cityData.states ? cityData.states : [];
+    const stateItem = states.find((item) => item.uf === refs.windState.value) || states[0];
+    if (!stateItem) return null;
+
+    const city = stateItem.cidades.find((item) => item.cidade === refs.windCity.value) || stateItem.cidades[0];
+    if (!city) return null;
+
+    return {
+      uf: stateItem.uf,
+      estado: stateItem.estado,
+      cidade: city.cidade,
+      isopleta: Number(city.isopleta)
+    };
+  }
+
+  function getNormativeContext() {
+    const location = getLocationEntry();
+    const floors = normalizeInt(refs.buildingFloors.value, 5, 2, 30);
+    refs.buildingFloors.value = floors;
+    if (!location) return null;
+
+    const region = NBR_REGION_BY_ISOPLETA[location.isopleta] || "I";
+    const pe = NBR_PRESSURE_TABLE[floors] && NBR_PRESSURE_TABLE[floors][region];
+    const ps = pe ? Math.round(pe * 1.5) : null;
+    const pa = pe ? Math.round(pe * 0.2) : null;
+
+    return {
+      ...location,
+      floors,
+      region,
+      pe,
+      ps,
+      pa,
+      support: "4 lados"
+    };
+  }
+
+  function updateLeafWidthChip(commit = false) {
+    const largura = normalizeFloat(refs.largura.value, 5000, 500, 12000);
+    const altura = normalizeFloat(refs.altura.value, 2700, 500, 5000);
+    const folhas = getFolhas(commit);
+    if (commit) {
+      refs.largura.value = largura;
+      refs.altura.value = altura;
+    }
+
+    const larguraFolha = largura / folhas;
+    refs.larguraFolhaChip.textContent = `${num(larguraFolha, 0)} mm por folha em ${num(altura, 0)} mm de altura`;
+    return { largura, altura, folhas, larguraFolha };
+  }
+
+  function getHeatLabel(eps3) {
+    const labels = {
+      "1.00": "Recozido",
+      "0.80": "Termoendurecido",
+      "0.61": "Temperado"
+    };
+    return labels[String(Number(eps3).toFixed(2))] || "Especial";
+  }
+
+  function buildCandidateList(family, eps3) {
+    if (!vidroConstants) return [];
+    if (family === "monolitico") {
+      return vidroConstants.CONFIGS_MONO.map((thickness) => ({
+        label: `${thickness} mm`,
+        totalThickness: thickness,
+        panes: [{ h: thickness, eps3 }]
+      }));
+    }
+    return vidroConstants.CONFIGS_LAM.map((config) => ({
+      label: `${config.h1} + ${config.h2} mm`,
+      totalThickness: config.h1 + config.h2,
+      panes: [
+        { h: config.h1, eps3 },
+        { h: config.h2, eps3 }
+      ]
+    }));
+  }
+
+  function suggestGlass() {
+    if (!vidroEngine || !vidroConstants) {
+      return {
+        ok: false,
+        tone: "bad",
+        chipText: "Motor técnico indisponível",
+        helpText: "Os scripts do app de vidro não foram encontrados. Use a espessura manual para continuar.",
+        chosenText: "Sem referência automática",
+        alertText: "A sugestão automática depende dos arquivos do app de vidro laminado.",
+        adoptedThickness: null
+      };
+    }
+
+    const { altura, larguraFolha } = updateLeafWidthChip();
+    const family = "laminado";
+    const apoio = "4";
+    const normative = getNormativeContext();
+    const pressure = normative && normative.pe ? normative.pe : 750;
+    const eps3 = normalizeFloat(refs.glassHeat.value, 1, 0.61, 1);
+
+    const candidates = buildCandidateList(family, eps3);
+    let chosen = null;
+    let fallback = null;
+
+    for (const candidate of candidates) {
+      const validation = vidroEngine.validateInputs({
+        family,
+        apoio,
+        wMM: larguraFolha,
+        hMM: altura,
+        Pv: pressure,
+        panes: candidate.panes
+      });
+      const result = vidroEngine.calcNBR(validation.normalized);
+      const score = Math.max(result.uR || 0, result.uF || 0);
+      const attempt = { candidate, validation, result, score };
+
+      if (!fallback || score < fallback.score) fallback = attempt;
+      if (result.ok && !chosen) {
+        chosen = attempt;
+        break;
+      }
+    }
+
+    const pick = chosen || fallback;
+    if (!pick) {
+      return {
+        ok: false,
+        tone: "bad",
+        chipText: "Sem composições cadastradas",
+        helpText: "O catálogo comercial de espessuras não está disponível para comparação.",
+        chosenText: "Sem referência automática",
+        alertText: "Não há composições cadastradas para calcular uma sugestão.",
+        adoptedThickness: null
+      };
+    }
+
+    const criterionLabel = pick.result.governing === "flecha" ? "flecha" : "resistência";
+    const heatLabel = getHeatLabel(eps3);
+    const tone = chosen ? "ok" : "bad";
+    const chipText = chosen ? `${pick.candidate.label} sugerido` : "Nenhuma composição padrão atendeu";
+    const helpText = chosen
+      ? `Baseado em ${num(pressure, 0)} Pa e chapas ${heatLabel.toLowerCase()}. O critério governante foi ${criterionLabel}.`
+      : `Nem as composições comerciais padrão fecharam o atendimento. Revise o enquadramento da NBR 10821 ou parta para validação específica.`;
+
+    const notes = [];
+    pick.validation.issues.forEach((issue) => notes.push(issue.body));
+    if (!chosen) notes.push("A composição listada abaixo é apenas a mais próxima dentro do catálogo padrão configurado.");
+    if (normative) {
+      notes.push(`Cidade de referência: ${normative.cidade}/${normative.uf}, isopleta ${normative.isopleta} m/s, região ${normative.region}, Pe ${normative.pe} Pa.`);
+    }
+
+    return {
+      ok: Boolean(chosen),
+      tone,
+      chipText,
+      helpText,
+      chosenText: `${pick.candidate.label} (${pick.candidate.totalThickness} mm totais)`,
+      alertText: notes.join(" "),
+      adoptedThickness: pick.candidate.totalThickness,
+      compositionLabel: pick.candidate.label,
+      family,
+      pressure,
+      apoio,
+      normative,
+      heatLabel,
+      criterionLabel,
+      raw: pick
+    };
+  }
+
+  function updateGlassUI() {
+    state.lastGlassSuggestion = suggestGlass();
+    const suggestion = state.lastGlassSuggestion;
+    const normative = suggestion.normative || getNormativeContext();
+
+    if (normative && normative.pe) {
+      refs.glassNormChip.textContent = `${normative.cidade}/${normative.uf} • ${normative.isopleta} m/s • Região ${normative.region} • Pe ${normative.pe} Pa`;
+      refs.glassNormHelp.textContent = `Tabela 1 da NBR 10821 para até ${normative.floors} pavimentos. Ps de referência ${normative.ps} Pa e Pa ${normative.pa} Pa.`;
+    } else {
+      refs.glassNormChip.textContent = "Sem cidade ou tabela carregada";
+      refs.glassNormHelp.textContent = "Selecione uma UF, uma cidade e uma faixa de pavimentos para calcular a pressão de ensaio.";
+    }
+
+    refs.glassChip.className = `glass-chip ${suggestion.tone}`;
+    refs.glassChip.textContent = suggestion.chipText;
+    refs.glassHelp.textContent = suggestion.helpText;
+
+    if (state.glassMode === "auto") {
+      refs.glassChosenChip.textContent = suggestion.adoptedThickness
+        ? `${suggestion.chosenText} adotado no custo`
+        : "Sem espessura automática disponível";
+      refs.glassChosenHelp.textContent = suggestion.ok
+        ? "O custo considera a espessura total equivalente da composição sugerida."
+        : "Se quiser seguir mesmo assim, troque para o modo manual e informe a espessura desejada.";
+    }
+
+    const manual = normalizeFloat(refs.espessuraManual.value, 12, 4, 40);
+    refs.espessuraManual.value = manual;
+
+    if (!suggestion.adoptedThickness) {
+      refs.manualCompareChip.className = "glass-chip warn";
+      refs.manualCompareChip.textContent = "Sem referência automática carregada.";
+      refs.manualCompareHelp.textContent = "O modo manual continua disponível, mas ainda sem uma espessura mínima automática para comparar.";
+    } else if (manual < suggestion.adoptedThickness) {
+      refs.manualCompareChip.className = "glass-chip bad";
+      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual ficou em ${manual} mm`;
+      refs.manualCompareHelp.textContent = "A espessura manual ficou abaixo da referência que atende. Esta escolha merece revisão técnica antes do fechamento.";
+    } else if (manual === suggestion.adoptedThickness) {
+      refs.manualCompareChip.className = "glass-chip ok";
+      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está alinhado`;
+      refs.manualCompareHelp.textContent = "Neste caso, a espessura manual coincide com a espessura mínima sugerida para atender.";
+    } else {
+      refs.manualCompareChip.className = "glass-chip ok";
+      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está em ${manual} mm`;
+      refs.manualCompareHelp.textContent = "A espessura manual está acima da espessura mínima sugerida e segue uma linha mais conservadora.";
+    }
+
+    if (suggestion.alertText) {
+      setBanner(refs.glassAlert, escapeHtml(suggestion.alertText), true, suggestion.tone === "bad" ? "warn" : "info");
+    } else {
+      setBanner(refs.glassAlert, "", false, "info");
+    }
+  }
+
+  function setGlassMode(mode, shouldMarkDirty) {
+    state.glassMode = mode;
+    document.querySelectorAll(".seg-btn").forEach((button) => {
+      button.classList.toggle("active", button.dataset.mode === mode);
+    });
+    refs.glassAutoBox.style.display = mode === "auto" ? "grid" : "none";
+    refs.glassManualBox.style.display = mode === "manual" ? "grid" : "none";
+    if (shouldMarkDirty) markDirty();
+    updateGlassUI();
+  }
+
+  function getSelectedThickness() {
+    const suggestion = state.lastGlassSuggestion || suggestGlass();
+    if (state.glassMode === "manual") {
+      return {
+        mode: "manual",
+        thickness: normalizeFloat(refs.espessuraManual.value, 12, 4, 40),
+        label: `${num(refs.espessuraManual.value, 0)} mm`,
+        suggestion
+      };
+    }
+    return {
+      mode: "auto",
+      thickness: suggestion ? suggestion.adoptedThickness : null,
+      label: suggestion ? suggestion.chosenText : "Sem sugestão",
+      suggestion
+    };
+  }
+
+  function collectInput() {
+    const base = updateLeafWidthChip(true);
+    const thickness = getSelectedThickness();
+    const quantidade = normalizeInt(refs.quantidade.value, 1, 1, 100);
+    const normative = getNormativeContext();
+    refs.quantidade.value = quantidade;
+
+    return {
+      cliente: refs.cliente.value.trim(),
+      obra: refs.obra.value.trim(),
+      width: base.largura,
+      height: base.altura,
+      nFolhas: base.folhas,
+      nPlanos: Number(refs.planos.value || state.selectedPlan || 2),
+      larguraFolha: base.larguraFolha,
+      qty: quantidade,
+      finish: state.selectedFinish,
+      thickness,
+      glassMode: state.glassMode,
+      normative
+    };
+  }
+
+  function validateInput(input) {
+    if (!input.width || !input.height) {
+      return { ok: false, message: "Informe largura e altura válidas antes de calcular." };
+    }
+    if (!input.nFolhas || input.nFolhas < 2) {
+      return { ok: false, message: "O número de folhas deve ser no mínimo 2." };
+    }
+    if (!input.nPlanos) {
+      return { ok: false, message: "Selecione uma configuração válida de planos." };
+    }
+    if (!input.qty || input.qty < 1) {
+      return { ok: false, message: "A quantidade de portas deve ser maior que zero." };
+    }
+    if (!input.thickness.thickness) {
+      return { ok: false, message: "Não foi possível definir a espessura do vidro. Revise o modo calculado ou informe uma espessura manual." };
+    }
+    if (!input.normative || !input.normative.pe) {
+      return { ok: false, message: "Selecione uma UF, uma cidade e uma faixa de pavimentos válidas para definir a pressão da norma." };
+    }
+    return { ok: true };
+  }
+
+  function buildWarnings(input, overweight, maxCarr, carrPerFolha) {
+    const warnings = [];
+
+    if (input.larguraFolha < 500) {
+      warnings.push("Folhas muito estreitas podem exigir revisão comercial e de montagem.");
+    }
+    if (input.larguraFolha > 1600) {
+      warnings.push("Folhas largas pedem validação de engenharia antes do fechamento.");
+    }
+    if (input.height > 3200) {
+      warnings.push("Altura elevada: confirme limite de fabricação, transporte e instalação.");
+    }
+    if (overweight) {
+      warnings.push(`Peso da folha exige ${carrPerFolha} carrinhos, mas a largura útil comporta no máximo ${maxCarr}.`);
+    }
+    if (input.glassMode === "manual" && input.thickness.suggestion && input.thickness.suggestion.adoptedThickness) {
+      if (input.thickness.thickness < input.thickness.suggestion.adoptedThickness) {
+        warnings.push("A espessura manual ficou abaixo da sugestão técnica automática. Faça revisão antes de aprovar.");
+      }
+    }
+    if (input.thickness.suggestion && input.thickness.suggestion.tone === "bad" && input.thickness.suggestion.alertText) {
+      warnings.push(input.thickness.suggestion.alertText);
+    }
+
+    return warnings.filter(Boolean);
+  }
+
+  function calculateQuote() {
+    const input = collectInput();
+    const validation = validateInput(input);
+    if (!validation.ok) {
+      showError(validation.message);
+      return;
+    }
+    clearError();
+
+    const width = input.width;
+    const height = input.height;
+    const nFolhas = input.nFolhas;
+    const nPlanos = input.nPlanos;
+    const espVidro = input.thickness.thickness;
+    const qty = input.qty;
+    const priceKg = input.finish.priceKg;
+    const larguraFolha = input.larguraFolha;
+    const areaTotal = width * height / 1e6;
+    const w = CONFIG.perfisKgM;
+
+    const O10 = larguraFolha * nFolhas / 1000;
+    const O11 = 2 * height / 1000;
+    const O12 = width * nPlanos / 1000;
+    const O13 = O11;
+    const O14 = O12;
+    const O15 = ((nFolhas * 2) - 2) * height / 1000;
+    const O16 = width * nPlanos / 1000;
+    const O17 = O11 * 2;
+    const O18 = O12 * 2;
+    const O19 = O10 * 2;
+    const O20 = nFolhas * height / 1000 * 2;
+    const O21 = O13;
+    const O22 = O15;
+
+    const rawAluWeight =
+      O10 * w.LEV001 + O11 * w.OM005 + O12 * w.OM005 + O13 * w.OM002 +
+      O14 * w.OM006 + O15 * w.OM009 + O16 * w.LEV002 + O17 * w.OM011 +
+      O18 * w.OM012 + O19 * w.OM018 + O20 * w.OM018 + O21 * w.GSK046 +
+      O22 * w.FK048;
+
+    const aluKg = rawAluWeight * CONFIG.fatorPerdaAluminio * CONFIG.fatorAcabamento;
+    const costAlu = aluKg * priceKg * qty;
+
+    const trilhoM = nPlanos * qty * width / 1000;
+    const costTrilho = trilhoM * CONFIG.precoTrilhoM;
+
+    const pesoVidroFolha = larguraFolha * height / 1e6 * espVidro * 2.5;
+    const U13 = (height * 2 / 1000) * w.OM009;
+    const U14 = (larguraFolha / 1000) * w.LEV001;
+    const U15 = ((O19 + O20) / nFolhas) * w.OM018;
+    const pesoAluminioFolha = U13 + U14 + U15;
+    const pesoTotalFolha = pesoVidroFolha + pesoAluminioFolha;
+    const maxCarr = Math.max(1, Math.floor(larguraFolha / 200));
+    const carrPerFolha = Math.max(1, Math.ceil(pesoTotalFolha / CONFIG.capacidadeCarrinhoKg));
+    const totalCarr = carrPerFolha * nFolhas * qty;
+    const costCarr = totalCarr * CONFIG.precoCarrinho;
+
+    const costAcess = nFolhas * qty * CONFIG.precoAcessoriosFolha * CONFIG.fatorAcabamento;
+    const total = costAlu + costTrilho + costCarr + costAcess;
+    const custoM2 = total / (areaTotal * qty);
+    const overweight = carrPerFolha > maxCarr;
+    const warnings = buildWarnings(input, overweight, maxCarr, carrPerFolha);
+
+    const result = {
+      input,
+      total,
+      custoM2,
+      areaTotal,
+      costAlu,
+      costTrilho,
+      costCarr,
+      costAcess,
+      aluKg,
+      pesoVidroFolha,
+      pesoAluminioFolha,
+      pesoTotalFolha,
+      carrPerFolha,
+      totalCarr,
+      maxCarr,
+      overweight,
+      trilhoM,
+      snapshotAt: new Date().toISOString(),
+      warnings
+    };
+
+    renderResults(result, true);
+  }
+
+  function renderResults(result, scrollIntoView) {
+    state.lastResult = result;
+    clearDirty();
+    refs.results.classList.add("visible");
+
+    if (result.warnings.length) {
+      refs.warnText.textContent = result.warnings.join(" ");
+      refs.warnBanner.classList.add("visible");
+    } else {
+      refs.warnBanner.classList.remove("visible");
+    }
+
+    refs.rTotal.textContent = brl(result.total);
+    refs.rQtyNote.textContent = `${result.input.qty} porta${result.input.qty > 1 ? "s" : ""} • ${result.input.nFolhas} folhas • ${result.input.nPlanos} planos`;
+    refs.rM2.textContent = brl(result.custoM2);
+    refs.rArea.textContent = `${num(result.areaTotal * result.input.qty, 2)} m² totais`;
+    refs.rGlass.textContent = `${num(result.input.thickness.thickness, 0)} mm`;
+    refs.rGlassMode.textContent = result.input.glassMode === "auto"
+      ? `Sugestão: ${result.input.thickness.label}`
+      : `Manual sobrepondo a sugestão ${result.input.thickness.suggestion && result.input.thickness.suggestion.adoptedThickness ? "(" + result.input.thickness.suggestion.adoptedThickness + " mm)" : ""}`;
+
+    const breakdownItems = [
+      { name: "Alumínio", value: result.costAlu, color: "#5ba8f5" },
+      { name: "Trilho magnético", value: result.costTrilho, color: "#8b7cf5" },
+      { name: "Carrinhos magnéticos", value: result.costCarr, color: "#5cf0c8" },
+      { name: "Acessórios diversos", value: result.costAcess, color: "#f5c85b" }
+    ];
+    const maxValue = Math.max(...breakdownItems.map((item) => item.value), 1);
+    refs.breakdownList.innerHTML = breakdownItems.map((item) => `
+      <div class="breakdown-item">
+        <div>
+          <div class="breakdown-name">${item.name}</div>
+          <div class="breakdown-bar-wrap">
+            <div class="breakdown-bar" style="width:${(item.value / maxValue * 100).toFixed(1)}%;background:${item.color}"></div>
+          </div>
+        </div>
+        <div class="breakdown-value" style="color:${item.color}">${brl(item.value)}</div>
+      </div>
+      <div class="divider"></div>
+    `).join("") + `
+      <div class="breakdown-item">
+        <div class="breakdown-name">Total</div>
+        <div class="breakdown-value" style="color:#5ba8f5">${brl(result.total)}</div>
+      </div>
+    `;
+
+    const detailItems = [
+      { label: "Largura por folha", value: `${num(result.input.larguraFolha, 0)} mm` },
+      { label: "Espessura adotada", value: `${num(result.input.thickness.thickness, 0)} mm` },
+      { label: "Pressão de ensaio", value: `${num(result.input.normative.pe, 0)} Pa` },
+      { label: "Peso do vidro por folha", value: `${num(result.pesoVidroFolha, 1)} kg` },
+      { label: "Peso total da folha", value: `${num(result.pesoTotalFolha, 1)} kg` },
+      { label: "Carrinhos por folha", value: `${result.carrPerFolha} un (máx ${result.maxCarr})`, cls: result.overweight ? "warn" : "good" },
+      { label: "Total de carrinhos", value: `${result.totalCarr} un` },
+      { label: "Metros de trilho", value: `${num(result.trilhoM, 2)} m` },
+      { label: "Acabamento", value: result.input.finish.label },
+      { label: "Cidade de referência", value: `${result.input.normative.cidade}/${result.input.normative.uf}` },
+      { label: "Região NBR", value: `${result.input.normative.region} (${result.input.normative.isopleta} m/s)` }
+    ];
+
+    refs.detailGrid.innerHTML = detailItems.map((item) => `
+      <div class="detail-item">
+        <span>${item.label}</span>
+        <strong class="${item.cls || ""}">${item.value}</strong>
+      </div>
+    `).join("");
+
+    const notes = [];
+    notes.push(`Configuração selecionada: ${result.input.nFolhas} folhas com ${result.input.nPlanos} planos.`);
+    notes.push(`Modo do vidro: ${result.input.glassMode === "auto" ? "espessura sugerida automaticamente" : "espessura definida manualmente"}.`);
+    notes.push(`Enquadramento da norma: ${result.input.normative.cidade}/${result.input.normative.uf}, isopleta ${result.input.normative.isopleta} m/s, região ${result.input.normative.region}, até ${result.input.normative.floors} pavimentos.`);
+    if (result.input.thickness.suggestion) {
+      notes.push(`Referência técnica: ${result.input.thickness.suggestion.chosenText}.`);
+      notes.push(`Base técnica: ${num(result.input.thickness.suggestion.pressure, 0)} Pa e chapas ${result.input.thickness.suggestion.heatLabel.toLowerCase()}.`);
+    }
+    if (result.overweight) {
+      notes.push("A necessidade de carrinhos ultrapassou o limite geométrico por folha. Esta proposta deve passar por engenharia.");
+    }
+
+    refs.observations.innerHTML = notes.map((note) => `<div class="obs-item">${note}</div>`).join("");
+
+    if (scrollIntoView) {
+      refs.results.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function buildReportHtml(result) {
+    const cliente = escapeHtml(result.input.cliente);
+    const obra = escapeHtml(result.input.obra);
+    const today = new Date(result.snapshotAt).toLocaleString("pt-BR");
+    const warningBlock = result.warnings.length
+      ? `<div style="margin:18px 0 20px;padding:12px 14px;border-radius:10px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-size:12px;line-height:1.5">${escapeHtml(result.warnings.join(" "))}</div>`
+      : "";
+
+    const metric = (label, value) => `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;min-width:150px;flex:1">
+        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${label}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:#0f172a">${value}</div>
+      </div>
+    `;
+
+    const row = (label, value, emphasize) => `
+      <tr>
+        <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#0f172a">${label}</td>
+        <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:${emphasize ? "700" : "500"};color:${emphasize ? "#2563eb" : "#0f172a"}">${value}</td>
+      </tr>
+    `;
+
+    return `
+      <div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:18px;margin-bottom:22px">
+        <div>
+          <img src="assets/logo.png" alt="Olgacolor" style="height:36px;display:block">
+          <div style="font-size:13px;color:#475569;margin-top:8px">Sistema Levitare - orçamento orientativo de materiais</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#475569;line-height:1.7">
+          <strong style="display:block;font-size:14px;color:#0f172a">Levitare</strong>
+          Snapshot do cálculo: ${today}<br>
+          Quantidade: ${result.input.qty} porta${result.input.qty > 1 ? "s" : ""}
+        </div>
+      </div>
+
+      ${(cliente || obra) ? `
+        <div style="margin-bottom:18px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0">
+          ${cliente ? `<div style="font-size:15px;font-weight:700;color:#0f172a">${cliente}</div>` : ""}
+          ${obra ? `<div style="font-size:12px;color:#475569;margin-top:4px">${obra}</div>` : ""}
+        </div>
+      ` : ""}
+
+      ${warningBlock}
+
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Resumo executivo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        ${metric("Total", brl(result.total))}
+        ${metric("Custo por m²", brl(result.custoM2))}
+        ${metric("Vidro adotado", `${num(result.input.thickness.thickness, 0)} mm`)}
+        ${metric("Configuração", `${result.input.nFolhas} folhas / ${result.input.nPlanos} planos`)}
+      </div>
+
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Custo de materiais</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        ${row("Alumínio", brl(result.costAlu))}
+        ${row("Trilho magnético", brl(result.costTrilho))}
+        ${row("Carrinhos magnéticos", brl(result.costCarr))}
+        ${row("Acessórios diversos", brl(result.costAcess))}
+        ${row("Total", brl(result.total), true)}
+      </table>
+
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Leitura técnica</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${metric("Largura por folha", `${num(result.input.larguraFolha, 0)} mm`)}
+        ${metric("Peso total da folha", `${num(result.pesoTotalFolha, 1)} kg`)}
+        ${metric("Carrinhos por folha", `${result.carrPerFolha} un (máx ${result.maxCarr})`)}
+        ${metric("Metros de trilho", `${num(result.trilhoM, 2)} m`)}
+        ${metric("Acabamento", escapeHtml(result.input.finish.label))}
+        ${metric("Pe e região", `${num(result.input.normative.pe, 0)} Pa • ${result.input.normative.region}`)}
+      </div>
+
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:18px 0 8px">Observações</div>
+      <div style="padding:12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:11px;color:#334155;line-height:1.45">
+        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.floors} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui arremates, parafusos, silicone e contramarco.
+      </div>
+    `;
+  }
+
+  function openReport() {
+    if (!state.lastResult) return;
+    refs.reportContent.innerHTML = buildReportHtml(state.lastResult);
+    refs.reportOverlay.classList.add("visible");
+    refs.reportOverlay.scrollTop = 0;
+  }
+
+  function closeReport() {
+    refs.reportOverlay.classList.remove("visible");
+  }
+
+  function printReport() {
+    if (!state.lastResult) return;
+    const reportHtml = buildReportHtml(state.lastResult);
+    const frame = document.createElement("iframe");
+    frame.style.position = "fixed";
+    frame.style.right = "-9999px";
+    frame.style.bottom = "0";
+    document.body.appendChild(frame);
+    const doc = frame.contentWindow.document;
+    doc.open();
+    doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório Levitare</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:18px 22px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:12px;line-height:1.35}img{max-width:100%}@page{margin:10mm 10mm}</style></head><body>${reportHtml}</body></html>`);
+    doc.close();
+    frame.onload = () => {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      setTimeout(() => frame.remove(), 400);
+    };
+  }
+
+  function resetForm() {
+    refs.cliente.value = "";
+    refs.obra.value = "";
+    refs.largura.value = 5000;
+    refs.altura.value = 2700;
+    refs.folhas.value = 4;
+    refs.quantidade.value = 1;
+    refs.glassFamily.value = "laminado";
+    refs.glassHeat.value = "1.00";
+    refs.buildingFloors.value = "5";
+    refs.espessuraManual.value = 12;
+    state.selectedFinish = CONFIG.finishes[0];
+    state.selectedPlan = 2;
+    state.lastResult = null;
+    refs.results.classList.remove("visible");
+    refs.warnBanner.classList.remove("visible");
+    clearError();
+    clearDirty();
+    renderFinishOptions();
+    renderPlanOptions(true);
+    renderStateOptions();
+    setGlassMode("auto", false);
+  }
+
+  function bindInputEvents() {
+    const dirtyIds = [
+      refs.cliente, refs.obra, refs.largura, refs.altura, refs.folhas,
+      refs.quantidade, refs.glassHeat,
+      refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual
+    ];
+
+    dirtyIds.forEach((element) => {
+      element.addEventListener("input", () => {
+        if (element === refs.folhas || element === refs.largura || element === refs.altura) {
+          updateLeafWidthChip(false);
+        }
+        if (element === refs.folhas) {
+          renderPlanOptions(false);
+        }
+        if (element === refs.windState) {
+          renderCityOptions(refs.windState.value);
+        }
+        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual].includes(element)) {
+          updateGlassUI();
+        }
+        markDirty();
+      });
+      element.addEventListener("change", () => {
+        if (element === refs.folhas) renderPlanOptions(true);
+        if (element === refs.largura || element === refs.altura) updateLeafWidthChip(true);
+        if (element === refs.windState) {
+          renderCityOptions(refs.windState.value);
+        }
+        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual].includes(element)) {
+          updateGlassUI();
+        }
+        markDirty();
+      });
+    });
+
+    document.querySelectorAll(".seg-btn").forEach((button) => {
+      button.addEventListener("click", () => setGlassMode(button.dataset.mode, true));
+    });
+
+    refs.calcButton.addEventListener("click", calculateQuote);
+    refs.resetButton.addEventListener("click", resetForm);
+    refs.reportButton.addEventListener("click", openReport);
+    refs.closeReportButton.addEventListener("click", closeReport);
+    refs.printButton.addEventListener("click", printReport);
+    refs.reportOverlay.addEventListener("click", (event) => {
+      if (event.target === refs.reportOverlay) closeReport();
+    });
+  }
+
+  renderStateOptions();
+  renderFinishOptions();
+  renderPlanOptions(true);
+  bindInputEvents();
+  updateLeafWidthChip(false);
+  setGlassMode("auto", false);
+})();
+</script>
 </body>
 </html>
