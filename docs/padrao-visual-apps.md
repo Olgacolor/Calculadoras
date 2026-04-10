@@ -11,8 +11,8 @@ Este guia resume a direção visual aplicada primeiro no app Levitare para servi
 
 ## Aparência
 
-- Usar um palco escuro no topo para dar presença ao produto e uma folha clara sobreposta para o formulário.
-- A área de preenchimento deve parecer uma proposta técnica em construção: superfície branca, bordas generosas e módulos bem separados.
+- Usar dark mode como base, com profundidade, textura sutil e contraste suficiente para leitura em obra ou showroom.
+- A área de preenchimento deve parecer um configurador técnico premium: painel escuro, bordas generosas e módulos bem separados.
 - Azul-petróleo/azul Olgacolor como cor principal de ação e destaque técnico.
 - Verde apenas para reforço positivo ou apoio secundário.
 - Amarelo pode ser usado em chamadas fortes sobre fundo escuro, especialmente em botões de ação.
