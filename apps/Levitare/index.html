@@ -1262,6 +1262,14 @@
             </button>
             <div class="wind-params open" id="windParams">
               <div class="grid">
+                <div class="field span-2">
+                  <label>Modo de pressão</label>
+                  <div class="segmented">
+                    <button type="button" class="seg-btn active" data-pressure-mode="auto">Tabela NBR</button>
+                    <button type="button" class="seg-btn" data-pressure-mode="manual">Manual</button>
+                  </div>
+                  <span class="helper">Use a tabela da NBR 10821 ou informe diretamente a pressão de ensaio quando ela já vier definida pelo consultor.</span>
+                </div>
                 <div class="field">
                   <label for="windState">UF</label>
                   <select id="windState"></select>
@@ -1284,6 +1292,11 @@
                   <label>Base normativa</label>
                   <div id="glassNormChip" class="inline-chip">Carregando...</div>
                   <span id="glassNormHelp" class="helper">A pressão de referência segue a tabela da NBR 10821 conforme UF, cidade e faixa de pavimentos.</span>
+                </div>
+                <div class="field span-2" id="windManualField" style="display:none">
+                  <label for="windManualPressure">Pressão de ensaio manual</label>
+                  <input id="windManualPressure" type="text" value="750" inputmode="decimal" pattern="[0-9]*[\\.,]?[0-9]*" enterkeyhint="done" autocomplete="off">
+                  <span class="unit">Pa</span>
                 </div>
               </div>
             </div>
@@ -1427,6 +1440,7 @@
 
   const state = {
     glassMode: "auto",
+    pressureMode: "auto",
     selectedFinish: CONFIG.finishes[0],
     selectedPlan: 2,
     lastGlassSuggestion: null,
@@ -1450,6 +1464,8 @@
     windState: document.getElementById("windState"),
     windCity: document.getElementById("windCity"),
     buildingFloors: document.getElementById("buildingFloors"),
+    windManualField: document.getElementById("windManualField"),
+    windManualPressure: document.getElementById("windManualPressure"),
     glassNormChip: document.getElementById("glassNormChip"),
     glassChip: document.getElementById("glassChip"),
     glassChosenChip: document.getElementById("glassChosenChip"),
@@ -1657,6 +1673,22 @@
   }
 
   function getNormativeContext() {
+    if (state.pressureMode === "manual") {
+      const pe = normalizeFloat(refs.windManualPressure.value, 750, 1, 5000);
+      refs.windManualPressure.value = pe;
+      return {
+        source: "manual",
+        pe,
+        ps: null,
+        pa: null,
+        uf: "Manual",
+        cidade: "Pressão manual",
+        isopleta: "-",
+        region: "-",
+        pavimentos: "-"
+      };
+    }
+
     const floors = normalizeInt(refs.buildingFloors.value, 5, 2, 30);
     refs.buildingFloors.value = floors;
     if (!window.NBR10821) return null;
@@ -1822,6 +1854,10 @@
       refs.glassNormChip.textContent = "Sem cidade ou tabela carregada";
     }
 
+    if (normative && normative.source === "manual") {
+      refs.glassNormChip.textContent = `Pressão manual • Pe ${normative.pe} Pa`;
+    }
+
     refs.glassChip.className = `glass-chip ${suggestion.tone}`;
     refs.glassChip.textContent = suggestion.chipText;
 
@@ -1858,10 +1894,33 @@
   function setGlassMode(mode, shouldMarkDirty) {
     state.glassMode = mode;
     document.querySelectorAll(".seg-btn").forEach((button) => {
+      if (!button.dataset.mode) return;
       button.classList.toggle("active", button.dataset.mode === mode);
     });
     refs.glassAutoBox.style.display = mode === "auto" ? "grid" : "none";
     refs.glassManualBox.style.display = mode === "manual" ? "grid" : "none";
+    if (shouldMarkDirty) markDirty();
+    updateGlassUI();
+  }
+
+  function setPressureMode(mode, shouldMarkDirty) {
+    state.pressureMode = mode;
+    document.querySelectorAll(".seg-btn").forEach((button) => {
+      if (!button.dataset.pressureMode) return;
+      button.classList.toggle("active", button.dataset.pressureMode === mode);
+    });
+    if (refs.windManualField) {
+      refs.windManualField.style.display = mode === "manual" ? "grid" : "none";
+    }
+    if (refs.windState && refs.windState.closest(".field")) {
+      refs.windState.closest(".field").style.display = mode === "manual" ? "none" : "grid";
+    }
+    if (refs.windCity && refs.windCity.closest(".field")) {
+      refs.windCity.closest(".field").style.display = mode === "manual" ? "none" : "grid";
+    }
+    if (refs.buildingFloors && refs.buildingFloors.closest(".field")) {
+      refs.buildingFloors.closest(".field").style.display = mode === "manual" ? "none" : "grid";
+    }
     if (shouldMarkDirty) markDirty();
     updateGlassUI();
   }
@@ -1906,6 +1965,7 @@
       finish: state.selectedFinish,
       thickness,
       glassMode: state.glassMode,
+      pressureMode: state.pressureMode,
       glassHeatLabel,
       normative
     };
@@ -1992,6 +2052,9 @@
     const input = result.input;
     const changes = [];
 
+    if (input.width !== original.width) {
+      changes.push(`largura ${num(input.width, 0)} mm`);
+    }
     if (input.nFolhas !== original.nFolhas) {
       changes.push(`${input.nFolhas} folhas`);
     }
@@ -2009,6 +2072,7 @@
   function scoreScenario(original, result) {
     const input = result.input;
     const heightSteps = Math.abs(input.height - original.height) / 50;
+    const widthSteps = Math.abs(input.width - original.width) / 50;
     const planIncrease = Math.max(0, input.nPlanos - original.nPlanos);
     const planDecrease = Math.max(0, original.nPlanos - input.nPlanos);
     const leafChange = Math.abs(input.nFolhas - original.nFolhas);
@@ -2023,6 +2087,7 @@
       planDecrease * 55;
     const adjustmentPenalty =
       heightSteps * 7 +
+      widthSteps * 6 +
       thicknessIncrease * 8 +
       costDelta;
     const technicalBonus =
@@ -2037,8 +2102,11 @@
     const sameLeaves = input.nFolhas === original.nFolhas;
     const samePlans = input.nPlanos === original.nPlanos;
     const sameHeight = input.height === original.height;
+    const sameWidth = input.width === original.width;
 
-    if (sameLeaves && samePlans && !sameHeight) return "altura";
+    if (sameLeaves && samePlans && !sameHeight && sameWidth) return "altura";
+    if (sameLeaves && samePlans && sameHeight && !sameWidth) return "largura";
+    if (sameLeaves && samePlans && !sameHeight && !sameWidth) return "altura-largura";
     if (sameHeight && sameLeaves && !samePlans) return "planos";
     if (sameHeight && !sameLeaves) return "folhas-planos";
     if (!sameHeight) return "altura-combinada";
@@ -2047,7 +2115,9 @@
 
   function getScenarioGroup(original, result) {
     const input = result.input;
+    if (input.width !== original.width && input.height === original.height && input.nFolhas === original.nFolhas) return "largura";
     if (input.height !== original.height) return "altura";
+    if (input.width !== original.width) return "largura-combinada";
     if (input.nFolhas !== original.nFolhas) return `folhas-${input.nFolhas}`;
     if (input.nPlanos !== original.nPlanos) return "planos";
     return "mesmo-desenho";
@@ -2092,6 +2162,7 @@
     const rejected = [];
     const seen = new Set();
     const minHeight = Math.max(500, original.height - 1200);
+    const widthSteps = [50, 100, 150, 200, 250, 300];
 
     function addScenario(scenario, reason) {
       const width = scenario.width || original.width;
@@ -2150,6 +2221,22 @@
       addScenario({ height, nFolhas: original.nFolhas, nPlanos: original.nPlanos }, "reduzir altura mantendo folhas e planos");
     }
 
+    widthSteps.forEach((delta) => {
+      addScenario(
+        { width: original.width + delta, height: original.height, nFolhas: original.nFolhas, nPlanos: original.nPlanos },
+        "aumentar largura mantendo folhas e planos"
+      );
+    });
+
+    for (let height = original.height - 50; height >= minHeight; height -= 50) {
+      widthSteps.forEach((delta) => {
+        addScenario(
+          { width: original.width + delta, height, nFolhas: original.nFolhas, nPlanos: original.nPlanos },
+          "combinar aumento de largura com redução de altura"
+        );
+      });
+    }
+
     if (nextLeaves !== original.nFolhas) {
       const nextPlan = getDefaultPlanForLeaves(nextLeaves);
       for (let height = original.height - 50; height >= minHeight; height -= 50) {
@@ -2170,6 +2257,9 @@
       const leftLeafChange = Math.abs(leftInput.nFolhas - original.nFolhas);
       const rightLeafChange = Math.abs(rightInput.nFolhas - original.nFolhas);
       if (leftLeafChange !== rightLeafChange) return leftLeafChange - rightLeafChange;
+      const leftWidthDelta = Math.abs(leftInput.width - original.width);
+      const rightWidthDelta = Math.abs(rightInput.width - original.width);
+      if (leftWidthDelta !== rightWidthDelta) return leftWidthDelta - rightWidthDelta;
       return Math.abs(leftInput.height - original.height) - Math.abs(rightInput.height - original.height);
     });
 
@@ -2438,7 +2528,7 @@
     const detailItems = [
       { label: "Largura por folha", value: `${num(result.input.larguraFolha, 0)} mm` },
       { label: "Espessura adotada", value: `${num(result.input.thickness.thickness, 0)} mm` },
-      { label: "Pressão de ensaio", value: `${num(result.input.normative.pe, 0)} Pa` },
+      { label: "Pressão de ensaio", value: result.input.pressureMode === "manual" ? `${num(result.input.normative.pe, 0)} Pa (manual)` : `${num(result.input.normative.pe, 0)} Pa` },
       { label: "Peso do vidro por folha", value: `${num(result.pesoVidroFolha, 1)} kg` },
       { label: "Peso total da folha", value: `${num(result.pesoTotalFolha, 1)} kg` },
       { label: "Carrinhos por folha", value: `${result.carrPerFolha} un (máx ${result.maxCarr})`, cls: result.overweight ? "warn" : "good" },
@@ -2448,6 +2538,11 @@
       { label: "Cidade de referência", value: `${result.input.normative.cidade}/${result.input.normative.uf}` },
       { label: "Região NBR", value: `${result.input.normative.region} (${result.input.normative.isopleta} m/s)` }
     ];
+
+    if (result.input.pressureMode === "manual") {
+      detailItems[detailItems.length - 2].value = "Pressão manual";
+      detailItems[detailItems.length - 1].value = "Informada manualmente";
+    }
 
     refs.detailGrid.innerHTML = detailItems.map((item) => `
       <div class="detail-item">
@@ -2612,9 +2707,11 @@
     refs.glassFamily.value = "laminado";
     refs.glassHeat.value = "1.00";
     refs.buildingFloors.value = "5";
+    refs.windManualPressure.value = 750;
     refs.espessuraManual.value = 12;
     state.selectedFinish = CONFIG.finishes[0];
     state.selectedPlan = 2;
+    state.pressureMode = "auto";
     state.lastResult = null;
     refs.results.classList.remove("visible");
     refs.warnBanner.classList.remove("visible");
@@ -2624,6 +2721,7 @@
     renderPlanOptions(true, true);
     renderStateOptions();
     setGlassMode("auto", false);
+    setPressureMode("auto", false);
   }
 
   let doorGeo = { W: 5000, H: 2700, dX: 0, dY: 0, dW: 0, dH: 0, svgW: 240, svgH: 290 };
@@ -2677,7 +2775,7 @@
     const trackLineH = (trackZoneH - (visPlanos - 1) * 2) / visPlanos;
 
     const dimFont   = `font-family="DM Mono, monospace" font-size="7.2" font-weight="400" letter-spacing="0.2" fill="${dimColor}"`;
-    const labelFont = `font-family="DM Sans, sans-serif" font-size="8.4" font-weight="500" letter-spacing="0.35" fill="${labelColor}"`;
+    const labelFont = `font-family="DM Sans, sans-serif" font-size="8.0" font-weight="500" letter-spacing="0.32" fill="${labelColor}"`;
     const midX = dX + dW / 2;
     const midY = dY + dH / 2;
     const f = (n) => n.toFixed(1);
@@ -2778,13 +2876,14 @@
 
     // Per-leaf weight label — clipped to panel, never overflows
     const leafDimLabel = `${num(W / folhas, 0)} × ${num(H, 0)} mm / folha`;
+    // refined leaf label kept below for future tuning
     const leafChipW = Math.max(88, Math.min(126, leafDimLabel.length * 4.15));
     const leafChipX = midX - leafChipW / 2;
     const leafChipY = wY + 18;
     s += `<rect x="${f(leafChipX)}" y="${f(leafChipY)}" width="${f(leafChipW)}" height="17" rx="5"
             fill="rgba(8,12,17,0.78)" stroke="rgba(19,162,179,0.22)" stroke-width="0.6"/>`;
     s += `<text x="${f(midX)}" y="${f(leafChipY + 11.5)}" text-anchor="middle"
-            font-family="DM Sans, sans-serif" font-size="6.5" font-weight="500" letter-spacing="0.15"
+            font-family="DM Sans, sans-serif" font-size="6.2" font-weight="500" letter-spacing="0.12"
             fill="rgba(206,244,248,0.78)">${leafDimLabel}</text>`;
 
     if (pesoFolha != null) {
@@ -2807,7 +2906,7 @@
 
       // Width handle — right edge, centered vertically
       const hx = dX + dW - 1, hy = midY;
-      s += `<g data-handle="width" style="cursor:ew-resize">
+      s += `<g data-handle="width" style="cursor:ew-resize" role="slider" aria-label="Ajustar largura" aria-valuenow="${Math.round(W)}" aria-valuemin="500" aria-valuemax="12000" tabindex="0">
         <rect x="${f(hx - 1)}" y="${f(hy - 14)}" width="11" height="28" rx="5"
           fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.7"/>
         <line x1="${f(hx + 2)}" y1="${f(hy - 7)}" x2="${f(hx + 2)}" y2="${f(hy + 7)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/>
@@ -2816,7 +2915,7 @@
 
       // Height handle — bottom edge, centered horizontally
       const vx = midX, vy = dY + dH - 1;
-      s += `<g data-handle="height" style="cursor:ns-resize">
+      s += `<g data-handle="height" style="cursor:ns-resize" role="slider" aria-label="Ajustar altura" aria-valuenow="${Math.round(H)}" aria-valuemin="500" aria-valuemax="5000" tabindex="0">
         <rect x="${f(vx - 14)}" y="${f(vy - 1)}" width="28" height="11" rx="5"
           fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.7"/>
         <line x1="${f(vx - 7)}" y1="${f(vy + 2)}" x2="${f(vx + 7)}" y2="${f(vy + 2)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/>
@@ -2826,12 +2925,12 @@
       // Folhas − / + buttons — top corners inside the glass area
       const btnY = innerY + 10, btnR = 8;
       const btnBg = `fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"`;
-      s += `<g data-handle="folhas-minus" style="cursor:pointer">
+      s += `<g data-handle="folhas-minus" style="cursor:pointer" role="button" aria-label="Reduzir número de folhas" tabindex="0">
         <circle cx="${f(innerX + btnR + 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
         <text x="${f(innerX + btnR + 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
           font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">−</text>
       </g>`;
-      s += `<g data-handle="folhas-plus" style="cursor:pointer">
+      s += `<g data-handle="folhas-plus" style="cursor:pointer" role="button" aria-label="Aumentar número de folhas" tabindex="0">
         <circle cx="${f(innerX + innerW - btnR - 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
         <text x="${f(innerX + innerW - btnR - 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
           font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">+</text>
@@ -2846,12 +2945,12 @@
         const canPlanDown = planIdx > 0;
         const canPlanUp   = planIdx < planOptions.length - 1;
 
-        s += `<g data-handle="planos-minus" style="cursor:pointer" opacity="${canPlanDown ? 1 : 0.35}">
+        s += `<g data-handle="planos-minus" style="cursor:pointer" role="button" aria-label="Reduzir planos" tabindex="0" opacity="${canPlanDown ? 1 : 0.35}">
           <circle cx="${f(dX + pBtnR + 2)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
           <text x="${f(dX + pBtnR + 2)}" y="${f(pBtnY + 3)}" text-anchor="middle"
             font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}">−</text>
         </g>`;
-        s += `<g data-handle="planos-plus" style="cursor:pointer" opacity="${canPlanUp ? 1 : 0.35}">
+        s += `<g data-handle="planos-plus" style="cursor:pointer" role="button" aria-label="Aumentar planos" tabindex="0" opacity="${canPlanUp ? 1 : 0.35}">
           <circle cx="${f(dX + dW - pBtnR - 2)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
           <text x="${f(dX + dW - pBtnR - 2)}" y="${f(pBtnY + 3)}" text-anchor="middle"
             font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}">+</text>
@@ -2924,6 +3023,34 @@
     if (!svgEl) return;
     let drag = null;
 
+    const triggerHandle = (h) => {
+      if (h === "folhas-plus" || h === "folhas-minus") {
+        const next = h === "folhas-plus"
+          ? Math.min(12, getFolhas() + 1)
+          : Math.max(2, getFolhas() - 1);
+        refs.folhas.value = next;
+        renderPlanOptions(true, true);
+        updateLeafWidthChip(true);
+        markDirty();
+        return true;
+      }
+
+      if (h === "planos-plus" || h === "planos-minus") {
+        const options = getPlanOptions(getFolhas());
+        const cur = options.indexOf(state.selectedPlan);
+        const next = h === "planos-plus" ? cur + 1 : cur - 1;
+        if (next >= 0 && next < options.length) {
+          state.selectedPlan = options[next];
+          refs.planos.value = String(state.selectedPlan);
+          renderDoorPreview();
+          markDirty();
+        }
+        return true;
+      }
+
+      return false;
+    };
+
     svgEl.addEventListener("pointerdown", (e) => {
       // Check editable cota first
       const editable = e.target.closest("[data-edit]");
@@ -2950,27 +3077,8 @@
       const h = handle.dataset.handle;
       e.preventDefault();
 
-      if (h === "folhas-plus" || h === "folhas-minus") {
-        const next = h === "folhas-plus"
-          ? Math.min(12, getFolhas() + 1)
-          : Math.max(2, getFolhas() - 1);
-        refs.folhas.value = next;
-        renderPlanOptions(true, true);
-        updateLeafWidthChip(true);
-        markDirty();
-        return;
-      }
-
-      if (h === "planos-plus" || h === "planos-minus") {
-        const options = getPlanOptions(getFolhas());
-        const cur = options.indexOf(state.selectedPlan);
-        const next = h === "planos-plus" ? cur + 1 : cur - 1;
-        if (next >= 0 && next < options.length) {
-          state.selectedPlan = options[next];
-          refs.planos.value = String(state.selectedPlan);
-          renderDoorPreview();
-          markDirty();
-        }
+      if (triggerHandle(h)) {
+        if (h === "width" || h === "height") return;
         return;
       }
 
@@ -3011,18 +3119,31 @@
     });
 
     svgEl.addEventListener("pointercancel", () => { drag = null; });
+    svgEl.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const handle = e.target.closest("[data-handle]");
+      if (!handle) return;
+      e.preventDefault();
+      triggerHandle(handle.dataset.handle);
+    });
   }
 
   function bindInputEvents() {
     const dirtyIds = [
       refs.cliente, refs.obra, refs.largura, refs.altura, refs.folhas,
       refs.quantidade, refs.glassHeat,
-      refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual
+      refs.windState, refs.windCity, refs.buildingFloors, refs.windManualPressure, refs.espessuraManual
     ];
 
     dirtyIds.forEach((element) => {
       element.addEventListener("input", () => {
         if (element === refs.espessuraManual) {
+          element.value = element.value
+            .replace(/[^\d.,]/g, "")
+            .replace(/,/g, ".")
+            .replace(/(\..*)\./g, "$1");
+        }
+        if (element === refs.windManualPressure) {
           element.value = element.value
             .replace(/[^\d.,]/g, "")
             .replace(/,/g, ".")
@@ -3038,7 +3159,7 @@
         if (element === refs.windState) {
           renderCityOptions(refs.windState.value);
         }
-        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors].includes(element)) {
+        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.windManualPressure].includes(element)) {
           updateGlassUI();
         }
         markDirty();
@@ -3049,7 +3170,7 @@
         if (element === refs.windState) {
           renderCityOptions(refs.windState.value);
         }
-        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual].includes(element)) {
+        if ([refs.largura, refs.altura, refs.folhas, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.windManualPressure, refs.espessuraManual].includes(element)) {
           updateGlassUI();
         }
         markDirty();
@@ -3057,7 +3178,13 @@
     });
 
     document.querySelectorAll(".seg-btn").forEach((button) => {
+      if (!button.dataset.mode) return;
       button.addEventListener("click", () => setGlassMode(button.dataset.mode, true));
+    });
+
+    document.querySelectorAll(".seg-btn").forEach((button) => {
+      if (!button.dataset.pressureMode) return;
+      button.addEventListener("click", () => setPressureMode(button.dataset.pressureMode, true));
     });
 
     refs.windToggle.addEventListener("click", () => {
@@ -3087,6 +3214,7 @@
   bindInputEvents();
   updateLeafWidthChip(false);
   setGlassMode("auto", false);
+  setPressureMode("auto", false);
   renderDoorPreview();
   bindDoorPreviewEvents(refs.doorPreviewSvg);
   bindCoatEditor();
