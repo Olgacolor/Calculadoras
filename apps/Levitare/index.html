@@ -832,13 +832,13 @@
   <section class="intro">
     <div class="hero">
       <div class="eyebrow">Sistema Magnético</div>
-      <h1>Preço rápido, leitura técnica mais clara e espessura assistida.</h1>
-      <p>Esta versão do Levitare junta o cálculo comercial com uma sugestão técnica de vidro baseada no app de espessura, mas sem jogar o usuário para o resultado a cada clique.</p>
+      <h1>Orçamento orientativo para portas Levitare.</h1>
+      <p>Preencha os dados da obra, dimensões, configuração da porta e acabamento para calcular materiais com apoio técnico na escolha do vidro.</p>
       <div class="hero-points">
-        <div class="hero-point">Folhas manuais</div>
-        <div class="hero-point">Planos automáticos</div>
-        <div class="hero-point">Espessura calculada ou manual</div>
-        <div class="hero-point">Relatório consistente</div>
+        <div class="hero-point">Dimensões da porta</div>
+        <div class="hero-point">Planos permitidos</div>
+        <div class="hero-point">Vidro assistido</div>
+        <div class="hero-point">Relatório PDF</div>
       </div>
     </div>
   </section>
@@ -1064,19 +1064,19 @@
 
     <aside class="sidebar">
       <div class="card sidebar-card">
-        <div class="card-title">Regras aplicadas</div>
+        <div class="card-title">Critérios</div>
         <ul class="sidebar-list">
-          <li>Para 2 folhas, o sistema fixa 2 planos.</li>
-          <li>Para número ímpar de folhas acima de 2, os planos seguem o mesmo número de folhas.</li>
-          <li>Para número par acima de 2, o app oferece duas opções: n/2 ou n.</li>
-          <li>A espessura automática usa a largura de cada folha e a altura total da porta.</li>
+          <li>Para 2 folhas, são considerados 2 planos.</li>
+          <li>Para número ímpar de folhas acima de 2, os planos acompanham o número de folhas.</li>
+          <li>Para número par acima de 2, são avaliadas as opções n/2 e n.</li>
+          <li>A indicação do vidro considera largura por folha, altura, cidade e pavimentos.</li>
         </ul>
       </div>
 
       <div class="card sidebar-card">
-        <div class="card-title">Boas práticas</div>
-        <p>Use o modo calculado para ter uma referência rápida e depois troque para manual quando já existir definição técnica ou comercial fechada.</p>
-        <p>Se o sistema pedir muitos carrinhos por folha ou se a largura útil ficar muito alta, trate o orçamento como sujeito a validação de engenharia.</p>
+        <div class="card-title">Atenção</div>
+        <p>Quando houver definição técnica prévia, use a espessura manual para refletir o projeto.</p>
+        <p>Configurações fora dos limites de peso ou carrinhos não geram custo e devem ser revisadas antes da proposta.</p>
       </div>
     </aside>
   </section>
@@ -1956,6 +1956,7 @@
       snapshotAt: new Date().toISOString(),
       warnings
     };
+    return result;
   }
 
   function calculateQuote() {

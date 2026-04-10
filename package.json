@@ -7,7 +7,8 @@
     "build:nbr10821": "node scripts/build-nbr10821.mjs",
     "test:nbr10821": "node tests/nbr10821.test.mjs",
     "check:apps": "node scripts/check-apps.mjs",
+    "check:levitare": "node scripts/check-levitare-runtime.mjs",
     "check:textos": "node scripts/check-textos.mjs",
-    "check": "node tests/nbr10821.test.mjs && node scripts/check-apps.mjs && node scripts/check-textos.mjs"
+    "check": "node tests/nbr10821.test.mjs && node scripts/check-apps.mjs && node scripts/check-levitare-runtime.mjs && node scripts/check-textos.mjs"
   }
 }
