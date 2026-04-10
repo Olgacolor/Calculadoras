@@ -8,16 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0d11;
-    --bg-2: #10161c;
-    --panel: #151b22;
-    --panel-2: #1b232c;
-    --panel-3: #202b35;
-    --ink: #f3f7fb;
-    --ink-soft: #c8d3de;
-    --muted: #8391a2;
-    --line: #2a3744;
-    --line-strong: #3b4b59;
+    --bg: #161b22;
+    --bg-2: #1c2230;
+    --panel: #1f242d;
+    --panel-2: #252b35;
+    --panel-3: #2a3040;
+    --ink: #e8edf3;
+    --ink-soft: #b8c8d8;
+    --muted: #7a8a9a;
+    --line: #2e3642;
+    --line-strong: #3d4a5c;
     --teal-deep: #078392;
     --accent: #13a2b3;
     --accent-2: #42d6aa;
@@ -25,10 +25,10 @@
     --warn: #f4b64a;
     --bad: #ff7d7d;
     --good: #57dca8;
-    --radius: 24px;
-    --radius-sm: 16px;
-    --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
-    --shadow-soft: 0 16px 42px rgba(0, 0, 0, 0.24);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+    --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.20);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -38,10 +38,7 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background:
-      radial-gradient(circle at 15% 10%, rgba(19, 162, 179, 0.2), transparent 24%),
-      radial-gradient(circle at 84% 4%, rgba(244, 215, 61, 0.1), transparent 18%),
-      linear-gradient(180deg, #11161b 0%, var(--bg) 44%, #080b0f 100%);
+    background: linear-gradient(180deg, #1a1f27 0%, var(--bg) 50%);
     color: var(--ink);
     font-family: "DM Sans", sans-serif;
     line-height: 1.5;
@@ -67,8 +64,8 @@
     top: 0;
     z-index: 20;
     backdrop-filter: blur(16px);
-    background: rgba(10, 13, 17, 0.78);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(22, 27, 34, 0.90);
+    border-bottom: 1px solid var(--line);
   }
 
   .header-inner {
@@ -117,6 +114,32 @@
     font-weight: 600;
   }
 
+  .header-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .header-result.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .hr-value {
+    font-family: "DM Mono", monospace;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--accent-2);
+    letter-spacing: -0.5px;
+  }
+  .hr-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
   main {
     max-width: 1180px;
     margin: 0 auto;
@@ -135,33 +158,18 @@
   .hero,
   .quick-panel,
   .card {
-    background: linear-gradient(180deg, rgba(24, 31, 39, 0.96), rgba(18, 24, 31, 0.96));
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--line);
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-soft);
   }
 
   .hero {
     padding: 26px;
     position: relative;
     overflow: hidden;
-    background:
-      linear-gradient(160deg, rgba(27, 33, 39, 0.98), rgba(10, 13, 17, 0.98)),
-      radial-gradient(circle at 82% 12%, rgba(19, 162, 179, 0.3), transparent 34%);
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
     color: #ffffff;
-  }
-
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: auto 20px 20px auto;
-    width: 88px;
-    height: 88px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 28px;
-    background:
-      linear-gradient(135deg, rgba(244, 215, 61, 0.18), rgba(8, 127, 143, 0.24));
-    transform: rotate(8deg);
   }
 
   .eyebrow,
@@ -244,38 +252,11 @@
     gap: 24px;
     align-items: start;
     position: relative;
-    background:
-      linear-gradient(180deg, rgba(20, 27, 34, 0.98), rgba(13, 18, 24, 0.98));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px;
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 12px;
     padding: 28px;
-    box-shadow: 0 44px 110px rgba(0, 0, 0, 0.38);
-    overflow: hidden;
-  }
-
-  .layout::before {
-    content: "";
-    position: absolute;
-    left: -1px;
-    right: -1px;
-    top: -1px;
-    height: 82px;
-    background:
-      linear-gradient(90deg, rgba(7, 131, 146, 0.98), rgba(18, 88, 101, 0.96));
-    z-index: 0;
-  }
-
-  .layout::after {
-    content: "";
-    position: absolute;
-    right: 26px;
-    top: 26px;
-    width: 210px;
-    height: 76px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    z-index: 0;
+    box-shadow: var(--shadow);
   }
 
   .stack {
@@ -289,17 +270,8 @@
   .card {
     padding: 24px;
     position: relative;
-    background: linear-gradient(180deg, rgba(25, 33, 42, 0.98), rgba(19, 26, 34, 0.98));
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
     box-shadow: var(--shadow-soft);
-  }
-
-  .card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .card-title {
@@ -466,8 +438,8 @@
   .plan-pill,
   .color-pill {
     border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgba(15, 22, 30, 0.72);
+    border-radius: 6px;
+    background: var(--panel-2);
     color: var(--muted);
     cursor: pointer;
     transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.18s ease;
@@ -536,10 +508,9 @@
   }
 
   .subcard {
-    border: 1px solid rgba(151, 163, 181, 0.28);
-    background:
-      linear-gradient(180deg, rgba(20, 29, 38, 0.94), rgba(16, 24, 32, 0.94));
-    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    border-radius: 8px;
     padding: 16px;
     display: grid;
     gap: 14px;
@@ -663,7 +634,7 @@
   .ghost-btn {
     min-height: 50px;
     border: none;
-    border-radius: 13px;
+    border-radius: 6px;
     font-family: "DM Sans", sans-serif;
     font-size: 14px;
     font-weight: 700;
@@ -707,16 +678,16 @@
   }
 
   .hero-card {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
     padding: 20px;
-    background: linear-gradient(180deg, rgba(25, 33, 42, 0.98), rgba(17, 24, 31, 0.98));
+    background: var(--panel);
     box-shadow: var(--shadow-soft);
   }
 
   .hero-card.primary {
-    background: linear-gradient(135deg, #078392, #12a7b8);
-    border-color: rgba(19, 162, 179, 0.42);
+    background: linear-gradient(135deg, #057080, #0e8fa0);
+    border-color: rgba(19, 162, 179, 0.38);
     color: #ffffff;
   }
 
@@ -807,9 +778,9 @@
   }
 
   .detail-item {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel-2);
     padding: 14px;
   }
 
@@ -910,13 +881,67 @@
   .report-btn {
     min-height: 48px;
     border: 1px solid rgba(19, 162, 179, 0.24);
-    border-radius: 12px;
+    border-radius: 6px;
     background: rgba(19, 162, 179, 0.11);
     color: #d5faff;
     font-family: "DM Sans", sans-serif;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
+  }
+
+  /* Wind params collapsible */
+  .wind-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: border-color 0.18s, color 0.18s;
+    width: 100%;
+    text-align: left;
+  }
+  .wind-toggle:hover { border-color: var(--accent); color: var(--ink-soft); }
+  .wind-toggle .wt-arrow {
+    display: inline-block;
+    transition: transform 0.22s;
+    font-style: normal;
+    font-size: 10px;
+  }
+  .wind-toggle.open .wt-arrow { transform: rotate(90deg); }
+
+  .wind-params {
+    display: none;
+  }
+  .wind-params.open {
+    display: grid;
+    gap: 14px;
+  }
+
+  /* Measure chip as data display */
+  .measure-display {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .measure-value {
+    font-family: "DM Mono", monospace;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .measure-unit {
+    font-family: "DM Mono", monospace;
+    font-size: 11px;
+    color: var(--muted);
   }
 
   #reportOverlay {
@@ -1023,12 +1048,8 @@
     }
 
     .layout {
-      border-radius: 28px;
+      border-radius: 8px;
       padding: 16px;
-    }
-
-    .layout::before {
-      height: 60px;
     }
 
     .stack {
@@ -1166,6 +1187,10 @@
         <span>Orçamento orientativo de materiais</span>
       </div>
     </div>
+    <div class="header-result" id="headerResult">
+      <div class="hr-value" id="hrTotal">—</div>
+      <div class="hr-sub" id="hrSub">—</div>
+    </div>
   </div>
 </header>
 
@@ -1239,16 +1264,11 @@
           </div>
 
           <div id="glassAutoBox" class="subcard span-2">
-            <div>
-              <div class="subcard-title">Entradas essenciais para sugestão</div>
-              <div class="subcard-note">A pressão vem da combinação entre UF, cidade e pavimentos segundo a lógica da NBR 10821.</div>
-            </div>
             <div class="grid">
               <div class="field">
                 <label>Tipo de vidro</label>
                 <input id="glassFamily" type="hidden" value="laminado">
                 <div class="inline-chip">Vidro laminado</div>
-                <span class="helper">O Levitare considera sempre composição laminada neste fluxo.</span>
               </div>
               <div class="field">
                 <label for="glassHeat">Tratamento das chapas</label>
@@ -1259,39 +1279,43 @@
                 </select>
               </div>
               <div class="field">
-                <label for="windState">UF</label>
-                <select id="windState"></select>
-              </div>
-              <div class="field">
-                <label for="windCity">Cidade de referência</label>
-                <select id="windCity"></select>
-              </div>
-              <div class="field">
-                <label for="buildingFloors">Pavimentos</label>
-                <select id="buildingFloors">
-                  <option value="2">Até 2 pavimentos (até 6 m)</option>
-                  <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
-                  <option value="10">Até 10 pavimentos (até 30 m)</option>
-                  <option value="20">Até 20 pavimentos (até 60 m)</option>
-                  <option value="30">Até 30 pavimentos (até 90 m)</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Base normativa</label>
-                <div id="glassNormChip" class="inline-chip">Carregando cidade e isopleta...</div>
-                <span id="glassNormHelp" class="helper">O app converte a isopleta da cidade para uma região normativa e calcula a pressão de ensaio usada na sugestão.</span>
-              </div>
-            </div>
-            <div class="grid">
-              <div class="field">
-                <label>Sugestão atual</label>
-                <div id="glassChip" class="glass-chip">Calculando composição mínima...</div>
-                <span id="glassHelp" class="helper">O cálculo considera a largura útil de cada folha, a altura total da porta e a pressão derivada da NBR 10821.</span>
+                <label>Sugestão calculada</label>
+                <div id="glassChip" class="glass-chip">Calculando...</div>
               </div>
               <div class="field">
                 <label>Espessura adotada no custo</label>
                 <div id="glassChosenChip" class="inline-chip">Aguardando cálculo</div>
-                <span id="glassChosenHelp" class="helper">Quando o modo estiver em calculada, o custo usa a espessura total equivalente da sugestão.</span>
+              </div>
+            </div>
+
+            <button type="button" class="wind-toggle" id="windToggle">
+              <i class="wt-arrow">▶</i>
+              Parâmetros de vento e norma (UF · cidade · pavimentos)
+            </button>
+            <div class="wind-params" id="windParams">
+              <div class="grid">
+                <div class="field">
+                  <label for="windState">UF</label>
+                  <select id="windState"></select>
+                </div>
+                <div class="field">
+                  <label for="windCity">Cidade de referência</label>
+                  <select id="windCity"></select>
+                </div>
+                <div class="field">
+                  <label for="buildingFloors">Pavimentos</label>
+                  <select id="buildingFloors">
+                    <option value="2">Até 2 pavimentos (até 6 m)</option>
+                    <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
+                    <option value="10">Até 10 pavimentos (até 30 m)</option>
+                    <option value="20">Até 20 pavimentos (até 60 m)</option>
+                    <option value="30">Até 30 pavimentos (até 90 m)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Base normativa</label>
+                  <div id="glassNormChip" class="inline-chip">Carregando...</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1458,16 +1482,14 @@
     windCity: document.getElementById("windCity"),
     buildingFloors: document.getElementById("buildingFloors"),
     glassNormChip: document.getElementById("glassNormChip"),
-    glassNormHelp: document.getElementById("glassNormHelp"),
     glassChip: document.getElementById("glassChip"),
-    glassHelp: document.getElementById("glassHelp"),
     glassChosenChip: document.getElementById("glassChosenChip"),
-    glassChosenHelp: document.getElementById("glassChosenHelp"),
+    windToggle: document.getElementById("windToggle"),
+    windParams: document.getElementById("windParams"),
     glassAutoBox: document.getElementById("glassAutoBox"),
     glassManualBox: document.getElementById("glassManualBox"),
     espessuraManual: document.getElementById("espessuraManual"),
     manualCompareChip: document.getElementById("manualCompareChip"),
-    manualCompareHelp: document.getElementById("manualCompareHelp"),
     glassAlert: document.getElementById("glassAlert"),
     glassAlertText: document.getElementById("glassAlertText"),
     errorBanner: document.getElementById("errorBanner"),
@@ -1494,7 +1516,10 @@
     printButton: document.getElementById("printButton"),
     closeReportButton: document.getElementById("closeReportButton"),
     doorPreviewSvg: document.getElementById("doorPreviewSvg"),
-    coatEditInput: document.getElementById("coatEditInput")
+    coatEditInput: document.getElementById("coatEditInput"),
+    headerResult: document.getElementById("headerResult"),
+    hrTotal: document.getElementById("hrTotal"),
+    hrSub: document.getElementById("hrSub")
   };
 
   const vidroConstants = window.VidroApp && window.VidroApp.Constants;
@@ -1843,23 +1868,17 @@
 
     if (normative && normative.pe) {
       refs.glassNormChip.textContent = `${normative.cidade}/${normative.uf} • ${normative.isopleta} m/s • Região ${normative.region} • Pe ${normative.pe} Pa`;
-      refs.glassNormHelp.textContent = `Tabela 1 da NBR 10821 para até ${normative.pavimentos} pavimentos. Ps de referência ${normative.ps} Pa e Pa ${normative.pa} Pa.`;
     } else {
       refs.glassNormChip.textContent = "Sem cidade ou tabela carregada";
-      refs.glassNormHelp.textContent = "Selecione uma UF, uma cidade e uma faixa de pavimentos para calcular a pressão de ensaio.";
     }
 
     refs.glassChip.className = `glass-chip ${suggestion.tone}`;
     refs.glassChip.textContent = suggestion.chipText;
-    refs.glassHelp.textContent = suggestion.helpText;
 
     if (state.glassMode === "auto") {
       refs.glassChosenChip.textContent = suggestion.adoptedThickness
         ? `${suggestion.chosenText} adotado no custo`
         : "Sem espessura automática disponível";
-      refs.glassChosenHelp.textContent = suggestion.ok
-        ? "O custo considera a espessura total equivalente da composição sugerida."
-        : "Se quiser seguir mesmo assim, troque para o modo manual e informe a espessura desejada.";
     }
 
     const manual = normalizeFloat(refs.espessuraManual.value, 12, 4, 40);
@@ -1868,19 +1887,15 @@
     if (!suggestion.adoptedThickness) {
       refs.manualCompareChip.className = "glass-chip warn";
       refs.manualCompareChip.textContent = "Sem referência automática carregada.";
-      refs.manualCompareHelp.textContent = "O modo manual continua disponível, mas ainda sem uma espessura mínima automática para comparar.";
     } else if (manual < suggestion.adoptedThickness) {
       refs.manualCompareChip.className = "glass-chip bad";
       refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual ficou em ${manual} mm`;
-      refs.manualCompareHelp.textContent = "A espessura manual ficou abaixo da referência que atende. Esta escolha merece revisão técnica antes do fechamento.";
     } else if (manual === suggestion.adoptedThickness) {
       refs.manualCompareChip.className = "glass-chip ok";
       refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está alinhado`;
-      refs.manualCompareHelp.textContent = "Neste caso, a espessura manual coincide com a espessura mínima sugerida para atender.";
     } else {
       refs.manualCompareChip.className = "glass-chip ok";
       refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está em ${manual} mm`;
-      refs.manualCompareHelp.textContent = "A espessura manual está acima da espessura mínima sugerida e segue uma linha mais conservadora.";
     }
 
     if (suggestion.alertText) {
@@ -2429,6 +2444,11 @@
 
     refs.rTotal.textContent = brl(result.total);
     refs.rQtyNote.textContent = `${result.input.qty} porta${result.input.qty > 1 ? "s" : ""} • ${result.input.nFolhas} folhas • ${result.input.nPlanos} planos`;
+
+    // Header sticky badge
+    refs.hrTotal.textContent = brl(result.total);
+    refs.hrSub.textContent = `${num(result.areaTotal * result.input.qty, 2)} m² · ${result.input.qty} porta${result.input.qty > 1 ? "s" : ""}`;
+    refs.headerResult.classList.add("visible");
     refs.rM2.textContent = brl(result.custoM2);
     refs.rArea.textContent = `${num(result.areaTotal * result.input.qty, 2)} m² totais`;
     refs.rGlass.textContent = `${num(result.input.thickness.thickness, 0)} mm`;
@@ -3017,6 +3037,11 @@
 
     document.querySelectorAll(".seg-btn").forEach((button) => {
       button.addEventListener("click", () => setGlassMode(button.dataset.mode, true));
+    });
+
+    refs.windToggle.addEventListener("click", () => {
+      const isOpen = refs.windParams.classList.toggle("open");
+      refs.windToggle.classList.toggle("open", isOpen);
     });
 
     refs.calcButton.addEventListener("click", calculateQuote);
