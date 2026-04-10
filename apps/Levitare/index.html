@@ -1096,13 +1096,11 @@
 
   .config-layout {
     display: grid;
-    grid-template-columns: minmax(220px, 360px) 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     grid-template-areas:
-      "fields  preview"
-      "measure preview"
-      "finish  preview";
-    column-gap: 18px;
-    row-gap: 14px;
+      "fields  measure  finish"
+      "preview preview  preview";
+    gap: 16px;
     align-items: start;
   }
   .config-layout > .grid            { grid-area: fields; }
@@ -1288,11 +1286,11 @@
               </div>
             </div>
 
-            <button type="button" class="wind-toggle" id="windToggle">
+            <button type="button" class="wind-toggle open" id="windToggle">
               <i class="wt-arrow">▶</i>
               Parâmetros de vento e norma (UF · cidade · pavimentos)
             </button>
-            <div class="wind-params" id="windParams">
+            <div class="wind-params open" id="windParams">
               <div class="grid">
                 <div class="field">
                   <label for="windState">UF</label>
@@ -1941,6 +1939,9 @@
     const normative = getNormativeContext();
     refs.quantidade.value = quantidade;
 
+    const heatMap = { "1.00": "Recozido (float)", "0.80": "Termoendurecido", "0.61": "Temperado" };
+    const glassHeatLabel = heatMap[refs.glassHeat.value] || "Recozido (float)";
+
     return {
       cliente: refs.cliente.value.trim(),
       obra: refs.obra.value.trim(),
@@ -1953,6 +1954,7 @@
       finish: state.selectedFinish,
       thickness,
       glassMode: state.glassMode,
+      glassHeatLabel,
       normative
     };
   }
@@ -2600,12 +2602,20 @@
         ${metric("Carrinhos por folha", `${result.carrPerFolha} un (máx ${result.maxCarr})`)}
         ${metric("Metros de trilho", `${num(result.trilhoM, 2)} m`)}
         ${metric("Acabamento", escapeHtml(result.input.finish.label))}
-        ${metric("Pe e região", `${num(result.input.normative.pe, 0)} Pa • ${result.input.normative.region}`)}
+        ${metric("Pressão de ensaio", `${num(result.input.normative.pe, 0)} Pa • Região ${result.input.normative.region}`)}
+        ${metric("Modo do vidro", result.input.glassMode === "auto" ? "Sugerido automaticamente" : "Espessura manual")}
+        ${metric("Tratamento das chapas", escapeHtml(result.input.glassHeatLabel))}
       </div>
 
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:14px 0 8px">Observações</div>
-      <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.4">
-        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.pavimentos} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável.
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:14px 0 8px">Base técnica e observações</div>
+      <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.8">
+        <strong>Configuração:</strong> ${result.input.nFolhas} folhas · ${result.input.nPlanos} planos<br>
+        <strong>Enquadramento normativo:</strong> ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf} · isopleta ${result.input.normative.isopleta} m/s · Região ${result.input.normative.region} · até ${result.input.normative.pavimentos} pavimentos<br>
+        <strong>Referência técnica do vidro:</strong> ${escapeHtml(result.input.thickness.label)}<br>
+        <strong>Base técnica:</strong> ${num(result.input.normative.pe, 0)} Pa · chapas ${escapeHtml(result.input.glassHeatLabel).toLowerCase()}<br>
+        <strong>Modo:</strong> ${result.input.glassMode === "auto" ? "Espessura sugerida automaticamente pela norma" : "Espessura definida manualmente"}<br>
+        <br>
+        Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável. Os vidros não estão inclusos na proposta comercial; a espessura exibida é referência técnica para composição e peso.
       </div>
     `;
   }
@@ -3073,4 +3083,3 @@
 </script>
 </body>
 </html>
-    color: #ffffff;
