@@ -1066,7 +1066,7 @@
 
         <div class="card">
           <div class="card-title">Memória comercial</div>
-          <p class="helper">Orçamento orientativo de materiais. Sistema de fecho MR Brasil incluso. Não inclui arremates, parafusos, silicone e contramarco.</p>
+          <p class="helper">Orçamento orientativo de materiais do sistema Levitare. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão.</p>
           <div class="actions" style="margin-top:14px">
             <button id="reportButton" class="report-btn" type="button">Gerar relatório PDF</button>
           </div>
@@ -2091,6 +2091,8 @@
       notes.push(`Referência técnica: ${result.input.thickness.suggestion.chosenText}.`);
       notes.push(`Base técnica: ${num(result.input.thickness.suggestion.pressure, 0)} Pa e chapas ${result.input.thickness.suggestion.heatLabel.toLowerCase()}.`);
     }
+    notes.push("A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável.");
+    notes.push("Os vidros não estão inclusos na proposta comercial; a espessura exibida é uma referência técnica para composição e peso.");
     if (result.overweight) {
       notes.push("A necessidade de carrinhos ultrapassou o limite geométrico por folha. Esta proposta deve passar por engenharia.");
     }
@@ -2175,7 +2177,7 @@
 
       <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:14px 0 8px">Observações</div>
       <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.4">
-        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.floors} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui arremates, parafusos, silicone e contramarco.
+        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.floors} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável.
       </div>
     `;
   }
