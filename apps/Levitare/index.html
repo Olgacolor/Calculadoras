@@ -277,12 +277,31 @@
   /* Leaf dimension bar — below the SVG elevation */
   .leaf-dim-bar {
     min-height: 1px;
-    margin-top: 2px;
+    margin-top: 4px;
     text-align: center;
     font-family: "DM Mono", monospace;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.42);
     letter-spacing: 0.03em;
+  }
+
+  .svg-hint {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    padding-top: 4px;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+  }
+
+  /* SVG handle hover/disabled feedback */
+  #doorPreviewSvg g[data-handle] { transition: opacity 0.15s ease; }
+  #doorPreviewSvg g[data-handle] circle {
+    transition: fill 0.15s ease, stroke-width 0.15s ease;
+  }
+  #doorPreviewSvg g[data-handle]:hover:not([opacity="0.35"]) circle {
+    fill: rgba(19, 162, 179, 0.32);
+    stroke-width: 1.4;
   }
 
   .card-title {
@@ -912,41 +931,6 @@
     cursor: pointer;
   }
 
-  /* Wind params collapsible */
-  .wind-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    color: var(--muted);
-    font-family: "DM Sans", sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: border-color 0.18s, color 0.18s;
-    width: 100%;
-    text-align: left;
-  }
-  .wind-toggle:hover { border-color: var(--accent); color: var(--ink-soft); }
-  .wind-toggle .wt-arrow {
-    display: inline-block;
-    transition: transform 0.22s;
-    font-style: normal;
-    font-size: 10px;
-  }
-  .wind-toggle.open .wt-arrow { transform: rotate(90deg); }
-
-  .wind-params {
-    display: none;
-  }
-  .wind-params.open {
-    display: grid;
-    gap: 14px;
-  }
-
   /* Measure chip as data display */
   .measure-display {
     display: flex;
@@ -1130,10 +1114,11 @@
     border: 1px solid var(--accent);
     color: var(--ink);
     font-family: "DM Mono", monospace;
-    font-size: 11px;
-    padding: 3px 8px;
+    /* 16px prevents iOS Safari from zooming in on focus */
+    font-size: 16px;
+    padding: 4px 8px;
     border-radius: 6px;
-    width: 90px;
+    width: 96px;
     text-align: center;
     z-index: 10;
     outline: none;
@@ -1202,8 +1187,6 @@
         <input id="altura" type="hidden" value="2700">
         <input id="folhas" type="hidden" value="2">
         <input id="planos" type="hidden" value="2">
-        <div id="planosPills" hidden></div>
-        <div id="larguraFolhaChip" hidden></div>
         <div class="config-layout">
           <div class="field finish-field">
             <label>Acabamento</label>
@@ -1214,6 +1197,7 @@
             <input class="coat-edit-input" id="coatEditInput" type="number">
             <svg id="doorPreviewSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block;touch-action:none"></svg>
             <div id="leafDimBar" class="leaf-dim-bar"></div>
+            <div class="svg-hint">Toque nos +/− e nas cotas tracejadas para ajustar</div>
           </div>
         </div>
       </div>
@@ -1222,6 +1206,48 @@
         <div class="card-title">Vidro</div>
 
         <div class="grid">
+          <div class="subcard span-2">
+            <div class="subcard-title">Contexto da obra (NBR 10821)</div>
+            <div class="grid">
+              <div class="field span-2">
+                <label>Modo de pressão</label>
+                <div class="segmented">
+                  <button type="button" class="seg-btn active" data-pressure-mode="auto">Tabela NBR</button>
+                  <button type="button" class="seg-btn" data-pressure-mode="manual">Manual</button>
+                </div>
+                <span class="helper">Use a tabela da NBR 10821 ou informe diretamente a pressão de ensaio quando ela já vier definida pelo consultor.</span>
+              </div>
+              <div class="field">
+                <label for="windState">UF</label>
+                <select id="windState"></select>
+              </div>
+              <div class="field">
+                <label for="windCity">Cidade de referência</label>
+                <select id="windCity"></select>
+              </div>
+              <div class="field">
+                <label for="buildingFloors">Pavimentos</label>
+                <select id="buildingFloors">
+                  <option value="2">Até 2 pavimentos (até 6 m)</option>
+                  <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
+                  <option value="10">Até 10 pavimentos (até 30 m)</option>
+                  <option value="20">Até 20 pavimentos (até 60 m)</option>
+                  <option value="30">Até 30 pavimentos (até 90 m)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Base normativa</label>
+                <div id="glassNormChip" class="inline-chip">Carregando...</div>
+                <span id="glassNormHelp" class="helper">A pressão de referência segue a tabela da NBR 10821 conforme UF, cidade e faixa de pavimentos.</span>
+              </div>
+              <div class="field span-2" id="windManualField" style="display:none">
+                <label for="windManualPressure">Pressão de ensaio manual</label>
+                <input id="windManualPressure" type="text" value="750" inputmode="decimal" pattern="[0-9]*[\\.,]?[0-9]*" enterkeyhint="done" autocomplete="off">
+                <span class="unit">Pa</span>
+              </div>
+            </div>
+          </div>
+
           <div class="field span-2">
             <label>Modo de espessura</label>
             <div class="segmented">
@@ -1253,51 +1279,6 @@
               <div class="field">
                 <label>Espessura adotada no custo</label>
                 <div id="glassChosenChip" class="inline-chip">Aguardando cálculo</div>
-              </div>
-            </div>
-
-            <button type="button" class="wind-toggle open" id="windToggle">
-              <i class="wt-arrow">▶</i>
-              Parâmetros de vento e norma (UF · cidade · pavimentos)
-            </button>
-            <div class="wind-params open" id="windParams">
-              <div class="grid">
-                <div class="field span-2">
-                  <label>Modo de pressão</label>
-                  <div class="segmented">
-                    <button type="button" class="seg-btn active" data-pressure-mode="auto">Tabela NBR</button>
-                    <button type="button" class="seg-btn" data-pressure-mode="manual">Manual</button>
-                  </div>
-                  <span class="helper">Use a tabela da NBR 10821 ou informe diretamente a pressão de ensaio quando ela já vier definida pelo consultor.</span>
-                </div>
-                <div class="field">
-                  <label for="windState">UF</label>
-                  <select id="windState"></select>
-                </div>
-                <div class="field">
-                  <label for="windCity">Cidade de referência</label>
-                  <select id="windCity"></select>
-                </div>
-                <div class="field">
-                  <label for="buildingFloors">Pavimentos</label>
-                  <select id="buildingFloors">
-                    <option value="2">Até 2 pavimentos (até 6 m)</option>
-                    <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
-                    <option value="10">Até 10 pavimentos (até 30 m)</option>
-                    <option value="20">Até 20 pavimentos (até 60 m)</option>
-                    <option value="30">Até 30 pavimentos (até 90 m)</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Base normativa</label>
-                  <div id="glassNormChip" class="inline-chip">Carregando...</div>
-                  <span id="glassNormHelp" class="helper">A pressão de referência segue a tabela da NBR 10821 conforme UF, cidade e faixa de pavimentos.</span>
-                </div>
-                <div class="field span-2" id="windManualField" style="display:none">
-                  <label for="windManualPressure">Pressão de ensaio manual</label>
-                  <input id="windManualPressure" type="text" value="750" inputmode="decimal" pattern="[0-9]*[\\.,]?[0-9]*" enterkeyhint="done" autocomplete="off">
-                  <span class="unit">Pa</span>
-                </div>
               </div>
             </div>
           </div>
@@ -1457,9 +1438,7 @@
     altura: document.getElementById("altura"),
     folhas: document.getElementById("folhas"),
     planos: document.getElementById("planos"),
-    planosPills: document.getElementById("planosPills"),
     quantidade: document.getElementById("quantidade"),
-    larguraFolhaChip: document.getElementById("larguraFolhaChip"),
     glassFamily: document.getElementById("glassFamily"),
     glassHeat: document.getElementById("glassHeat"),
     windState: document.getElementById("windState"),
@@ -1470,8 +1449,6 @@
     glassNormChip: document.getElementById("glassNormChip"),
     glassChip: document.getElementById("glassChip"),
     glassChosenChip: document.getElementById("glassChosenChip"),
-    windToggle: document.getElementById("windToggle"),
-    windParams: document.getElementById("windParams"),
     glassAutoBox: document.getElementById("glassAutoBox"),
     glassManualBox: document.getElementById("glassManualBox"),
     espessuraManual: document.getElementById("espessuraManual"),
@@ -1770,7 +1747,6 @@
     }
 
     const larguraFolha = largura / folhas;
-    refs.larguraFolhaChip.textContent = `${num(larguraFolha, 0)} × ${num(altura, 0)} mm`;
     return { largura, altura, folhas, larguraFolha };
   }
 
@@ -2972,15 +2948,24 @@
       // Folhas − / + buttons — top corners inside the glass area
       const btnY = innerY + 10, btnR = 8;
       const btnBg = `fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"`;
-      s += `<g data-handle="folhas-minus" style="cursor:pointer" role="button" aria-label="Reduzir número de folhas" tabindex="0">
-        <circle cx="${f(innerX + btnR + 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
-        <text x="${f(innerX + btnR + 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
-          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">−</text>
+      const canFolhasDown = folhas > 2;
+      const canFolhasUp   = folhas < 12;
+      const fMinusCx = innerX + btnR + 2;
+      const fPlusCx  = innerX + innerW - btnR - 2;
+      // Larger transparent hit area for touch (≈ 22x22 SVG units → ~70px on typical render)
+      const hitR = 12;
+
+      s += `<g data-handle="folhas-minus" style="cursor:pointer" role="button" aria-label="Reduzir número de folhas" tabindex="0" opacity="${canFolhasDown ? 1 : 0.35}">
+        <rect x="${f(fMinusCx - hitR)}" y="${f(btnY - hitR)}" width="${f(hitR * 2)}" height="${f(hitR * 2)}" fill="transparent"/>
+        <circle cx="${f(fMinusCx)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
+        <text x="${f(fMinusCx)}" y="${f(btnY + 3.5)}" text-anchor="middle"
+          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}" pointer-events="none">−</text>
       </g>`;
-      s += `<g data-handle="folhas-plus" style="cursor:pointer" role="button" aria-label="Aumentar número de folhas" tabindex="0">
-        <circle cx="${f(innerX + innerW - btnR - 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
-        <text x="${f(innerX + innerW - btnR - 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
-          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">+</text>
+      s += `<g data-handle="folhas-plus" style="cursor:pointer" role="button" aria-label="Aumentar número de folhas" tabindex="0" opacity="${canFolhasUp ? 1 : 0.35}">
+        <rect x="${f(fPlusCx - hitR)}" y="${f(btnY - hitR)}" width="${f(hitR * 2)}" height="${f(hitR * 2)}" fill="transparent"/>
+        <circle cx="${f(fPlusCx)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
+        <text x="${f(fPlusCx)}" y="${f(btnY + 3.5)}" text-anchor="middle"
+          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}" pointer-events="none">+</text>
       </g>`;
 
       // Planos − / + buttons — overlaid on left/right ends of the track zone
@@ -2991,16 +2976,20 @@
         const planIdx = planOptions.indexOf(planos);
         const canPlanDown = planIdx > 0;
         const canPlanUp   = planIdx < planOptions.length - 1;
+        const pMinusCx = dX + pBtnR + 2;
+        const pPlusCx  = dX + dW - pBtnR - 2;
 
         s += `<g data-handle="planos-minus" style="cursor:pointer" role="button" aria-label="Reduzir planos" tabindex="0" opacity="${canPlanDown ? 1 : 0.35}">
-          <circle cx="${f(dX + pBtnR + 2)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
-          <text x="${f(dX + pBtnR + 2)}" y="${f(pBtnY + 3)}" text-anchor="middle"
-            font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}">−</text>
+          <rect x="${f(pMinusCx - hitR)}" y="${f(pBtnY - hitR)}" width="${f(hitR * 2)}" height="${f(hitR * 2)}" fill="transparent"/>
+          <circle cx="${f(pMinusCx)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
+          <text x="${f(pMinusCx)}" y="${f(pBtnY + 3)}" text-anchor="middle"
+            font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}" pointer-events="none">−</text>
         </g>`;
         s += `<g data-handle="planos-plus" style="cursor:pointer" role="button" aria-label="Aumentar planos" tabindex="0" opacity="${canPlanUp ? 1 : 0.35}">
-          <circle cx="${f(dX + dW - pBtnR - 2)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
-          <text x="${f(dX + dW - pBtnR - 2)}" y="${f(pBtnY + 3)}" text-anchor="middle"
-            font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}">+</text>
+          <rect x="${f(pPlusCx - hitR)}" y="${f(pBtnY - hitR)}" width="${f(hitR * 2)}" height="${f(hitR * 2)}" fill="transparent"/>
+          <circle cx="${f(pPlusCx)}" cy="${f(pBtnY)}" r="${pBtnR}" fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"/>
+          <text x="${f(pPlusCx)}" y="${f(pBtnY + 3)}" text-anchor="middle"
+            font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${profHi}" pointer-events="none">+</text>
         </g>`;
       }
     }
@@ -3043,7 +3032,10 @@
     const input = refs.coatEditInput;
     if (!input) return;
 
+    let applying = false;
     const apply = () => {
+      if (applying) return;
+      applying = true;
       const val = Number(input.value);
       if (Number.isFinite(val) && val > 0) {
         if (input.dataset.field === "width") {
@@ -3056,12 +3048,18 @@
         updateGlassUI();
         markDirty();
       }
-      input.style.display = "none";
+      // Blur first so iOS Safari releases the focus and restores the viewport zoom,
+      // then hide the input on the next tick to avoid the "stuck zoom / dead touch" bug.
+      try { input.blur(); } catch (_) {}
+      setTimeout(() => { input.style.display = "none"; applying = false; }, 0);
     };
 
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { apply(); }
-      if (e.key === "Escape") { input.style.display = "none"; }
+      if (e.key === "Escape") {
+        try { input.blur(); } catch (_) {}
+        setTimeout(() => { input.style.display = "none"; }, 0);
+      }
     });
     input.addEventListener("blur", apply);
   }
@@ -3232,11 +3230,6 @@
     document.querySelectorAll(".seg-btn").forEach((button) => {
       if (!button.dataset.pressureMode) return;
       button.addEventListener("click", () => setPressureMode(button.dataset.pressureMode, true));
-    });
-
-    refs.windToggle.addEventListener("click", () => {
-      const isOpen = refs.windParams.classList.toggle("open");
-      refs.windToggle.classList.toggle("open", isOpen);
     });
 
     refs.calcButton.addEventListener("click", calculateQuote);
