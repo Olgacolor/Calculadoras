@@ -1101,7 +1101,7 @@
 
           <div class="field">
             <label for="folhas">Número de folhas</label>
-            <input id="folhas" type="number" value="4" min="2" max="12" step="1" inputmode="numeric">
+            <input id="folhas" type="number" value="2" min="2" max="12" step="1" inputmode="numeric">
             <span class="helper">Informe livremente. O app monta as opções válidas de planos a partir desse valor.</span>
           </div>
           <div class="field">
@@ -1507,7 +1507,7 @@
   function getFolhas(commit = false) {
     const raw = refs.folhas.value;
     const numeric = Number.parseInt(raw, 10);
-    const folhas = Number.isFinite(numeric) ? Math.min(12, Math.max(2, numeric)) : 4;
+    const folhas = Number.isFinite(numeric) ? Math.min(12, Math.max(2, numeric)) : 2;
     if (commit) refs.folhas.value = folhas;
     return folhas;
   }
@@ -2538,7 +2538,7 @@
     refs.obra.value = "";
     refs.largura.value = 5000;
     refs.altura.value = 2700;
-    refs.folhas.value = 4;
+    refs.folhas.value = 2;
     refs.quantidade.value = 1;
     refs.glassFamily.value = "laminado";
     refs.glassHeat.value = "1.00";

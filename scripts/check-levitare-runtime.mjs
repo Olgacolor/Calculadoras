@@ -208,8 +208,8 @@ if (!resultsVisible && !errorVisible) {
 assertNoBrokenText("Ajuda da norma", elements.get("glassNormHelp").textContent);
 assertNoBrokenText("Observacoes do resultado", elements.get("observations").innerHTML);
 
-if (elements.get("folhas").value === "4" && elements.get("planos").value !== "2") {
-  throw new Error(`Padrão de 4 folhas deveria iniciar com 2 planos, mas iniciou com ${elements.get("planos").value}.`);
+if (String(elements.get("folhas").value) !== "2" || String(elements.get("planos").value) !== "2") {
+  throw new Error(`Padrão inicial deveria ser 2 folhas / 2 planos, mas iniciou com ${elements.get("folhas").value} folhas / ${elements.get("planos").value} planos.`);
 }
 
 elements.get("largura").value = "5000";
