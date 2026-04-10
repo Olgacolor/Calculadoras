@@ -1052,7 +1052,7 @@
 
   @media (max-width: 980px) {
     .door-preview-card {
-      display: none;
+      display: none !important;
     }
     .door-preview-inline {
       display: block;
@@ -1155,6 +1155,11 @@
       </div>
 
       <div class="card flow-card" data-step="03">
+        <div class="card-title">Acabamento</div>
+        <div id="colorGroup" class="color-group"></div>
+      </div>
+
+      <div class="card flow-card" data-step="04">
         <div class="card-title">Vidro</div>
         <div class="grid">
           <div class="field span-2">
@@ -1248,11 +1253,6 @@
             <span id="glassAlertText"></span>
           </div>
         </div>
-      </div>
-
-      <div class="card flow-card" data-step="04">
-        <div class="card-title">Acabamento</div>
-        <div id="colorGroup" class="color-group"></div>
       </div>
 
       <div class="card flow-card action-card" data-step="05">
@@ -2607,33 +2607,28 @@
     setGlassMode("auto", false);
   }
 
+  let doorGeo = { W: 5000, H: 2700, dX: 0, dY: 0, dW: 0, dH: 0, svgW: 240, svgH: 290 };
+
   function buildDoorSvg({ W, H, folhas, planos, finish, theme }) {
     const isDark = theme !== "light";
 
-    const profileColors = {
-      "Madeira":       "#7d5228",
-      "Inox escovado": "#546e7a",
-      "Anod-Pint":     "#2e4a60"
-    };
-    const profileHighlights = {
-      "Madeira":       "#a06830",
-      "Inox escovado": "#78909c",
-      "Anod-Pint":     "#3d6080"
-    };
-    const profile  = profileColors[finish.key]      || profileColors["Inox escovado"];
-    const profHi   = profileHighlights[finish.key]  || profileHighlights["Inox escovado"];
+    const profileColors     = { "Madeira": "#7d5228", "Inox escovado": "#546e7a", "Anod-Pint": "#2e4a60" };
+    const profileHighlights = { "Madeira": "#a06830", "Inox escovado": "#78909c", "Anod-Pint": "#3d6080" };
+    const profile = profileColors[finish.key]     || profileColors["Inox escovado"];
+    const profHi  = profileHighlights[finish.key] || profileHighlights["Inox escovado"];
 
-    // Glass tint — neutral light grey, independent of finish
-    const glassFill    = isDark ? "rgba(210,218,225,0.07)"  : "rgba(220,228,235,0.60)";
-    const glassStroke  = isDark ? "rgba(200,215,225,0.18)"  : "rgba(150,175,195,0.45)";
-    const reflFill     = isDark ? "rgba(255,255,255,0.08)"  : "rgba(255,255,255,0.65)";
-    const dimColor     = isDark ? "#4e6070"  : "#94a3b8";
-    const labelColor   = isDark ? "#13a2b3"  : "#0369a1";
-    const leafTextFill = isDark ? "rgba(255,255,255,0.22)" : "rgba(15,23,42,0.38)";
-    const floorColor   = isDark ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.12)";
+    // Glass always neutral — dark base + subtle grey tint on top
+    const glassBg      = isDark ? "#0e1419"               : "#dde5ed";
+    const glassTint    = isDark ? "rgba(220,228,235,0.10)" : "rgba(220,228,235,0.55)";
+    const glassStroke  = isDark ? "rgba(200,215,225,0.22)" : "rgba(150,175,195,0.45)";
+    const reflFill     = isDark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.60)";
+    const dimColor     = isDark ? "#4e6070"                : "#94a3b8";
+    const labelColor   = isDark ? "#13a2b3"                : "#0369a1";
+    const leafTextFill = isDark ? "rgba(255,255,255,0.25)" : "rgba(15,23,42,0.40)";
+    const floorColor   = isDark ? "rgba(255,255,255,0.07)" : "rgba(15,23,42,0.12)";
 
     const svgW = 240, svgH = 290;
-    const mLeft = 40, mTop = 46, mRight = 10, mBottom = 36;
+    const mLeft = 40, mTop = 46, mRight = 14, mBottom = 36;
     const aW = svgW - mLeft - mRight;
     const aH = svgH - mTop - mBottom;
 
@@ -2642,9 +2637,14 @@
     if (ratio > aW / aH) { dW = aW; dH = aW / ratio; }
     else { dH = aH; dW = aH * ratio; }
 
+    // Enforce a minimum visual height so wide doors still look like doors
+    if (dH < 40) { dH = 40; dW = 40 * ratio; }
+
     const dX = mLeft + (aW - dW) / 2;
-    const dY = mTop + (aH - dH) / 2;
-    const ft = Math.max(3, Math.min(7, dW * 0.045));
+    const dY = mTop  + (aH - dH) / 2;
+    const ft = Math.max(4, Math.min(8, dW * 0.05));
+
+    if (isDark) Object.assign(doorGeo, { W, H, dX, dY, dW, dH, svgW, svgH });
 
     const innerX = dX + ft;
     const innerY = dY + ft;
@@ -2662,8 +2662,6 @@
     const midX = dX + dW / 2;
     const midY = dY + dH / 2;
     const f = (n) => n.toFixed(1);
-
-    // Unique gradient ID prefix to avoid conflicts when two SVGs exist (sidebar + report)
     const uid = isDark ? "dpD" : "dpL";
 
     let s = `<defs>
@@ -2673,7 +2671,7 @@
       </linearGradient>
       <linearGradient id="${uid}RF" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="${reflFill}"/>
-        <stop offset="60%" stop-color="${reflFill.replace(/[\d.]+\)$/, "0)")}"/>
+        <stop offset="65%" stop-color="rgba(255,255,255,0)"/>
       </linearGradient>
     </defs>`;
 
@@ -2683,52 +2681,53 @@
       s += `<rect x="${f(dX)}" y="${f(ty)}" width="${f(dW)}" height="${f(trackLineH)}" rx="2"
               fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.4" stroke-opacity="0.5"/>`;
       s += `<rect x="${f(dX + ft)}" y="${f(ty + trackLineH * 0.35)}" width="${f(dW - 2 * ft)}" height="${f(trackLineH * 0.3)}"
-              rx="1" fill="rgba(0,0,0,0.28)"/>`;
+              rx="1" fill="rgba(0,0,0,0.32)"/>`;
     }
 
-    // Outer frame shadow/border (dark theme only)
+    // Drop shadow (dark only)
     if (isDark) {
-      s += `<rect x="${f(dX + 1)}" y="${f(dY + 1)}" width="${f(dW)}" height="${f(dH)}" rx="3.5"
-              fill="rgba(0,0,0,0.35)"/>`;
+      s += `<rect x="${f(dX + 2)}" y="${f(dY + 3)}" width="${f(dW)}" height="${f(dH)}" rx="4"
+              fill="rgba(0,0,0,0.45)"/>`;
     }
 
     // Outer frame
     s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(dW)}" height="${f(dH)}" rx="3"
-            fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.6" stroke-opacity="0.4"/>`;
+            fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.8" stroke-opacity="0.5"/>`;
 
-    // Glass panels
+    // Glass panels — solid dark background first, then tint overlay
     for (let i = 0; i < folhas; i++) {
-      const lx = innerX + i * leafW;
-      const divSz = i > 0 ? Math.max(ft * 0.55, Math.min(ft, leafW * 0.10)) : 0;
-      const px = lx + divSz / 2;
-      const pw = leafW - divSz;
+      const lx   = innerX + i * leafW;
+      const divSz = i > 0 ? Math.max(ft * 0.6, Math.min(ft, leafW * 0.10)) : 0;
+      const px   = lx + divSz / 2;
+      const pw   = leafW - divSz;
 
-      // Glass fill
+      // Solid background — blocks profile color from showing through
+      s += `<rect x="${f(px)}" y="${f(innerY)}" width="${f(pw)}" height="${f(innerH)}" fill="${glassBg}"/>`;
+      // Tint overlay
       s += `<rect x="${f(px)}" y="${f(innerY)}" width="${f(pw)}" height="${f(innerH)}"
-              fill="${glassFill}" stroke="${glassStroke}" stroke-width="0.5"/>`;
-      // Reflection stripe
+              fill="${glassTint}" stroke="${glassStroke}" stroke-width="0.6"/>`;
+      // Reflection stripe (left ~28%)
       s += `<rect x="${f(px + 1)}" y="${f(innerY + 1)}" width="${f(pw * 0.28)}" height="${f(innerH - 2)}"
               fill="url(#${uid}RF)"/>`;
 
       // Inter-leaf divider profile
       if (i > 0) {
         s += `<rect x="${f(lx - divSz / 2)}" y="${f(innerY)}" width="${f(divSz)}" height="${f(innerH)}"
-                fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.3" stroke-opacity="0.4"/>`;
+                fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.4" stroke-opacity="0.4"/>`;
       }
     }
 
-    // Frame edge overlays (top / bottom / sides)
+    // Frame edge overlays
     s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(dW)}" height="${f(ft)}" rx="2" fill="url(#${uid}PF)"/>`;
     s += `<rect x="${f(dX)}" y="${f(dY + dH - ft)}" width="${f(dW)}" height="${f(ft)}" fill="url(#${uid}PF)"/>`;
     s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(ft)}" height="${f(dH)}" fill="url(#${uid}PF)"/>`;
     s += `<rect x="${f(dX + dW - ft)}" y="${f(dY)}" width="${f(ft)}" height="${f(dH)}" fill="url(#${uid}PF)"/>`;
 
-    // Floor shadow line
+    // Floor line
     s += `<line x1="${f(dX - 4)}" y1="${f(dY + dH + 1)}" x2="${f(dX + dW + 4)}" y2="${f(dY + dH + 1)}"
             stroke="${floorColor}" stroke-width="2" stroke-linecap="round"/>`;
 
     // ── Dimension lines ──
-    // Height (left side)
     const hX = dX - 14;
     s += `<line x1="${f(hX)}" y1="${f(dY)}" x2="${f(hX)}" y2="${f(dY + dH)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<line x1="${f(hX - 3.5)}" y1="${f(dY + 1)}" x2="${f(hX + 3.5)}" y2="${f(dY + 1)}" stroke="${dimColor}" stroke-width="0.8"/>`;
@@ -2736,7 +2735,6 @@
     s += `<text transform="rotate(-90,${f(hX - 10)},${f(midY)})" x="${f(hX - 10)}" y="${f(midY + 3)}"
             text-anchor="middle" ${dimFont}>${(H / 1000).toFixed(2).replace(".", ",")} m</text>`;
 
-    // Width (bottom)
     const wY = dY + dH + 12;
     s += `<line x1="${f(dX)}" y1="${f(wY)}" x2="${f(dX + dW)}" y2="${f(wY)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<line x1="${f(dX + 1)}" y1="${f(wY - 3.5)}" x2="${f(dX + 1)}" y2="${f(wY + 3.5)}" stroke="${dimColor}" stroke-width="0.8"/>`;
@@ -2756,6 +2754,44 @@
     // Config label above tracks
     s += `<text x="${f(midX)}" y="${f(trackZoneY - 6)}" text-anchor="middle" ${labelFont}>${folhas} folha${folhas > 1 ? "s" : ""} · ${planos} plano${planos > 1 ? "s" : ""}</text>`;
 
+    // ── Interactive handles (dark theme only) ──
+    if (isDark) {
+      const hBg = "rgba(10,16,22,0.82)";
+      const hStroke = profHi;
+
+      // Width handle — right edge, centered vertically
+      const hx = dX + dW - 1, hy = midY;
+      s += `<g data-handle="width" style="cursor:ew-resize">
+        <rect x="${f(hx - 1)}" y="${f(hy - 14)}" width="11" height="28" rx="5"
+          fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.7"/>
+        <line x1="${f(hx + 2)}" y1="${f(hy - 7)}" x2="${f(hx + 2)}" y2="${f(hy + 7)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/>
+        <line x1="${f(hx + 4.5)}" y1="${f(hy - 5)}" x2="${f(hx + 4.5)}" y2="${f(hy + 5)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round"/>
+      </g>`;
+
+      // Height handle — bottom edge, centered horizontally
+      const vx = midX, vy = dY + dH - 1;
+      s += `<g data-handle="height" style="cursor:ns-resize">
+        <rect x="${f(vx - 14)}" y="${f(vy - 1)}" width="28" height="11" rx="5"
+          fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.7"/>
+        <line x1="${f(vx - 7)}" y1="${f(vy + 2)}" x2="${f(vx + 7)}" y2="${f(vy + 2)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/>
+        <line x1="${f(vx - 5)}" y1="${f(vy + 4.5)}" x2="${f(vx + 5)}" y2="${f(vy + 4.5)}" stroke="${profHi}" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round"/>
+      </g>`;
+
+      // Folhas − / + buttons — top corners inside the glass area
+      const btnY = innerY + 10, btnR = 8;
+      const btnBg = `fill="${hBg}" stroke="${hStroke}" stroke-width="0.8" stroke-opacity="0.8"`;
+      s += `<g data-handle="folhas-minus" style="cursor:pointer">
+        <circle cx="${f(innerX + btnR + 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
+        <text x="${f(innerX + btnR + 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
+          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">−</text>
+      </g>`;
+      s += `<g data-handle="folhas-plus" style="cursor:pointer">
+        <circle cx="${f(innerX + innerW - btnR - 2)}" cy="${f(btnY)}" r="${btnR}" ${btnBg}/>
+        <text x="${f(innerX + innerW - btnR - 2)}" y="${f(btnY + 3.5)}" text-anchor="middle"
+          font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${profHi}">+</text>
+      </g>`;
+    }
+
     return s;
   }
 
@@ -2768,8 +2804,68 @@
       finish: state.selectedFinish,
       theme:  "dark"
     });
-    if (refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML = svg;
+    if (refs.doorPreviewSvg)       refs.doorPreviewSvg.innerHTML = svg;
     if (refs.doorPreviewSvgMobile) refs.doorPreviewSvgMobile.innerHTML = svg;
+  }
+
+  function bindDoorPreviewEvents(svgEl) {
+    if (!svgEl) return;
+    let drag = null;
+
+    svgEl.addEventListener("pointerdown", (e) => {
+      const handle = e.target.closest("[data-handle]");
+      if (!handle) return;
+      const h = handle.dataset.handle;
+      e.preventDefault();
+
+      if (h === "folhas-plus" || h === "folhas-minus") {
+        const next = h === "folhas-plus"
+          ? Math.min(12, getFolhas() + 1)
+          : Math.max(2, getFolhas() - 1);
+        refs.folhas.value = next;
+        renderPlanOptions(true, true);
+        updateLeafWidthChip(true);
+        markDirty();
+        return;
+      }
+
+      svgEl.setPointerCapture(e.pointerId);
+      drag = {
+        handle: h,
+        startX: e.clientX,
+        startY: e.clientY,
+        startW: Math.max(200, Number(refs.largura.value) || 5000),
+        startH: Math.max(200, Number(refs.altura.value)  || 2700)
+      };
+    });
+
+    svgEl.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      e.preventDefault();
+      const rect = svgEl.getBoundingClientRect();
+      const mmPerPxX = (doorGeo.W / doorGeo.dW) * (doorGeo.svgW / rect.width);
+      const mmPerPxY = (doorGeo.H / doorGeo.dH) * (doorGeo.svgH / rect.height);
+
+      if (drag.handle === "width") {
+        const newW = Math.round((drag.startW + (e.clientX - drag.startX) * mmPerPxX) / 50) * 50;
+        refs.largura.value = Math.max(500, Math.min(12000, newW));
+      } else if (drag.handle === "height") {
+        const newH = Math.round((drag.startH + (e.clientY - drag.startY) * mmPerPxY) / 50) * 50;
+        refs.altura.value = Math.max(500, Math.min(5000, newH));
+      }
+      updateLeafWidthChip(false);
+      renderDoorPreview();
+      markDirty();
+    });
+
+    svgEl.addEventListener("pointerup", () => {
+      if (!drag) return;
+      drag = null;
+      updateLeafWidthChip(true);
+      updateGlassUI();
+    });
+
+    svgEl.addEventListener("pointercancel", () => { drag = null; });
   }
 
   function bindInputEvents() {
@@ -2836,6 +2932,8 @@
   updateLeafWidthChip(false);
   setGlassMode("auto", false);
   renderDoorPreview();
+  bindDoorPreviewEvents(refs.doorPreviewSvg);
+  bindDoorPreviewEvents(refs.doorPreviewSvgMobile);
 })();
 </script>
 </body>
