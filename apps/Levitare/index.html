@@ -487,6 +487,29 @@
     min-width: 110px;
   }
 
+  .plan-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .plan-pill small {
+    font-size: 10px;
+    font-weight: 400;
+    font-family: "DM Mono", monospace;
+    color: var(--muted);
+    letter-spacing: 0.2px;
+  }
+
+  .plan-pill.active small {
+    color: rgba(223, 252, 255, 0.7);
+  }
+
   .seg-btn:hover,
   .plan-pill:hover,
   .color-pill:hover {
@@ -1128,24 +1151,25 @@
         <input id="altura" type="hidden" value="2700">
         <div class="config-layout">
           <div class="grid">
+            <div class="field span-2">
+              <label for="quantidade">Quantidade de portas</label>
+              <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
+              <span class="unit">porta(s)</span>
+            </div>
+
             <div class="field">
               <label for="folhas">Número de folhas</label>
               <input id="folhas" type="number" value="2" min="2" max="12" step="1" inputmode="numeric">
               <span class="helper">Informe livremente. O app monta as opções válidas de planos a partir desse valor.</span>
             </div>
             <div class="field">
-              <label>Planos / trilhos válidos</label>
+              <label>Planos / trilhos</label>
               <div id="planosPills" class="plan-pills"></div>
               <input id="planos" type="hidden" value="2">
-              <span id="planosHint" class="helper">Selecione um dos arranjos permitidos.</span>
+              <span id="planosHint" class="helper"></span>
             </div>
 
-            <div class="field">
-              <label for="quantidade">Quantidade</label>
-              <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
-              <span class="unit">porta(s)</span>
-            </div>
-            <div class="field">
+            <div class="field span-2">
               <label>Largura por folha</label>
               <div id="larguraFolhaChip" class="inline-chip">Aguardando dimensões</div>
               <span class="helper">Clique nas cotas da elevação para editar as dimensões.</span>
@@ -1319,6 +1343,12 @@
             <button id="reportButton" class="report-btn" type="button">Gerar relatório PDF</button>
           </div>
         </div>
+
+        <div class="card" style="border-left:3px solid var(--warn)">
+          <div class="card-title">Atenção</div>
+          <p class="helper">Quando houver definição técnica prévia, use a espessura manual para refletir o projeto.</p>
+          <p class="helper" style="margin-top:8px">Configurações fora dos limites de peso ou carrinhos não geram custo e devem ser revisadas antes da proposta.</p>
+        </div>
       </section>
     </div>
 
@@ -1337,21 +1367,6 @@
         </div>
       </section>
 
-      <div class="card sidebar-card">
-        <div class="card-title">Critérios</div>
-        <ul class="sidebar-list">
-          <li>Para 2 folhas, são considerados 2 planos.</li>
-          <li>Para número ímpar de folhas acima de 2, os planos acompanham o número de folhas.</li>
-          <li>Para número par acima de 2, são avaliadas as opções n/2 e n.</li>
-          <li>A indicação do vidro considera largura por folha, altura, cidade e pavimentos.</li>
-        </ul>
-      </div>
-
-      <div class="card sidebar-card">
-        <div class="card-title">Atenção</div>
-        <p>Quando houver definição técnica prévia, use a espessura manual para refletir o projeto.</p>
-        <p>Configurações fora dos limites de peso ou carrinhos não geram custo e devem ser revisadas antes da proposta.</p>
-      </div>
     </aside>
   </section>
 </main>
@@ -1567,14 +1582,20 @@
 
     refs.planos.value = state.selectedPlan;
     refs.planosHint.textContent = options.length === 1
-      ? "Para esta quantidade de folhas, existe apenas um arranjo válido de planos."
-      : "Para esta quantidade de folhas, você pode escolher um arranjo enxuto ou um arranjo integral.";
+      ? ""
+      : "Escolha o arranjo de trilhos para esta configuração.";
 
-    refs.planosPills.innerHTML = options.map((option) => `
-      <button type="button" class="plan-pill ${option === state.selectedPlan ? "active" : ""}" data-plan="${option}">
-        ${option} plano${option > 1 ? "s" : ""}
-      </button>
-    `).join("");
+    refs.planosPills.innerHTML = options.map((option) => {
+      const folhasPorPlano = Math.ceil(folhas / option);
+      const desc = options.length > 1
+        ? `<small>${folhasPorPlano} folha${folhasPorPlano > 1 ? "s" : ""}/plano</small>`
+        : "";
+      return `
+        <button type="button" class="plan-pill ${option === state.selectedPlan ? "active" : ""}" data-plan="${option}">
+          <strong>${option} plano${option > 1 ? "s" : ""}</strong>
+          ${desc}
+        </button>`;
+    }).join("");
 
     refs.planosPills.querySelectorAll(".plan-pill").forEach((button) => {
       button.addEventListener("click", () => {
