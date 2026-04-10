@@ -2730,7 +2730,7 @@
     s += `<line x1="${f(hX - 3.5)}" y1="${f(dY + 1)}" x2="${f(hX + 3.5)}" y2="${f(dY + 1)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<line x1="${f(hX - 3.5)}" y1="${f(dY + dH - 1)}" x2="${f(hX + 3.5)}" y2="${f(dY + dH - 1)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<text transform="rotate(-90,${f(hX - 10)},${f(midY)})" x="${f(hX - 10)}" y="${f(midY + 3)}"
-            text-anchor="middle" ${dimFont}>${(H / 1000).toFixed(2).replace(".", ",")} m</text>`;
+            text-anchor="middle" ${dimFont}>${num(H, 0)} mm</text>`;
     if (isDark) {
       s += `<rect x="${f(hX - 20)}" y="${f(midY - 10)}" width="22" height="20" rx="3"
               fill="rgba(19,162,179,0.08)" stroke="rgba(19,162,179,0.25)" stroke-width="0.6"
@@ -2741,7 +2741,7 @@
     s += `<line x1="${f(dX)}" y1="${f(wY)}" x2="${f(dX + dW)}" y2="${f(wY)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<line x1="${f(dX + 1)}" y1="${f(wY - 3.5)}" x2="${f(dX + 1)}" y2="${f(wY + 3.5)}" stroke="${dimColor}" stroke-width="0.8"/>`;
     s += `<line x1="${f(dX + dW - 1)}" y1="${f(wY - 3.5)}" x2="${f(dX + dW - 1)}" y2="${f(wY + 3.5)}" stroke="${dimColor}" stroke-width="0.8"/>`;
-    s += `<text x="${f(midX)}" y="${f(wY + 12)}" text-anchor="middle" ${dimFont}>${(W / 1000).toFixed(2).replace(".", ",")} m</text>`;
+    s += `<text x="${f(midX)}" y="${f(wY + 12)}" text-anchor="middle" ${dimFont}>${num(W, 0)} mm</text>`;
     if (isDark) {
       s += `<rect x="${f(midX - 24)}" y="${f(wY + 2)}" width="48" height="14" rx="3"
               fill="rgba(19,162,179,0.08)" stroke="rgba(19,162,179,0.25)" stroke-width="0.6"
@@ -2750,7 +2750,7 @@
 
     // Per-leaf width inside panels
     if (leafW > 26 && folhas > 1) {
-      const lM = (W / folhas / 1000).toFixed(2).replace(".", ",");
+      const lM = num(W / folhas, 0);
       for (let i = 0; i < folhas; i++) {
         const cx = innerX + i * leafW + leafW / 2;
         s += `<text x="${f(cx)}" y="${f(midY + 3)}" text-anchor="middle"
