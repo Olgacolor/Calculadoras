@@ -1990,24 +1990,41 @@
     if (sameLeaves && samePlans && !sameHeight) return "altura";
     if (sameHeight && sameLeaves && !samePlans) return "planos";
     if (sameHeight && !sameLeaves) return "folhas-planos";
-    if (!sameHeight && sameLeaves && !samePlans) return "altura-planos";
-    if (!sameHeight && !sameLeaves) return "altura-folhas-planos";
+    if (!sameHeight) return "altura-combinada";
     return "mesmo-desenho";
   }
 
-  function pickDiverseAlternatives(original, sortedItems, limit = 3) {
+  function getScenarioGroup(original, result) {
+    return result.input.height !== original.height
+      ? "altura"
+      : getScenarioFamily(original, result);
+  }
+
+  function pickDiverseAlternatives(original, sortedItems, limit = 3, primary = null) {
     const picked = [];
     const usedFamilies = new Set();
+    if (primary) usedFamilies.add(getScenarioGroup(original, primary.result));
 
     sortedItems.forEach((item) => {
       if (picked.length >= limit) return;
-      const family = getScenarioFamily(original, item.result);
+      const family = getScenarioGroup(original, item.result);
       if (usedFamilies.has(family)) return;
       usedFamilies.add(family);
       picked.push(item);
     });
 
     return picked;
+  }
+
+  function shouldOfferScenario(original, scenario) {
+    const nPlanos = scenario.nPlanos || original.nPlanos;
+    if (nPlanos > original.nPlanos) {
+      return {
+        ok: false,
+        message: "aumentar o número de planos aumenta a interferência visual e deve ficar como estudo de engenharia, não como sugestão automática"
+      };
+    }
+    return { ok: true };
   }
 
   function analyzeExecutableAlternatives(original) {
@@ -2024,6 +2041,12 @@
       const key = [width, height, nFolhas, nPlanos].join("|");
       if (seen.has(key)) return;
       seen.add(key);
+
+      const offer = shouldOfferScenario(original, { width, height, nFolhas, nPlanos });
+      if (!offer.ok) {
+        rejected.push({ reason, detail: `${nFolhas} folhas / ${nPlanos} planos / ${num(height, 0)} mm: ${offer.message}` });
+        return;
+      }
 
       const candidateInput = buildScenarioInput(original, { width, height, nFolhas, nPlanos });
       const validation = validateInput(candidateInput);
@@ -2088,7 +2111,7 @@
 
     return {
       best: executable[0] || null,
-      alternatives: pickDiverseAlternatives(original, executable.slice(1), 3),
+      alternatives: pickDiverseAlternatives(original, executable.slice(1), 3, executable[0] || null),
       rejected: rejected.slice(0, 4),
       tested: seen.size,
       executableCount: executable.length
@@ -2127,7 +2150,7 @@
     return `
       <div class="solver-block">
         <strong>Análise automática</strong>
-        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis. A prioridade arquitetônica preserva planos e folhas antes de otimizar espessura ou custo.</span>
+        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis. A prioridade arquitetônica preserva planos e folhas; aumento de planos não é sugerido automaticamente.</span>
         <div class="solver-option">
           <strong>Melhor solução sugerida</strong>
           <span>${escapeHtml(describeScenario(input, best))}</span>
