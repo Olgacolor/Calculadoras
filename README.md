@@ -1,26 +1,41 @@
-# Calculadoras Tecnicas - Olgacolor Aluminio
+# Calculadoras Técnicas - Olgacolor Alumínio
 
-Ferramentas de calculo para projetos de fachadas, esquadrias e envolvente de edificacoes.
+Ferramentas de cálculo para projetos de fachadas, esquadrias e envolvente de edificações.
 
 Acesso publicado: [olgacolor.github.io/calculadoras](https://olgacolor.github.io/calculadoras)
 
-## Apps disponiveis
+## Apps disponíveis
 
-| App | Referencia principal | Status |
+| App | Referência principal | Status |
 | --- | --- | --- |
 | [Vidro Laminado](apps/vidro-laminado/) | ABNT NBR 7199:2025 | Ativo |
-| Pressao de Vento | NBR 6123 / NBR 10821 | Em desenvolvimento |
+| [Levitare](apps/Levitare/) | NBR 10821 / NBR 7199 | Ativo |
+| Pressão de Vento | NBR 6123 / NBR 10821 | Em desenvolvimento |
 | Perfil Estrutural | NBR 10821 / AA ADM | Em desenvolvimento |
-| Desempenho Termico | NBR 15575 / ISO 10077 | Em desenvolvimento |
+| Desempenho Térmico | NBR 15575 / ISO 10077 | Em desenvolvimento |
 | Estanqueidade | NBR 10821 / AAMA 502 | Em desenvolvimento |
 
-## Estrutura do repositorio
+## Estrutura do repositório
 
 ```text
 Calculadoras/
 |-- index.html
 |-- README.md
+|-- package.json
+|-- scripts/
+|   |-- build-nbr10821.mjs
+|   `-- check-textos.mjs
+|-- tests/
+|   `-- nbr10821.test.mjs
+|-- assets/
+|   `-- nbr10821/
+|       |-- data.json
+|       |-- data.js
+|       `-- index.js
 `-- apps/
+    |-- Levitare/
+    |   |-- index.html
+    |   `-- assets/
     `-- vidro-laminado/
         |-- index.html
         |-- assets/
@@ -34,27 +49,48 @@ Calculadoras/
 
 ## Vidro Laminado - o que o app implementa hoje
 
-- Verificacao de resistencia e flecha conforme ABNT NBR 7199:2025.
-- Modos de composicao para vidro laminado e monolitico.
+- Verificação de resistência e flecha conforme ABNT NBR 7199:2025.
+- Modos de composição para vidro laminado e monolítico.
 - Tabelas internas para coeficiente alfa e fator eps2.
-- Memorial de calculo com rastreabilidade basica, hipoteses adotadas e versao da calculadora.
-- Comparativo grafico entre configuracoes padrao de espessura.
+- Memorial de cálculo com rastreabilidade básica, hipóteses adotadas e versão da calculadora.
+- Comparativo gráfico entre configurações padrão de espessura.
 
 ## Melhorias implementadas nesta rodada
 
-- Separacao da regra de negocio, UI, grafico e relatorio em arquivos JS locais.
-- Validacoes operacionais na interface com alertas e hipoteses do calculo.
-- Remocao do acoplamento principal da UI ao estado global anterior.
-- Relatorio com versao da calculadora e secoes de rastreabilidade.
-- Ajuste no comparativo para nao tratar flecha de 2 apoios como criterio fechado quando o limite depende do projeto.
+- Separação da regra de negócio, UI, gráfico e relatório em arquivos JS locais.
+- Validações operacionais na interface com alertas e hipóteses do cálculo.
+- Remoção do acoplamento principal da UI ao estado global anterior.
+- Relatório com versão da calculadora e seções de rastreabilidade.
+- Ajuste no comparativo para não tratar flecha de 2 apoios como critério fechado quando o limite depende do projeto.
+
+## Infra local
+
+- `npm run build:nbr10821`: regenera `assets/nbr10821/data.js` a partir da base JSON compartilhada.
+- `npm run test:nbr10821`: valida a API compartilhada da NBR 10821 com testes automatizados.
+- `npm run check:textos`: procura sinais de mojibake nos arquivos principais.
+- `npm run check`: roda testes da NBR 10821 e o check de textos em sequência.
+
+## Módulo compartilhado NBR 10821
+
+O repositório agora possui uma camada única para pressão normativa em `assets/nbr10821/`.
+
+- `data.json`: base canônica de estados, cidades e isopletas.
+- `data.js`: versão pronta para consumo direto no navegador.
+- `index.js`: API compartilhada para apps presentes e futuros.
+
+API disponível no navegador:
+
+- `window.NBR10821.getStates()`
+- `window.NBR10821.getCities(uf)`
+- `window.NBR10821.resolve({ uf, city, floors })`
 
 ## Como usar localmente
 
 - Abra `apps/vidro-laminado/index.html` no navegador.
 - O app funciona sem processo de build.
-- Para a experiencia completa, o navegador precisa conseguir carregar Google Fonts e Chart.js via CDN.
+- Para a experiência completa, o navegador precisa conseguir carregar Google Fonts e Chart.js via CDN.
 
-## Observacoes
+## Observações
 
-- Ainda existem arquivos historicos na pasta do app (`index.old.html`, `index (48).html`) que nao fazem parte da versao principal.
-- Se o objetivo for endurecer a confianca tecnica do produto, o proximo passo recomendado e criar uma bateria de casos de teste para as formulas.
+- Arquivos históricos e bases duplicadas foram removidos para evitar edição da versão errada.
+- Se o objetivo for endurecer a confiança técnica do produto, o próximo passo recomendado é criar uma bateria de casos de teste para as fórmulas.

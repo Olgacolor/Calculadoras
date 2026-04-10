@@ -1,0 +1,13 @@
+{
+  "name": "calculadoras-olgacolor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Infraestrutura local para validação das calculadoras técnicas da Olgacolor.",
+  "scripts": {
+    "build:nbr10821": "node scripts/build-nbr10821.mjs",
+    "test:nbr10821": "node tests/nbr10821.test.mjs",
+    "check:apps": "node scripts/check-apps.mjs",
+    "check:textos": "node scripts/check-textos.mjs",
+    "check": "node tests/nbr10821.test.mjs && node scripts/check-apps.mjs && node scripts/check-textos.mjs"
+  }
+}
