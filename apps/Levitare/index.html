@@ -1179,6 +1179,12 @@
     refs.errorBanner.classList.add("visible");
   }
 
+  function blockQuote(message) {
+    clearResultsPreview();
+    clearDirty();
+    showError(message);
+  }
+
   function clearError() {
     refs.errorBanner.classList.remove("visible");
   }
@@ -1593,9 +1599,6 @@
     if (input.height > 3200) {
       warnings.push("Altura elevada: confirme limite de fabricação, transporte e instalação.");
     }
-    if (overweight) {
-      warnings.push(`Peso da folha exige ${carrPerFolha} carrinhos, mas a largura útil comporta no máximo ${maxCarr}.`);
-    }
     if (input.glassMode === "manual" && input.thickness.suggestion && input.thickness.suggestion.adoptedThickness) {
       if (input.thickness.thickness < input.thickness.suggestion.adoptedThickness) {
         warnings.push("A espessura manual ficou abaixo da sugestão técnica automática. Faça revisão antes de aprovar.");
@@ -1608,11 +1611,22 @@
     return warnings.filter(Boolean);
   }
 
+  function buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha) {
+    if (!overweight) return null;
+
+    return [
+      "Não foi gerado custo porque a porta não é executável nesta configuração.",
+      `A folha pesa ${num(pesoTotalFolha, 1)} kg, sendo ${num(pesoVidroFolha, 1)} kg de vidro, e exige ${carrPerFolha} carrinhos.`,
+      `A largura útil de ${num(input.larguraFolha, 0)} mm comporta no máximo ${maxCarr} carrinhos.`,
+      "Revise altura, número de folhas/planos, largura útil ou espessura do vidro antes de orçamento."
+    ].join(" ");
+  }
+
   function calculateQuote() {
     const input = collectInput();
     const validation = validateInput(input);
     if (!validation.ok) {
-      showError(validation.message);
+      blockQuote(validation.message);
       return;
     }
     clearError();
@@ -1662,13 +1676,20 @@
     const pesoTotalFolha = pesoVidroFolha + pesoAluminioFolha;
     const maxCarr = Math.max(1, Math.floor(larguraFolha / 200));
     const carrPerFolha = Math.max(1, Math.ceil(pesoTotalFolha / CONFIG.capacidadeCarrinhoKg));
+    const overweight = carrPerFolha > maxCarr;
+    const blockingIssue = buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha);
+
+    if (blockingIssue) {
+      blockQuote(blockingIssue);
+      return;
+    }
+
     const totalCarr = carrPerFolha * nFolhas * qty;
     const costCarr = totalCarr * CONFIG.precoCarrinho;
 
     const costAcess = nFolhas * qty * CONFIG.precoAcessoriosFolha * CONFIG.fatorAcabamento;
     const total = costAlu + costTrilho + costCarr + costAcess;
     const custoM2 = total / (areaTotal * qty);
-    const overweight = carrPerFolha > maxCarr;
     const warnings = buildWarnings(input, overweight, maxCarr, carrPerFolha);
 
     const result = {
