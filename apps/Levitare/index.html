@@ -274,6 +274,97 @@
     box-shadow: var(--shadow-soft);
   }
 
+  .card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-header-row .card-title {
+    margin-bottom: 0;
+  }
+
+  .qty-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .qty-inline label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .qty-inline input {
+    width: 64px;
+    min-height: 34px;
+    font-size: 14px;
+    text-align: center;
+    padding: 0 8px;
+  }
+
+  /* Plan stepper (+/−) */
+  .plan-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--ink);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .step-btn:hover:not(:disabled) {
+    background: var(--panel-3);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .step-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .step-display {
+    min-width: 90px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .step-display strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .step-display small {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
   .card-title {
     display: flex;
     align-items: center;
@@ -1216,16 +1307,17 @@
       </div>
 
       <div class="card flow-card" data-step="02">
-        <div class="card-title">Configuração da Porta</div>
+        <div class="card-header-row">
+          <div class="card-title">Configuração da Porta</div>
+          <div class="field qty-inline">
+            <label for="quantidade">Quantidade de portas</label>
+            <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
+          </div>
+        </div>
         <input id="largura" type="hidden" value="5000">
         <input id="altura" type="hidden" value="2700">
         <div class="config-layout">
           <div class="grid">
-            <div class="field">
-              <label for="quantidade">Quantidade de portas</label>
-              <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
-            </div>
-
             <div class="field">
               <label for="folhas">Nº de folhas</label>
               <input id="folhas" type="number" value="2" min="2" max="12" step="1" inputmode="numeric">
@@ -1627,27 +1719,36 @@
     if (preferCompact || !options.includes(state.selectedPlan)) {
       state.selectedPlan = options[0];
     }
-
     refs.planos.value = state.selectedPlan;
 
-    refs.planosPills.innerHTML = options.map((option) => {
-      const folhasPorPlano = Math.ceil(folhas / option);
-      const desc = options.length > 1
-        ? `<small>${folhasPorPlano} folha${folhasPorPlano > 1 ? "s" : ""}/plano</small>`
-        : "";
-      return `
-        <button type="button" class="plan-pill ${option === state.selectedPlan ? "active" : ""}" data-plan="${option}">
-          <strong>${option} plano${option > 1 ? "s" : ""}</strong>
-          ${desc}
-        </button>`;
-    }).join("");
+    const idx = options.indexOf(state.selectedPlan);
+    const canDown = idx > 0;
+    const canUp   = idx < options.length - 1;
+    const folhasPorPlano = Math.ceil(folhas / state.selectedPlan);
+    const sub = options.length > 1
+      ? `<small>${folhasPorPlano} folha${folhasPorPlano > 1 ? "s" : ""}/plano</small>`
+      : `<small>${folhasPorPlano} folha${folhasPorPlano > 1 ? "s" : ""}/plano</small>`;
 
-    refs.planosPills.querySelectorAll(".plan-pill").forEach((button) => {
-      button.addEventListener("click", () => {
-        state.selectedPlan = Number(button.dataset.plan);
-        refs.planos.value = String(state.selectedPlan);
-        renderPlanOptions();
-        markDirty();
+    refs.planosPills.innerHTML = `
+      <div class="plan-stepper">
+        <button type="button" class="step-btn" data-dir="-1" ${!canDown ? "disabled" : ""}>−</button>
+        <div class="step-display">
+          <strong>${state.selectedPlan} plano${state.selectedPlan > 1 ? "s" : ""}</strong>
+          ${sub}
+        </div>
+        <button type="button" class="step-btn" data-dir="1" ${!canUp ? "disabled" : ""}>+</button>
+      </div>`;
+
+    refs.planosPills.querySelectorAll(".step-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cur = options.indexOf(state.selectedPlan);
+        const next = cur + Number(btn.dataset.dir);
+        if (next >= 0 && next < options.length) {
+          state.selectedPlan = options[next];
+          refs.planos.value = String(state.selectedPlan);
+          renderPlanOptions();
+          markDirty();
+        }
       });
     });
     renderDoorPreview();
