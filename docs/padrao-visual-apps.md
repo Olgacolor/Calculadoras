@@ -11,9 +11,11 @@ Este guia resume a direção visual aplicada primeiro no app Levitare para servi
 
 ## Aparência
 
-- Base clara, com sensação de proposta técnica: fundo em tom de papel, cards brancos e bordas suaves.
-- Azul Olgacolor como cor principal de ação e destaque técnico.
+- Usar um palco escuro no topo para dar presença ao produto e uma folha clara sobreposta para o formulário.
+- A área de preenchimento deve parecer uma proposta técnica em construção: superfície branca, bordas generosas e módulos bem separados.
+- Azul-petróleo/azul Olgacolor como cor principal de ação e destaque técnico.
 - Verde apenas para reforço positivo ou apoio secundário.
+- Amarelo pode ser usado em chamadas fortes sobre fundo escuro, especialmente em botões de ação.
 - Avisos devem usar cores semânticas: azul para informação, amarelo para atenção e vermelho para bloqueio.
 - Evitar blocos escuros repetitivos e cards visualmente idênticos.
 
