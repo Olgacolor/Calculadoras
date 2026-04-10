@@ -1046,6 +1046,24 @@
     margin-top: 14px;
   }
 
+  .door-preview-inline {
+    display: none;
+  }
+
+  @media (max-width: 980px) {
+    .door-preview-card {
+      display: none;
+    }
+    .door-preview-inline {
+      display: block;
+      background: rgba(0, 0, 0, 0.22);
+      border-radius: 14px;
+      padding: 10px 8px 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 14px;
+    }
+  }
+
   @media print {
     body { background: white; }
     #reportOverlay {
@@ -1130,6 +1148,9 @@
             <div id="larguraFolhaChip" class="inline-chip">Aguardando dimensões</div>
             <span class="helper">Esta largura alimenta o cálculo de peso e a sugestão de espessura.</span>
           </div>
+        </div>
+        <div class="door-preview-inline">
+          <svg id="doorPreviewSvgMobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block"></svg>
         </div>
       </div>
 
@@ -1438,7 +1459,8 @@
     reportContent: document.getElementById("reportContent"),
     printButton: document.getElementById("printButton"),
     closeReportButton: document.getElementById("closeReportButton"),
-    doorPreviewSvg: document.getElementById("doorPreviewSvg")
+    doorPreviewSvg: document.getElementById("doorPreviewSvg"),
+    doorPreviewSvgMobile: document.getElementById("doorPreviewSvgMobile")
   };
 
   const vidroConstants = window.VidroApp && window.VidroApp.Constants;
@@ -2601,10 +2623,10 @@
     const profile  = profileColors[finish.key]      || profileColors["Inox escovado"];
     const profHi   = profileHighlights[finish.key]  || profileHighlights["Inox escovado"];
 
-    // Glass tint — always looks like glass, independent of finish
-    const glassFill    = isDark ? "rgba(10,200,220,0.11)"  : "rgba(186,230,253,0.55)";
-    const glassStroke  = isDark ? "rgba(19,162,179,0.30)"  : "rgba(56,189,248,0.45)";
-    const reflFill     = isDark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.60)";
+    // Glass tint — neutral light grey, independent of finish
+    const glassFill    = isDark ? "rgba(210,218,225,0.07)"  : "rgba(220,228,235,0.60)";
+    const glassStroke  = isDark ? "rgba(200,215,225,0.18)"  : "rgba(150,175,195,0.45)";
+    const reflFill     = isDark ? "rgba(255,255,255,0.08)"  : "rgba(255,255,255,0.65)";
     const dimColor     = isDark ? "#4e6070"  : "#94a3b8";
     const labelColor   = isDark ? "#13a2b3"  : "#0369a1";
     const leafTextFill = isDark ? "rgba(255,255,255,0.22)" : "rgba(15,23,42,0.38)";
@@ -2738,8 +2760,7 @@
   }
 
   function renderDoorPreview() {
-    if (!refs.doorPreviewSvg) return;
-    refs.doorPreviewSvg.innerHTML = buildDoorSvg({
+    const svg = buildDoorSvg({
       W:      Math.max(200, Number(refs.largura.value) || 5000),
       H:      Math.max(200, Number(refs.altura.value)  || 2700),
       folhas: getFolhas(),
@@ -2747,6 +2768,8 @@
       finish: state.selectedFinish,
       theme:  "dark"
     });
+    if (refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML = svg;
+    if (refs.doorPreviewSvgMobile) refs.doorPreviewSvgMobile.innerHTML = svg;
   }
 
   function bindInputEvents() {
