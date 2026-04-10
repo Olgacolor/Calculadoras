@@ -1037,6 +1037,15 @@
     }
   }
 
+  .door-preview-wrap {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 14px;
+    padding: 10px 8px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 14px;
+  }
+
   @media print {
     body { background: white; }
     #reportOverlay {
@@ -1304,6 +1313,13 @@
       </section>
 
       <div class="card sidebar-card">
+        <div class="card-title">Prévia da configuração</div>
+        <div class="door-preview-wrap">
+          <svg id="doorPreviewSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block"></svg>
+        </div>
+      </div>
+
+      <div class="card sidebar-card">
         <div class="card-title">Critérios</div>
         <ul class="sidebar-list">
           <li>Para 2 folhas, são considerados 2 planos.</li>
@@ -1421,7 +1437,8 @@
     reportOverlay: document.getElementById("reportOverlay"),
     reportContent: document.getElementById("reportContent"),
     printButton: document.getElementById("printButton"),
-    closeReportButton: document.getElementById("closeReportButton")
+    closeReportButton: document.getElementById("closeReportButton"),
+    doorPreviewSvg: document.getElementById("doorPreviewSvg")
   };
 
   const vidroConstants = window.VidroApp && window.VidroApp.Constants;
@@ -1548,6 +1565,7 @@
         markDirty();
       });
     });
+    renderDoorPreview();
   }
 
   function renderFinishOptions() {
@@ -1566,6 +1584,7 @@
         markDirty();
       });
     });
+    renderDoorPreview();
   }
 
   function renderStateOptions() {
@@ -2469,12 +2488,21 @@
 
       ${warningBlock}
 
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Resumo executivo</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-        ${metric("Total", brl(result.total))}
-        ${metric("Custo por m²", brl(result.custoM2))}
-        ${metric("Vidro adotado", `${num(result.input.thickness.thickness, 0)} mm`)}
-        ${metric("Configuração", `${result.input.nFolhas} folhas / ${result.input.nPlanos} planos`)}
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Resumo executivo</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            ${metric("Total", brl(result.total))}
+            ${metric("Custo por m²", brl(result.custoM2))}
+            ${metric("Vidro adotado", `${num(result.input.thickness.thickness, 0)} mm`)}
+            ${metric("Configuração", `${result.input.nFolhas} folhas / ${result.input.nPlanos} planos`)}
+          </div>
+        </div>
+        <div style="flex-shrink:0;width:160px;background:#f1f5f9;border-radius:10px;padding:8px;border:1px solid #e2e8f0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block">
+            ${buildDoorSvg({ W: result.input.width, H: result.input.height, folhas: result.input.nFolhas, planos: result.input.nPlanos, finish: result.input.finish, theme: "light" })}
+          </svg>
+        </div>
       </div>
 
       <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px">Custo de materiais</div>
@@ -2557,6 +2585,170 @@
     setGlassMode("auto", false);
   }
 
+  function buildDoorSvg({ W, H, folhas, planos, finish, theme }) {
+    const isDark = theme !== "light";
+
+    const profileColors = {
+      "Madeira":       "#7d5228",
+      "Inox escovado": "#546e7a",
+      "Anod-Pint":     "#2e4a60"
+    };
+    const profileHighlights = {
+      "Madeira":       "#a06830",
+      "Inox escovado": "#78909c",
+      "Anod-Pint":     "#3d6080"
+    };
+    const profile  = profileColors[finish.key]      || profileColors["Inox escovado"];
+    const profHi   = profileHighlights[finish.key]  || profileHighlights["Inox escovado"];
+
+    // Glass tint — always looks like glass, independent of finish
+    const glassFill    = isDark ? "rgba(10,200,220,0.11)"  : "rgba(186,230,253,0.55)";
+    const glassStroke  = isDark ? "rgba(19,162,179,0.30)"  : "rgba(56,189,248,0.45)";
+    const reflFill     = isDark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.60)";
+    const dimColor     = isDark ? "#4e6070"  : "#94a3b8";
+    const labelColor   = isDark ? "#13a2b3"  : "#0369a1";
+    const leafTextFill = isDark ? "rgba(255,255,255,0.22)" : "rgba(15,23,42,0.38)";
+    const floorColor   = isDark ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.12)";
+
+    const svgW = 240, svgH = 290;
+    const mLeft = 40, mTop = 46, mRight = 10, mBottom = 36;
+    const aW = svgW - mLeft - mRight;
+    const aH = svgH - mTop - mBottom;
+
+    const ratio = W / H;
+    let dW, dH;
+    if (ratio > aW / aH) { dW = aW; dH = aW / ratio; }
+    else { dH = aH; dW = aH * ratio; }
+
+    const dX = mLeft + (aW - dW) / 2;
+    const dY = mTop + (aH - dH) / 2;
+    const ft = Math.max(3, Math.min(7, dW * 0.045));
+
+    const innerX = dX + ft;
+    const innerY = dY + ft;
+    const innerW = dW - 2 * ft;
+    const innerH = dH - 2 * ft;
+    const leafW  = innerW / folhas;
+
+    const trackZoneH = 20;
+    const trackZoneY = dY - trackZoneH - 6;
+    const visPlanos  = Math.min(planos, 5);
+    const trackLineH = (trackZoneH - (visPlanos - 1) * 2) / visPlanos;
+
+    const dimFont   = `font-family="DM Mono, monospace" font-size="8" fill="${dimColor}"`;
+    const labelFont = `font-family="DM Sans, sans-serif" font-size="9.5" font-weight="600" fill="${labelColor}"`;
+    const midX = dX + dW / 2;
+    const midY = dY + dH / 2;
+    const f = (n) => n.toFixed(1);
+
+    // Unique gradient ID prefix to avoid conflicts when two SVGs exist (sidebar + report)
+    const uid = isDark ? "dpD" : "dpL";
+
+    let s = `<defs>
+      <linearGradient id="${uid}PF" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${profHi}"/>
+        <stop offset="100%" stop-color="${profile}"/>
+      </linearGradient>
+      <linearGradient id="${uid}RF" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${reflFill}"/>
+        <stop offset="60%" stop-color="${reflFill.replace(/[\d.]+\)$/, "0)")}"/>
+      </linearGradient>
+    </defs>`;
+
+    // Track rails
+    for (let p = 0; p < visPlanos; p++) {
+      const ty = trackZoneY + p * (trackLineH + 2);
+      s += `<rect x="${f(dX)}" y="${f(ty)}" width="${f(dW)}" height="${f(trackLineH)}" rx="2"
+              fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.4" stroke-opacity="0.5"/>`;
+      s += `<rect x="${f(dX + ft)}" y="${f(ty + trackLineH * 0.35)}" width="${f(dW - 2 * ft)}" height="${f(trackLineH * 0.3)}"
+              rx="1" fill="rgba(0,0,0,0.28)"/>`;
+    }
+
+    // Outer frame shadow/border (dark theme only)
+    if (isDark) {
+      s += `<rect x="${f(dX + 1)}" y="${f(dY + 1)}" width="${f(dW)}" height="${f(dH)}" rx="3.5"
+              fill="rgba(0,0,0,0.35)"/>`;
+    }
+
+    // Outer frame
+    s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(dW)}" height="${f(dH)}" rx="3"
+            fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.6" stroke-opacity="0.4"/>`;
+
+    // Glass panels
+    for (let i = 0; i < folhas; i++) {
+      const lx = innerX + i * leafW;
+      const divSz = i > 0 ? Math.max(ft * 0.55, Math.min(ft, leafW * 0.10)) : 0;
+      const px = lx + divSz / 2;
+      const pw = leafW - divSz;
+
+      // Glass fill
+      s += `<rect x="${f(px)}" y="${f(innerY)}" width="${f(pw)}" height="${f(innerH)}"
+              fill="${glassFill}" stroke="${glassStroke}" stroke-width="0.5"/>`;
+      // Reflection stripe
+      s += `<rect x="${f(px + 1)}" y="${f(innerY + 1)}" width="${f(pw * 0.28)}" height="${f(innerH - 2)}"
+              fill="url(#${uid}RF)"/>`;
+
+      // Inter-leaf divider profile
+      if (i > 0) {
+        s += `<rect x="${f(lx - divSz / 2)}" y="${f(innerY)}" width="${f(divSz)}" height="${f(innerH)}"
+                fill="url(#${uid}PF)" stroke="${profHi}" stroke-width="0.3" stroke-opacity="0.4"/>`;
+      }
+    }
+
+    // Frame edge overlays (top / bottom / sides)
+    s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(dW)}" height="${f(ft)}" rx="2" fill="url(#${uid}PF)"/>`;
+    s += `<rect x="${f(dX)}" y="${f(dY + dH - ft)}" width="${f(dW)}" height="${f(ft)}" fill="url(#${uid}PF)"/>`;
+    s += `<rect x="${f(dX)}" y="${f(dY)}" width="${f(ft)}" height="${f(dH)}" fill="url(#${uid}PF)"/>`;
+    s += `<rect x="${f(dX + dW - ft)}" y="${f(dY)}" width="${f(ft)}" height="${f(dH)}" fill="url(#${uid}PF)"/>`;
+
+    // Floor shadow line
+    s += `<line x1="${f(dX - 4)}" y1="${f(dY + dH + 1)}" x2="${f(dX + dW + 4)}" y2="${f(dY + dH + 1)}"
+            stroke="${floorColor}" stroke-width="2" stroke-linecap="round"/>`;
+
+    // ── Dimension lines ──
+    // Height (left side)
+    const hX = dX - 14;
+    s += `<line x1="${f(hX)}" y1="${f(dY)}" x2="${f(hX)}" y2="${f(dY + dH)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<line x1="${f(hX - 3.5)}" y1="${f(dY + 1)}" x2="${f(hX + 3.5)}" y2="${f(dY + 1)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<line x1="${f(hX - 3.5)}" y1="${f(dY + dH - 1)}" x2="${f(hX + 3.5)}" y2="${f(dY + dH - 1)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<text transform="rotate(-90,${f(hX - 10)},${f(midY)})" x="${f(hX - 10)}" y="${f(midY + 3)}"
+            text-anchor="middle" ${dimFont}>${(H / 1000).toFixed(2).replace(".", ",")} m</text>`;
+
+    // Width (bottom)
+    const wY = dY + dH + 12;
+    s += `<line x1="${f(dX)}" y1="${f(wY)}" x2="${f(dX + dW)}" y2="${f(wY)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<line x1="${f(dX + 1)}" y1="${f(wY - 3.5)}" x2="${f(dX + 1)}" y2="${f(wY + 3.5)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<line x1="${f(dX + dW - 1)}" y1="${f(wY - 3.5)}" x2="${f(dX + dW - 1)}" y2="${f(wY + 3.5)}" stroke="${dimColor}" stroke-width="0.8"/>`;
+    s += `<text x="${f(midX)}" y="${f(wY + 12)}" text-anchor="middle" ${dimFont}>${(W / 1000).toFixed(2).replace(".", ",")} m</text>`;
+
+    // Per-leaf width inside panels
+    if (leafW > 26 && folhas > 1) {
+      const lM = (W / folhas / 1000).toFixed(2).replace(".", ",");
+      for (let i = 0; i < folhas; i++) {
+        const cx = innerX + i * leafW + leafW / 2;
+        s += `<text x="${f(cx)}" y="${f(midY + 3)}" text-anchor="middle"
+                font-family="DM Mono, monospace" font-size="7" fill="${leafTextFill}">${lM}</text>`;
+      }
+    }
+
+    // Config label above tracks
+    s += `<text x="${f(midX)}" y="${f(trackZoneY - 6)}" text-anchor="middle" ${labelFont}>${folhas} folha${folhas > 1 ? "s" : ""} · ${planos} plano${planos > 1 ? "s" : ""}</text>`;
+
+    return s;
+  }
+
+  function renderDoorPreview() {
+    if (!refs.doorPreviewSvg) return;
+    refs.doorPreviewSvg.innerHTML = buildDoorSvg({
+      W:      Math.max(200, Number(refs.largura.value) || 5000),
+      H:      Math.max(200, Number(refs.altura.value)  || 2700),
+      folhas: getFolhas(),
+      planos: state.selectedPlan || 2,
+      finish: state.selectedFinish,
+      theme:  "dark"
+    });
+  }
+
   function bindInputEvents() {
     const dirtyIds = [
       refs.cliente, refs.obra, refs.largura, refs.altura, refs.folhas,
@@ -2568,6 +2760,7 @@
       element.addEventListener("input", () => {
         if (element === refs.folhas || element === refs.largura || element === refs.altura) {
           updateLeafWidthChip(false);
+          renderDoorPreview();
         }
         if (element === refs.folhas) {
           renderPlanOptions(false, true);
@@ -2619,6 +2812,7 @@
   bindInputEvents();
   updateLeafWidthChip(false);
   setGlassMode("auto", false);
+  renderDoorPreview();
 })();
 </script>
 </body>
