@@ -427,11 +427,16 @@
   }
 
   .segmented,
-  .plan-pills,
-  .color-group {
+  .plan-pills {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  .color-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .seg-btn,
@@ -453,10 +458,16 @@
     font-family: "DM Sans", sans-serif;
   }
 
-  .plan-pill,
-  .color-pill {
+  .plan-pill {
     padding: 12px 14px;
     min-width: 110px;
+  }
+
+  .color-pill {
+    padding: 10px 12px;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
   }
 
   .plan-pill {
@@ -1063,9 +1074,7 @@
     }
 
     .actions,
-    .segmented,
-    .plan-pills,
-    .color-group {
+    .segmented {
       display: grid;
       grid-template-columns: 1fr;
     }
@@ -2702,7 +2711,7 @@
     if (dH < 40) { dH = 40; dW = 40 * ratio; }
 
     const dX = mLeft + (aW - dW) / 2;
-    const dY = mTop  + (aH - dH) / 2;
+    const dY = mTop;
     const ft = Math.max(2, Math.min(4, dW * 0.025));
 
     if (isDark) Object.assign(doorGeo, { W, H, dX, dY, dW, dH, svgW, svgH });
@@ -2725,6 +2734,11 @@
     const f = (n) => n.toFixed(1);
     const uid = isDark ? "dpD" : "dpL";
 
+    const clipPaths = Array.from({ length: folhas }, (_, i) => {
+      const lx = innerX + i * leafW;
+      return `<clipPath id="${uid}CP${i}"><rect x="${f(lx)}" y="${f(innerY)}" width="${f(leafW)}" height="${f(innerH)}"/></clipPath>`;
+    }).join("");
+
     let s = `<defs>
       <linearGradient id="${uid}PF" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="${profHi}"/>
@@ -2734,6 +2748,7 @@
         <stop offset="0%" stop-color="${reflFill}"/>
         <stop offset="65%" stop-color="rgba(255,255,255,0)"/>
       </linearGradient>
+      ${clipPaths}
     </defs>`;
 
     // Track rails
@@ -2812,13 +2827,14 @@
               data-edit="width" style="cursor:text" stroke-dasharray="2,2"/>`;
     }
 
-    // Per-leaf weight label (integer, no unit, inside panel)
-    if (leafW > 22 && pesoFolha != null) {
+    // Per-leaf weight label — clipped to panel, never overflows
+    if (pesoFolha != null) {
       const label = `${Math.round(pesoFolha)} kg`;
       for (let i = 0; i < folhas; i++) {
         const cx = innerX + i * leafW + leafW / 2;
         s += `<text x="${f(cx)}" y="${f(midY + 3)}" text-anchor="middle"
-                font-family="DM Mono, monospace" font-size="6.5" fill="${leafTextFill}">${label}</text>`;
+                font-family="DM Mono, monospace" font-size="6.5" fill="${leafTextFill}"
+                clip-path="url(#${uid}CP${i})">${label}</text>`;
       }
     }
 
