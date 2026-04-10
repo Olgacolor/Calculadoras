@@ -12,6 +12,7 @@ const htmlFiles = [
 
 const scriptFiles = [
   "assets/nbr10821/index.js",
+  "assets/vidro-tecnico/index.js",
   "apps/vidro-laminado/js/app.js",
   "apps/vidro-laminado/js/constants.js",
   "apps/vidro-laminado/js/engine.js",

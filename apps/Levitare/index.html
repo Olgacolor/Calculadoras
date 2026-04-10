@@ -1417,6 +1417,7 @@
 <script src="../../assets/nbr10821/index.js"></script>
 <script src="../vidro-laminado/js/constants.js"></script>
 <script src="../vidro-laminado/js/engine.js"></script>
+<script src="../../assets/vidro-tecnico/index.js"></script>
 <script>
 (() => {
   const CONFIG = {
@@ -1509,6 +1510,7 @@
 
   const vidroConstants = window.VidroApp && window.VidroApp.Constants;
   const vidroEngine = window.VidroApp && window.VidroApp.Engine;
+  const vidroTechnical = window.VidroApp && window.VidroApp.Technical;
 
   const brl = (value) => "R$ " + Number(value || 0).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
@@ -1699,6 +1701,65 @@
     });
   }
 
+  function getPressureMeta(normative, pressureMode = state.pressureMode) {
+    const mode = pressureMode === "manual" || (normative && normative.source === "manual")
+      ? "manual"
+      : "auto";
+    return {
+      mode,
+      context: mode === "auto" ? normative : null
+    };
+  }
+
+  function getPressurePresentation(normative, pressureMode = state.pressureMode) {
+    if (vidroTechnical && vidroTechnical.buildPressureTechnical) {
+      return vidroTechnical.buildPressureTechnical(
+        getPressureMeta(normative, pressureMode),
+        normative && normative.pe
+      );
+    }
+
+    if (normative && normative.source === "manual") {
+      return {
+        mode: "manual",
+        summaryText: `Pressão manual • Pe ${num(normative.pe, 0)} Pa`,
+        helpText: "Pressão informada manualmente.",
+        detailPrimaryLabel: "Origem da pressão",
+        detailPrimaryValue: "Informada manualmente",
+        detailSecondaryLabel: "Enquadramento normativo",
+        detailSecondaryValue: "Definido manualmente",
+        noteText: `Pressão informada manualmente: Pe ${num(normative.pe, 0)} Pa.`,
+        reportText: `Pressão manual • Pe ${num(normative.pe, 0)} Pa`
+      };
+    }
+
+    if (normative && normative.pe) {
+      return {
+        mode: "auto",
+        summaryText: `${normative.cidade}/${normative.uf} • ${normative.isopleta} m/s • Região ${normative.region} • Pe ${num(normative.pe, 0)} Pa`,
+        helpText: `Tabela 1 da NBR 10821 para até ${normative.pavimentos} pavimentos.`,
+        detailPrimaryLabel: "Cidade de referência",
+        detailPrimaryValue: `${normative.cidade}/${normative.uf}`,
+        detailSecondaryLabel: "Região NBR",
+        detailSecondaryValue: `${normative.region} (${normative.isopleta} m/s)`,
+        noteText: `Enquadramento normativo: ${normative.cidade}/${normative.uf}, isopleta ${normative.isopleta} m/s, região ${normative.region}, até ${normative.pavimentos} pavimentos.`,
+        reportText: `${normative.cidade}/${normative.uf} · isopleta ${normative.isopleta} m/s · Região ${normative.region} · até ${normative.pavimentos} pavimentos`
+      };
+    }
+
+    return {
+      mode: "auto",
+      summaryText: "Sem cidade ou tabela carregada",
+      helpText: "Escolha UF, cidade e pavimentos para calcular a pressão automaticamente.",
+      detailPrimaryLabel: "Cidade de referência",
+      detailPrimaryValue: "Não definida",
+      detailSecondaryLabel: "Região NBR",
+      detailSecondaryValue: "Não definida",
+      noteText: "Enquadramento normativo indisponível.",
+      reportText: "Pressão indisponível"
+    };
+  }
+
   function updateLeafWidthChip(commit = false) {
     const largura = normalizeFloat(refs.largura.value, 5000, 500, 12000);
     const altura = normalizeFloat(refs.altura.value, 2700, 500, 5000);
@@ -1714,8 +1775,9 @@
   }
 
   function getHeatLabel(eps3) {
+    if (vidroTechnical && vidroTechnical.heatLabel) return vidroTechnical.heatLabel(eps3);
     const labels = {
-      "1.00": "Recozido",
+      "1.00": "Recozido (float)",
       "0.80": "Termoendurecido",
       "0.61": "Temperado"
     };
@@ -1742,7 +1804,7 @@
   }
 
   function suggestGlassFor(params) {
-    if (!vidroEngine || !vidroConstants) {
+    if (!vidroEngine || !vidroConstants || !vidroTechnical || !vidroTechnical.evaluate) {
       return {
         ok: false,
         tone: "bad",
@@ -1760,6 +1822,8 @@
     const apoio = "4";
     const normative = params.normative || getNormativeContext();
     const pressure = normative && normative.pe ? normative.pe : 750;
+    const pressureMeta = getPressureMeta(normative, normative && normative.source === "manual" ? "manual" : "auto");
+    const pressurePresentation = getPressurePresentation(normative, pressureMeta.mode);
     const eps3 = normalizeFloat(params.eps3, 1, 0.61, 1);
 
     const candidates = buildCandidateList(family, eps3);
@@ -1767,17 +1831,19 @@
     let fallback = null;
 
     for (const candidate of candidates) {
-      const validation = vidroEngine.validateInputs({
+      const evaluation = vidroTechnical.evaluate({
         family,
         apoio,
         wMM: larguraFolha,
         hMM: altura,
         Pv: pressure,
+        pressureMeta,
         panes: candidate.panes
       });
-      const result = vidroEngine.calcNBR(validation.normalized);
+      const validation = evaluation.validation;
+      const result = evaluation.result;
       const score = Math.max(result.uR || 0, result.uF || 0);
-      const attempt = { candidate, validation, result, score };
+      const attempt = { candidate, validation, result, technical: evaluation.technical, score };
 
       if (!fallback || score < fallback.score) fallback = attempt;
       if (result.ok && !chosen) {
@@ -1799,8 +1865,8 @@
       };
     }
 
-    const criterionLabel = pick.result.governing === "flecha" ? "flecha" : "resistência";
-    const heatLabel = getHeatLabel(eps3);
+    const criterionLabel = pick.technical ? pick.technical.criterionLabel : (pick.result.governing === "flecha" ? "flecha" : "resistência");
+    const heatLabel = pick.technical ? pick.technical.heatLabel : getHeatLabel(eps3);
     const tone = chosen ? "ok" : "bad";
     const chipText = chosen ? `${pick.candidate.label} sugerido` : "Nenhuma composição padrão atendeu";
     const helpText = chosen
@@ -1810,9 +1876,7 @@
     const notes = [];
     pick.validation.issues.forEach((issue) => notes.push(issue.body));
     if (!chosen) notes.push("A composição listada abaixo é apenas a mais próxima dentro do catálogo padrão configurado.");
-    if (normative) {
-      notes.push(`Cidade de referência: ${normative.cidade}/${normative.uf}, isopleta ${normative.isopleta} m/s, região ${normative.region}, Pe ${normative.pe} Pa.`);
-    }
+    if (pressurePresentation && pressurePresentation.noteText) notes.push(pressurePresentation.noteText);
 
     return {
       ok: Boolean(chosen),
@@ -1827,6 +1891,7 @@
       pressure,
       apoio,
       normative,
+      pressurePresentation,
       heatLabel,
       criterionLabel,
       raw: pick
@@ -1847,16 +1912,9 @@
     state.lastGlassSuggestion = suggestGlass();
     const suggestion = state.lastGlassSuggestion;
     const normative = suggestion.normative || getNormativeContext();
+    const pressurePresentation = suggestion.pressurePresentation || getPressurePresentation(normative, state.pressureMode);
 
-    if (normative && normative.pe) {
-      refs.glassNormChip.textContent = `${normative.cidade}/${normative.uf} • ${normative.isopleta} m/s • Região ${normative.region} • Pe ${normative.pe} Pa`;
-    } else {
-      refs.glassNormChip.textContent = "Sem cidade ou tabela carregada";
-    }
-
-    if (normative && normative.source === "manual") {
-      refs.glassNormChip.textContent = `Pressão manual • Pe ${normative.pe} Pa`;
-    }
+    refs.glassNormChip.textContent = pressurePresentation.summaryText;
 
     refs.glassChip.className = `glass-chip ${suggestion.tone}`;
     refs.glassChip.textContent = suggestion.chipText;
@@ -1869,20 +1927,14 @@
 
     const manual = normalizeFloat(refs.espessuraManual.value, 12, 4, 40);
     refs.espessuraManual.value = manual;
+    const manualCompare = vidroTechnical && vidroTechnical.buildManualThicknessComparison
+      ? vidroTechnical.buildManualThicknessComparison(manual, suggestion.adoptedThickness)
+      : null;
 
-    if (!suggestion.adoptedThickness) {
-      refs.manualCompareChip.className = "glass-chip warn";
-      refs.manualCompareChip.textContent = "Sem referência automática carregada.";
-    } else if (manual < suggestion.adoptedThickness) {
-      refs.manualCompareChip.className = "glass-chip bad";
-      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual ficou em ${manual} mm`;
-    } else if (manual === suggestion.adoptedThickness) {
-      refs.manualCompareChip.className = "glass-chip ok";
-      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está alinhado`;
-    } else {
-      refs.manualCompareChip.className = "glass-chip ok";
-      refs.manualCompareChip.textContent = `Atende com ${suggestion.adoptedThickness} mm; manual está em ${manual} mm`;
-    }
+    refs.manualCompareChip.className = `glass-chip ${manualCompare ? manualCompare.tone : "warn"}`;
+    refs.manualCompareChip.textContent = manualCompare
+      ? manualCompare.text
+      : "Sem referência automática carregada.";
 
     if (suggestion.alertText) {
       setBanner(refs.glassAlert, escapeHtml(suggestion.alertText), true, suggestion.tone === "bad" ? "warn" : "info");
@@ -1949,9 +2001,7 @@
     const quantidade = normalizeInt(refs.quantidade.value, 1, 1, 100);
     const normative = getNormativeContext();
     refs.quantidade.value = quantidade;
-
-    const heatMap = { "1.00": "Recozido (float)", "0.80": "Termoendurecido", "0.61": "Temperado" };
-    const glassHeatLabel = heatMap[refs.glassHeat.value] || "Recozido (float)";
+    const glassHeatLabel = getHeatLabel(refs.glassHeat.value);
 
     return {
       cliente: refs.cliente.value.trim(),
@@ -2478,6 +2528,7 @@
     state.lastResult = result;
     clearDirty();
     refs.results.classList.add("visible");
+    const pressurePresentation = getPressurePresentation(result.input.normative, result.input.pressureMode);
 
     if (result.warnings.length) {
       refs.warnText.textContent = result.warnings.join(" ");
@@ -2535,14 +2586,9 @@
       { label: "Total de carrinhos", value: `${result.totalCarr} un` },
       { label: "Metros de trilho", value: `${num(result.trilhoM, 2)} m` },
       { label: "Acabamento", value: result.input.finish.label },
-      { label: "Cidade de referência", value: `${result.input.normative.cidade}/${result.input.normative.uf}` },
-      { label: "Região NBR", value: `${result.input.normative.region} (${result.input.normative.isopleta} m/s)` }
+      { label: pressurePresentation.detailPrimaryLabel, value: pressurePresentation.detailPrimaryValue },
+      { label: pressurePresentation.detailSecondaryLabel, value: pressurePresentation.detailSecondaryValue }
     ];
-
-    if (result.input.pressureMode === "manual") {
-      detailItems[detailItems.length - 2].value = "Pressão manual";
-      detailItems[detailItems.length - 1].value = "Informada manualmente";
-    }
 
     refs.detailGrid.innerHTML = detailItems.map((item) => `
       <div class="detail-item">
@@ -2554,7 +2600,7 @@
     const notes = [];
     notes.push(`Configuração selecionada: ${result.input.nFolhas} folhas com ${result.input.nPlanos} planos.`);
     notes.push(`Modo do vidro: ${result.input.glassMode === "auto" ? "espessura sugerida automaticamente" : "espessura definida manualmente"}.`);
-    notes.push(`Enquadramento da norma: ${result.input.normative.cidade}/${result.input.normative.uf}, isopleta ${result.input.normative.isopleta} m/s, região ${result.input.normative.region}, até ${result.input.normative.pavimentos} pavimentos.`);
+    notes.push(pressurePresentation.noteText);
     if (result.input.thickness.suggestion) {
       notes.push(`Referência técnica: ${result.input.thickness.suggestion.chosenText}.`);
       notes.push(`Base técnica: ${num(result.input.thickness.suggestion.pressure, 0)} Pa e chapas ${result.input.thickness.suggestion.heatLabel.toLowerCase()}.`);
@@ -2576,6 +2622,7 @@
     const cliente = escapeHtml(result.input.cliente);
     const obra = escapeHtml(result.input.obra);
     const today = new Date(result.snapshotAt).toLocaleString("pt-BR");
+    const pressurePresentation = getPressurePresentation(result.input.normative, result.input.pressureMode);
     const warningBlock = result.warnings.length
       ? `<div style="margin:12px 0 14px;padding:10px 12px;border-radius:10px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-size:11px;line-height:1.4">${escapeHtml(result.warnings.join(" "))}</div>`
       : "";
@@ -2649,7 +2696,7 @@
         ${metric("Carrinhos por folha", `${result.carrPerFolha} un (máx ${result.maxCarr})`)}
         ${metric("Metros de trilho", `${num(result.trilhoM, 2)} m`)}
         ${metric("Acabamento", escapeHtml(result.input.finish.label))}
-        ${metric("Pressão de ensaio", `${num(result.input.normative.pe, 0)} Pa • Região ${result.input.normative.region}`)}
+        ${metric("Pressão de ensaio", result.input.pressureMode === "manual" ? `${num(result.input.normative.pe, 0)} Pa • manual` : `${num(result.input.normative.pe, 0)} Pa • Região ${result.input.normative.region}`)}
         ${metric("Modo do vidro", result.input.glassMode === "auto" ? "Sugerido automaticamente" : "Espessura manual")}
         ${metric("Tratamento das chapas", escapeHtml(result.input.glassHeatLabel))}
       </div>
@@ -2657,7 +2704,7 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:14px 0 8px">Base técnica e observações</div>
       <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.8">
         <strong>Configuração:</strong> ${result.input.nFolhas} folhas · ${result.input.nPlanos} planos<br>
-        <strong>Enquadramento normativo:</strong> ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf} · isopleta ${result.input.normative.isopleta} m/s · Região ${result.input.normative.region} · até ${result.input.normative.pavimentos} pavimentos<br>
+        <strong>${escapeHtml(pressurePresentation.mode === "manual" ? "Pressão aplicada" : "Enquadramento normativo")}:</strong> ${escapeHtml(pressurePresentation.reportText)}<br>
         <strong>Referência técnica do vidro:</strong> ${escapeHtml(result.input.thickness.label)}<br>
         <strong>Base técnica:</strong> ${num(result.input.normative.pe, 0)} Pa · chapas ${escapeHtml(result.input.glassHeatLabel).toLowerCase()}<br>
         <strong>Modo:</strong> ${result.input.glassMode === "auto" ? "Espessura sugerida automaticamente pela norma" : "Espessura definida manualmente"}<br>

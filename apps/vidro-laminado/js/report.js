@@ -2,8 +2,10 @@
   const app = window.VidroApp = window.VidroApp || {};
   const constants = app.Constants;
   const engine = app.Engine;
+  const technical = app.Technical;
 
   function governingLabel(governing) {
+    if (technical && technical.governingLabel) return technical.governingLabel(governing);
     return governing === "resistencia" ? "resistência" : "flecha";
   }
 
@@ -25,14 +27,21 @@
     const inputs = snapshot.inputs;
     const result = snapshot.result;
     const assumptions = snapshot.assumptions;
+    const technicalResult = snapshot.technical || (technical && technical.buildTechnicalResult
+      ? technical.buildTechnicalResult(inputs, result, { assumptions, issues: snapshot.issues || [] })
+      : null);
+    const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
+    const status = technicalResult && technicalResult.status ? technicalResult.status : null;
     const obra = (app.UI.get("obra").value || "").trim();
     const resp = (app.UI.get("resp").value || "").trim();
     const data = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-    const composicao = inputs.family === "laminado"
-      ? `Laminado ${inputs.panes[0].h}+${inputs.panes[1].h} mm (${engine.gtLabel(inputs.panes[0].eps3)} + ${engine.gtLabel(inputs.panes[1].eps3)})`
-      : `Monolítico ${inputs.panes[0].h} mm (${engine.gtLabel(inputs.panes[0].eps3)})`;
-    const pressureLabel = inputs.pressureMeta && inputs.pressureMeta.mode === "auto"
+    const composicao = technicalResult && technicalResult.compositionLabel
+      ? technicalResult.compositionLabel
+      : (inputs.family === "laminado"
+        ? `Laminado ${inputs.panes[0].h}+${inputs.panes[1].h} mm (${engine.gtLabel(inputs.panes[0].eps3)} + ${engine.gtLabel(inputs.panes[1].eps3)})`
+        : `Monolítico ${inputs.panes[0].h} mm (${engine.gtLabel(inputs.panes[0].eps3)})`);
+    const pressureLabel = pressure && pressure.mode === "auto"
       ? "Automática (NBR 10821)"
       : "Manual";
 
@@ -52,11 +61,11 @@
       ? result.lM / result.LM
       : null;
 
-    const title = result.ok
+    const title = status ? status.title : (result.ok
       ? "Composição aprovada"
       : result.okF === null && result.okR
       ? "Composição aprovada em resistência"
-      : "Composição reprovada";
+      : "Composição reprovada");
 
     app.UI.get("reportContent").innerHTML = `
       <div class="rp-header">
@@ -84,11 +93,11 @@
         </div>
         <div class="rp-summary-card">
           <div class="rp-summary-k">Critério governante</div>
-          <div class="rp-summary-v">${governingLabel(result.governing)}</div>
+          <div class="rp-summary-v">${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}</div>
         </div>
         <div class="rp-summary-card">
           <div class="rp-summary-k">Leitura rápida</div>
-          <div class="rp-summary-v">eR ${result.okR ? "ok" : "não ok"} · ${result.fLim !== null ? `f ${result.okF ? "ok" : "não ok"}` : "f depende do projeto"}</div>
+          <div class="rp-summary-v">${status ? status.quickSummary : `eR ${result.okR ? "ok" : "não ok"} · ${result.fLim !== null ? `f ${result.okF ? "ok" : "não ok"}` : "f depende do projeto"}`}</div>
         </div>
       </div>
       <table class="rp-table">
@@ -99,16 +108,17 @@
         ${rrow("Método da pressão", pressureLabel)}
         ${rrow("Pe - pressão de ensaio", `${inputs.Pv} Pa`)}
         ${rrow("P = 1,5 x Pe", `${result.P.toFixed(0)} Pa`)}
-        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Cidade de referência", `${inputs.pressureMeta.context.cidade}/${inputs.pressureMeta.context.uf}`) : ""}
-        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Região normativa", `${inputs.pressureMeta.context.region} (${inputs.pressureMeta.context.isopleta} m/s)`) : ""}
-        ${inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context ? rrow("Faixa de pavimentos", `Até ${inputs.pressureMeta.context.pavimentos}`) : ""}
+        ${pressure ? rrow(pressure.detailPrimaryLabel, pressure.detailPrimaryValue) : ""}
+        ${pressure && pressure.mode === "auto" && inputs.pressureMeta && inputs.pressureMeta.context ? rrow("Isopleta básica", `${inputs.pressureMeta.context.isopleta} m/s`) : ""}
+        ${pressure ? rrow(pressure.detailSecondaryLabel, pressure.detailSecondaryValue) : ""}
+        ${pressure && pressure.mode === "auto" && inputs.pressureMeta && inputs.pressureMeta.context ? rrow("Faixa de pavimentos", `Até ${inputs.pressureMeta.context.pavimentos}`) : ""}
         ${rsection("Composição")}
         ${rrow("Tipo", composicao)}
         ${inputs.family === "laminado" ? rrow("eps2 (Tab. 4 - 2 vidros)", result.eps2.toFixed(2)) : ""}
         ${inputs.family === "laminado"
-          ? rrow(`eps3 F1 - ${engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))
-          : rrow(`eps3 - ${engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))}
-        ${inputs.family === "laminado" ? rrow(`eps3 F2 - ${engine.gtLabel(result.eps3vals[1])}`, result.eps3vals[1].toFixed(2)) : ""}
+          ? rrow(`eps3 F1 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[0]) : engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))
+          : rrow(`eps3 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[0]) : engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))}
+        ${inputs.family === "laminado" ? rrow(`eps3 F2 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[1]) : engine.gtLabel(result.eps3vals[1])}`, result.eps3vals[1].toFixed(2)) : ""}
         ${inputs.family === "laminado" ? rrow("MAX(eps3)", result.maxEps3.toFixed(2)) : ""}
         ${rsection("Verificação da resistência")}
         ${rrow("Espessura de referência e1", `${result.e1.toFixed(2)} mm`)}
@@ -122,7 +132,7 @@
         ${rrow("Limite de flecha", result.fLim !== null ? `${result.fLim.toFixed(2)} mm` : "a definir em projeto (§ 4.7.7.3)")}
         ${rsection("Hipóteses e rastreabilidade")}
         ${rrow("Versão da calculadora", constants.APP_META.version)}
-        ${rrow("Critério governante", governingLabel(result.governing))}
+        ${rrow("Critério governante", technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing))}
         ${assumptions.map((assumption, index) => rrow(`Hipótese ${index + 1}`, assumption)).join("")}
       </table>
       <div class="rp-result ${result.ok ? "ok" : "fail"}">

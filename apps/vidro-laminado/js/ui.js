@@ -2,6 +2,7 @@
   const app = window.VidroApp = window.VidroApp || {};
   const constants = app.Constants;
   const engine = app.Engine;
+  const technical = app.Technical;
   let compChart = null;
 
   function get(id) {
@@ -14,11 +15,18 @@
   }
 
   function familyLabel(family) {
+    if (technical && technical.familyLabel) return technical.familyLabel(family);
     return family === "laminado" ? "Laminado" : "Monolítico";
   }
 
   function governingLabel(governing) {
+    if (technical && technical.governingLabel) return technical.governingLabel(governing);
     return governing === "resistencia" ? "resistência" : "flecha";
+  }
+
+  function heatLabel(eps3) {
+    if (technical && technical.heatLabel) return technical.heatLabel(eps3);
+    return engine.gtLabel(eps3);
   }
 
   function chip(ok, utilization) {
@@ -32,31 +40,21 @@
     get("infoApoio").innerHTML = constants.SUPPORT_INFO[apoio] || "";
   }
 
-  function renderPressureContext(inputs) {
+  function renderPressureContext(inputs, pressureTechnical) {
     const summary = get("pressureSummary");
     const help = get("pressureHelp");
     const autoBox = get("pressureAutoBox");
     const manualBox = get("pressureManualBox");
     if (!summary || !help || !autoBox || !manualBox) return;
 
-    autoBox.style.display = inputs.pressureMeta && inputs.pressureMeta.mode === "auto" ? "" : "none";
-    manualBox.style.display = inputs.pressureMeta && inputs.pressureMeta.mode === "manual" ? "" : "none";
+    const pressure = pressureTechnical || (technical && technical.buildPressureTechnical
+      ? technical.buildPressureTechnical(inputs.pressureMeta, inputs.Pv)
+      : null);
 
-    if (inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context) {
-      const context = inputs.pressureMeta.context;
-      summary.textContent = `${context.cidade}/${context.uf} • ${context.isopleta} m/s • Região ${context.region} • Pe ${context.pe} Pa`;
-      help.textContent = `Tabela 1 da NBR 10821 para até ${context.pavimentos} pavimentos. Ps de referência ${context.ps} Pa e Pa ${context.pa} Pa.`;
-      return;
-    }
-
-    if (inputs.pressureMeta && inputs.pressureMeta.mode === "manual") {
-      summary.textContent = `Pe manual = ${fmt(inputs.Pv, 0)} Pa`;
-      help.textContent = "Pressão informada manualmente pelo usuário ou definida em projeto.";
-      return;
-    }
-
-    summary.textContent = "Seleção normativa indisponível";
-    help.textContent = "Escolha UF, cidade e pavimentos para calcular a pressão automaticamente.";
+    autoBox.style.display = pressure && pressure.mode === "manual" ? "none" : "";
+    manualBox.style.display = pressure && pressure.mode === "manual" ? "" : "none";
+    summary.textContent = pressure ? pressure.summaryText : "Seleção normativa indisponível";
+    help.textContent = pressure ? pressure.helpText : "Escolha UF, cidade e pavimentos para calcular a pressão automaticamente.";
   }
 
   function updateCross(inputs) {
@@ -102,39 +100,45 @@
     get("validationAssumptions").innerHTML = assumptionBlocks.join("");
   }
 
-  function renderStatus(inputs, result) {
+  function renderStatus(inputs, result, technicalResult) {
     const currentConfig = inputs.family === "laminado"
       ? `${inputs.panes[0].h}+${inputs.panes[1].h} mm`
       : `${inputs.panes[0].h} mm`;
+    const status = technicalResult && technicalResult.status
+      ? technicalResult.status
+      : {
+          title: result.ok
+            ? (result.okF === null ? "Atende em resistência; flecha a definir" : "Composição atende")
+            : "Composição não atende",
+          reason: result.governing === "resistencia"
+            ? "Governado por resistência"
+            : "Governado por flecha",
+          quickSummary: result.ok
+            ? (result.okF === null ? "Resistência ok; falta critério de flecha" : "Resistência e flecha dentro do limite")
+            : (result.governing === "resistencia" ? "Falha por resistência" : "Falha por flecha"),
+          subText: [
+            `${familyLabel(inputs.family)} · ${inputs.wMM} x ${inputs.hMM} mm`,
+            `eR = ${fmt(result.eR)} mm (min. ${fmt(result.e1c)} mm)`,
+            `${fmt(result.uR * 100, 0)}% da demanda de resistência`,
+            result.fLim !== null
+              ? `f = ${fmt(result.f)} mm para limite ${fmt(result.fLim)} mm`
+              : `f = ${fmt(result.f)} mm com limite a definir em projeto`,
+            result.fLim !== null
+              ? `${fmt((result.uF || 0) * 100, 0)}% da demanda de flecha`
+              : null,
+            `critério governante: ${governingLabel(result.governing)}`
+          ].filter(Boolean).join(" · ")
+        };
 
     get("statusCard").className = `status ${result.ok ? "ok" : "fail"}`;
     get("statusIcon").textContent = result.ok ? "✓" : "✕";
-    get("statusTitle").textContent = result.ok
-      ? (result.okF === null ? "Atende em resistência; flecha a definir" : "Composição atende")
-      : "Composição não atende";
-    get("statusReason").textContent = result.governing === "resistencia"
-      ? "Governado por resistência"
-      : "Governado por flecha";
-
-    const parts = [
-      `${familyLabel(inputs.family)} · ${inputs.wMM} x ${inputs.hMM} mm`,
-      `eR = ${fmt(result.eR)} mm (min. ${fmt(result.e1c)} mm)`,
-      `${fmt(result.uR * 100, 0)}% da demanda de resistência`
-    ];
-
-    if (result.fLim !== null) {
-      parts.push(`f = ${fmt(result.f)} mm para limite ${fmt(result.fLim)} mm`);
-      parts.push(`${fmt((result.uF || 0) * 100, 0)}% da demanda de flecha`);
-    } else {
-      parts.push(`f = ${fmt(result.f)} mm com limite a definir em projeto`);
-    }
-
-    parts.push(`critério governante: ${governingLabel(result.governing)}`);
-    get("statusSub").textContent = parts.join(" · ");
-    get("statusFactConfig").textContent = currentConfig;
-    get("statusFactSummary").textContent = result.ok
-      ? (result.okF === null ? "Resistência ok; falta critério de flecha" : "Resistência e flecha dentro do limite")
-      : (result.governing === "resistencia" ? "Falha por resistência" : "Falha por flecha");
+    get("statusTitle").textContent = status.title;
+    get("statusReason").textContent = status.reason;
+    get("statusSub").textContent = status.subText;
+    get("statusFactConfig").textContent = technicalResult && technicalResult.compositionLabel
+      ? technicalResult.compositionLabel
+      : currentConfig;
+    get("statusFactSummary").textContent = status.quickSummary;
   }
 
   function renderMetrics(inputs, result) {
@@ -159,11 +163,16 @@
     get("mFCard").className = `metric ${result.okF === true ? "c-ok" : result.okF === false ? ((result.uF || 0) <= 1.1 ? "c-warn" : "c-bad") : "c-warn"}`;
   }
 
-  function renderMemorial(inputs, result, assumptions) {
+  function renderMemorial(inputs, result, assumptions, technicalResult) {
+    const pressure = technicalResult && technicalResult.pressure
+      ? technicalResult.pressure
+      : (technical && technical.buildPressureTechnical
+        ? technical.buildPressureTechnical(inputs.pressureMeta, inputs.Pv)
+        : null);
     const rows = [
       ["Versão da calculadora", constants.APP_META.version],
       ["Norma de referência", constants.APP_META.normRef],
-      ["Método da pressão", inputs.pressureMeta && inputs.pressureMeta.mode === "auto" ? "Automático (NBR 10821)" : "Manual"],
+      ["Método da pressão", pressure && pressure.mode === "auto" ? "Automático (NBR 10821)" : "Manual"],
       ["Pe - pressão de ensaio", `${inputs.Pv} Pa`],
       ["P = 1,5 x Pe", `${result.P.toFixed(0)} Pa`],
       ["Dimensões (largura x altura)", `${inputs.wMM} x ${inputs.hMM} mm`],
@@ -172,21 +181,24 @@
       ["Limite mínimo e1 x c", `${fmt(result.e1c)} mm`]
     ];
 
-    if (inputs.pressureMeta && inputs.pressureMeta.mode === "auto" && inputs.pressureMeta.context) {
-      rows.push(["Cidade de referência", `${inputs.pressureMeta.context.cidade}/${inputs.pressureMeta.context.uf}`]);
+    if (pressure && pressure.mode === "auto" && inputs.pressureMeta && inputs.pressureMeta.context) {
+      rows.push([pressure.detailPrimaryLabel, pressure.detailPrimaryValue]);
       rows.push(["Isopleta básica", `${inputs.pressureMeta.context.isopleta} m/s`]);
-      rows.push(["Região normativa", inputs.pressureMeta.context.region]);
+      rows.push([pressure.detailSecondaryLabel, pressure.detailSecondaryValue]);
       rows.push(["Faixa de pavimentos", `Até ${inputs.pressureMeta.context.pavimentos}`]);
+    } else if (pressure && pressure.mode === "manual") {
+      rows.push([pressure.detailPrimaryLabel, pressure.detailPrimaryValue]);
+      rows.push([pressure.detailSecondaryLabel, pressure.detailSecondaryValue]);
     }
 
     if (inputs.family === "laminado") {
       rows.push(["eps2 (Tab. 4 - 2 vidros)", fmt(result.eps2 || 1.3, 2)]);
-      rows.push([`eps3 F1 - ${engine.gtLabel(result.eps3vals[0])}`, fmt(result.eps3vals[0], 2)]);
-      rows.push([`eps3 F2 - ${engine.gtLabel(result.eps3vals[1])}`, fmt(result.eps3vals[1], 2)]);
+      rows.push([`eps3 F1 - ${heatLabel(result.eps3vals[0])}`, fmt(result.eps3vals[0], 2)]);
+      rows.push([`eps3 F2 - ${heatLabel(result.eps3vals[1])}`, fmt(result.eps3vals[1], 2)]);
       rows.push(["MAX(eps3)", fmt(result.maxEps3, 2)]);
       rows.push(["Soma das folhas", `${inputs.panes.map((pane) => pane.h).join(" + ")} = ${inputs.panes.reduce((sum, pane) => sum + pane.h, 0)} mm`]);
     } else {
-      rows.push([`eps3 - ${engine.gtLabel(result.eps3vals[0])}`, fmt(result.eps3vals[0], 2)]);
+      rows.push([`eps3 - ${heatLabel(result.eps3vals[0])}`, fmt(result.eps3vals[0], 2)]);
       rows.push(["Espessura nominal", `${inputs.panes[0].h} mm`]);
     }
 

@@ -1,5 +1,6 @@
 (function () {
   const app = window.VidroApp = window.VidroApp || {};
+  const technical = app.Technical;
 
   const state = {
     family: "laminado",
@@ -62,26 +63,39 @@
 
   function calculateAndRender() {
     const rawInputs = readInputs();
-    const validation = app.Engine.validateInputs(rawInputs);
-    const inputs = validation.normalized;
+    const fallbackValidation = technical && technical.evaluate ? null : app.Engine.validateInputs(rawInputs);
+    const evaluation = technical && technical.evaluate
+      ? technical.evaluate(rawInputs)
+      : {
+          normalized: fallbackValidation.normalized,
+          result: app.Engine.calcNBR(fallbackValidation.normalized),
+          validation: fallbackValidation,
+          issues: fallbackValidation.issues,
+          assumptions: fallbackValidation.assumptions,
+          technical: null
+        };
+    const validation = evaluation.validation;
+    const inputs = evaluation.normalized;
     inputs.pressureMeta = rawInputs.pressureMeta;
-    const result = app.Engine.calcNBR(inputs);
+    const result = evaluation.result;
+    const technicalResult = evaluation.technical || null;
 
     syncNormalizedInputs(inputs);
     app.UI.updateInfoApoio(inputs.apoio);
-    app.UI.renderPressureContext(inputs);
+    app.UI.renderPressureContext(inputs, technicalResult && technicalResult.pressure);
     app.UI.updateCross(inputs);
     app.UI.renderValidation(validation.issues, validation.assumptions);
-    app.UI.renderStatus(inputs, result);
+    app.UI.renderStatus(inputs, result, technicalResult);
     app.UI.renderMetrics(inputs, result);
-    app.UI.renderMemorial(inputs, result, validation.assumptions);
+    app.UI.renderMemorial(inputs, result, validation.assumptions, technicalResult);
     app.UI.renderChart(inputs, result);
 
     state.snapshot = {
       inputs: inputs,
       result: result,
       assumptions: validation.assumptions,
-      issues: validation.issues
+      issues: validation.issues,
+      technical: technicalResult
     };
 
     return state.snapshot;

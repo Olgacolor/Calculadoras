@@ -277,6 +277,26 @@ if (!elements.get("results").classList.contains("visible")) {
 
 assertNoBrokenText("Resultado apos alternativa", elements.get("observations").innerHTML);
 
+elements.get("resetButton").click();
+document.querySelectorAll(".seg-btn").find((button) => button.dataset.pressureMode === "manual").click();
+elements.get("windManualPressure").value = "980";
+calcButton.click();
+
+if (!elements.get("results").classList.contains("visible")) {
+  throw new Error("Modo manual de pressão não recalculou o resultado.");
+}
+
+const manualObservations = elements.get("observations").innerHTML;
+if (!/Pressão informada manualmente/i.test(manualObservations)) {
+  throw new Error(`Observações não refletiram a pressão manual: ${manualObservations}`);
+}
+
+elements.get("reportButton").click();
+assertNoBrokenText("Relatório manual", elements.get("reportContent").innerHTML);
+if (!/Pressão manual/i.test(elements.get("reportContent").innerHTML)) {
+  throw new Error("Relatório não refletiu a pressão manual aplicada.");
+}
+
 if (/normative\.floors|\.floors\}/.test(html)) {
   throw new Error("Levitare ainda referencia normative.floors; use normative.pavimentos.");
 }

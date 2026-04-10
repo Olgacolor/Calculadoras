@@ -13,6 +13,7 @@ const filesToCheck = [
   "apps/vidro-laminado/js/constants.js",
   "apps/vidro-laminado/js/report.js",
   "apps/vidro-laminado/js/ui.js",
+  "assets/vidro-tecnico/index.js",
   "assets/nbr10821/index.js"
 ];
 
