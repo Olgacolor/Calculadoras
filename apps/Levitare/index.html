@@ -1162,7 +1162,7 @@
               <input id="folhas" type="number" value="2" min="2" max="12" step="1" inputmode="numeric">
               <span class="helper">Informe livremente. O app monta as opções válidas de planos a partir desse valor.</span>
             </div>
-            <div class="field">
+            <div class="field span-2">
               <label>Planos / trilhos</label>
               <div id="planosPills" class="plan-pills"></div>
               <input id="planos" type="hidden" value="2">
@@ -1683,7 +1683,7 @@
     }
 
     const larguraFolha = largura / folhas;
-    refs.larguraFolhaChip.textContent = `${num(larguraFolha, 0)} mm por folha em ${num(altura, 0)} mm de altura`;
+    refs.larguraFolhaChip.textContent = `${num(larguraFolha, 0)} × ${num(altura, 0)} mm`;
     return { largura, altura, folhas, larguraFolha };
   }
 
@@ -2824,14 +2824,30 @@
   }
 
   function renderDoorPreview() {
+    const W      = Math.max(200, Number(refs.largura.value) || 5000);
+    const H      = Math.max(200, Number(refs.altura.value)  || 2700);
+    const folhas = getFolhas();
+
+    let pesoFolha = state.lastResult ? state.lastResult.pesoTotalFolha : null;
+    if (pesoFolha == null) {
+      // Illustrative estimate using suggested glass thickness (or 10 mm default)
+      const espVidro    = (state.lastGlassSuggestion && state.lastGlassSuggestion.adoptedThickness) || 10;
+      const larguraFolha = W / folhas;
+      const ww          = CONFIG.perfisKgM;
+      const O19         = (larguraFolha * folhas / 1000) * 2; // = W/1000*2
+      const O20         = folhas * H / 1000 * 2;
+      pesoFolha = larguraFolha * H / 1e6 * espVidro * 2.5
+                + (H * 2 / 1000) * ww.OM009
+                + (larguraFolha / 1000) * ww.LEV001
+                + ((O19 + O20) / folhas) * ww.OM018;
+    }
+
     const svg = buildDoorSvg({
-      W:         Math.max(200, Number(refs.largura.value) || 5000),
-      H:         Math.max(200, Number(refs.altura.value)  || 2700),
-      folhas:    getFolhas(),
-      planos:    state.selectedPlan || 2,
-      finish:    state.selectedFinish,
-      theme:     "dark",
-      pesoFolha: state.lastResult ? state.lastResult.pesoTotalFolha : null
+      W, H, folhas,
+      planos: state.selectedPlan || 2,
+      finish: state.selectedFinish,
+      theme:  "dark",
+      pesoFolha
     });
     if (refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML = svg;
   }
