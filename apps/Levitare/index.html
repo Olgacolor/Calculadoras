@@ -411,6 +411,21 @@
   }
 
   .banner.visible { display: flex; }
+  .banner strong { color: inherit; }
+  .banner ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+  }
+  .banner li { margin: 4px 0; }
+  .blocking-title {
+    display: block;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .blocking-summary {
+    display: block;
+    opacity: 0.95;
+  }
   .banner.error {
     border: 1px solid rgba(245, 111, 111, 0.35);
     background: rgba(245, 111, 111, 0.12);
@@ -1174,15 +1189,19 @@
     if (textNode) textNode.innerHTML = text;
   }
 
-  function showError(message) {
-    refs.errorText.textContent = message;
+  function showError(message, html = false) {
+    if (html) {
+      refs.errorText.innerHTML = message;
+    } else {
+      refs.errorText.textContent = message;
+    }
     refs.errorBanner.classList.add("visible");
   }
 
-  function blockQuote(message) {
+  function blockQuote(message, html = false) {
     clearResultsPreview();
     clearDirty();
-    showError(message);
+    showError(message, html);
   }
 
   function clearError() {
@@ -1614,12 +1633,39 @@
   function buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha) {
     if (!overweight) return null;
 
-    return [
-      "Não foi gerado custo porque a porta não é executável nesta configuração.",
-      `A folha pesa ${num(pesoTotalFolha, 1)} kg, sendo ${num(pesoVidroFolha, 1)} kg de vidro, e exige ${carrPerFolha} carrinhos.`,
-      `A largura útil de ${num(input.larguraFolha, 0)} mm comporta no máximo ${maxCarr} carrinhos.`,
-      "Revise altura, número de folhas/planos, largura útil ou espessura do vidro antes de orçamento."
-    ].join(" ");
+    const minUsefulWidth = carrPerFolha * 200;
+    const extraWidth = Math.max(0, minUsefulWidth - input.larguraFolha);
+    const maxWeightByCarts = maxCarr * CONFIG.capacidadeCarrinhoKg;
+    const heightToFit = Math.floor((input.height * maxWeightByCarts / pesoTotalFolha) / 50) * 50;
+    const maxLeavesByCurrentWidth = Math.floor(input.width / minUsefulWidth);
+    const options = [];
+
+    options.push(`Aumentar a largura útil por folha para pelo menos ${num(minUsefulWidth, 0)} mm, cerca de ${num(extraWidth, 0)} mm a mais que a configuração atual. Depois disso é obrigatório recalcular, porque uma folha mais larga pode pedir vidro mais espesso e aumentar o peso.`);
+
+    if (maxLeavesByCurrentWidth >= 2 && maxLeavesByCurrentWidth < input.nFolhas) {
+      options.push(`Simular uma configuração com até ${maxLeavesByCurrentWidth} folha${maxLeavesByCurrentWidth > 1 ? "s" : ""} na mesma largura total para ganhar largura útil por folha, respeitando novamente a regra de planos.`);
+    }
+
+    if (heightToFit >= 500 && heightToFit < input.height) {
+      options.push(`Reduzir a altura para algo próximo de ${num(heightToFit, 0)} mm ou menos, como primeira estimativa. O valor final precisa ser recalculado pelo app.`);
+    } else {
+      options.push("Reduzir altura pode ajudar, mas esta configuração está distante do limite de peso e deve ser reavaliada pela engenharia.");
+    }
+
+    if (input.glassMode === "manual" && input.thickness.suggestion && input.thickness.suggestion.adoptedThickness && input.thickness.thickness > input.thickness.suggestion.adoptedThickness) {
+      options.push(`Revisar a espessura manual: a referência calculada que atende é ${input.thickness.suggestion.adoptedThickness} mm, menor que os ${input.thickness.thickness} mm informados.`);
+    } else {
+      options.push("Revisar a pressão normativa, cidade, pavimentos e tratamento das chapas para confirmar se o vidro adotado é realmente o mínimo aplicável.");
+    }
+
+    options.push("Se nenhuma alternativa for viável, não gerar proposta comercial e encaminhar para validação específica.");
+
+    return `
+      <span class="blocking-title">Custo não gerado: porta não executável nesta configuração.</span>
+      <span class="blocking-summary">A folha pesa ${num(pesoTotalFolha, 1)} kg, sendo ${num(pesoVidroFolha, 1)} kg de vidro. Ela exige ${carrPerFolha} carrinhos, mas a largura útil de ${num(input.larguraFolha, 0)} mm comporta no máximo ${maxCarr}.</span>
+      <strong>Possibilidades para análise:</strong>
+      <ul>${options.map((option) => `<li>${option}</li>`).join("")}</ul>
+    `;
   }
 
   function calculateQuote() {
@@ -1680,7 +1726,7 @@
     const blockingIssue = buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha);
 
     if (blockingIssue) {
-      blockQuote(blockingIssue);
+      blockQuote(blockingIssue, true);
       return;
     }
 
