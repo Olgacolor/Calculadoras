@@ -248,6 +248,18 @@ if (fourLeafOptions.length > 1) {
   throw new Error(`Solver repetiu alternativas equivalentes com 4 folhas: ${fourLeafOptions.join(" | ")}`);
 }
 
+elements.get("largura").value = "5000";
+elements.get("altura").value = "3200";
+elements.get("folhas").value = "2";
+document.querySelectorAll(".seg-btn").find((button) => button.dataset.mode === "manual").click();
+calcButton.click();
+const twoLeafSolverHtml = elements.get("errorText").innerHTML;
+const twoLeafOptions = [...twoLeafSolverHtml.matchAll(/<strong>(?:Melhor solução sugerida|Alternativa \d+)<\/strong>\s*<span>([\s\S]*?)<\/span>/g)]
+  .map((match) => match[1]);
+if (twoLeafOptions.some((option) => /\b4 folhas\b/.test(option))) {
+  throw new Error(`Solver pulou de 2 para 4 folhas: ${twoLeafOptions.join(" | ")}`);
+}
+
 const solverButton = document.querySelectorAll(".solver-apply")[1] || document.querySelectorAll(".solver-apply")[0];
 if (!solverButton) {
   throw new Error("Cenário bloqueado não gerou botão para aplicar alternativa.");

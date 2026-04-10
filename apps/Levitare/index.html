@@ -1518,6 +1518,10 @@
     return [folhas / 2, folhas];
   }
 
+  function getDefaultPlanForLeaves(folhas) {
+    return getPlanOptions(folhas)[0];
+  }
+
   function renderPlanOptions(commit = false, preferCompact = false) {
     const folhas = getFolhas(commit);
     const options = getPlanOptions(folhas);
@@ -2019,7 +2023,14 @@
   }
 
   function shouldOfferScenario(original, scenario) {
+    const nFolhas = scenario.nFolhas || original.nFolhas;
     const nPlanos = scenario.nPlanos || original.nPlanos;
+    if (nFolhas > original.nFolhas + 1) {
+      return {
+        ok: false,
+        message: "aumentar mais de uma folha muda demais a leitura arquitetônica e deve ficar como estudo de engenharia"
+      };
+    }
     if (nPlanos > original.nPlanos) {
       return {
         ok: false,
@@ -2080,22 +2091,26 @@
       executable.push(item);
     }
 
-    for (let folhas = 2; folhas <= 12; folhas += 1) {
-      getPlanOptions(folhas).forEach((planos) => {
-        addScenario({ nFolhas: folhas, nPlanos: planos }, "alterar folhas/planos mantendo largura e altura");
-      });
+    const nextLeaves = Math.min(12, original.nFolhas + 1);
+    if (nextLeaves !== original.nFolhas) {
+      addScenario(
+        { nFolhas: nextLeaves, nPlanos: getDefaultPlanForLeaves(nextLeaves) },
+        "aumentar uma folha mantendo altura"
+      );
     }
 
     for (let height = original.height - 50; height >= minHeight; height -= 50) {
       addScenario({ height, nFolhas: original.nFolhas, nPlanos: original.nPlanos }, "reduzir altura mantendo folhas e planos");
     }
 
-    for (let folhas = 2; folhas <= 12; folhas += 1) {
-      getPlanOptions(folhas).forEach((planos) => {
-        for (let height = original.height - 50; height >= minHeight; height -= 50) {
-          addScenario({ height, nFolhas: folhas, nPlanos: planos }, "combinar alteração de folhas/planos com redução de altura");
-        }
-      });
+    if (nextLeaves !== original.nFolhas) {
+      const nextPlan = getDefaultPlanForLeaves(nextLeaves);
+      for (let height = original.height - 50; height >= minHeight; height -= 50) {
+        addScenario(
+          { height, nFolhas: nextLeaves, nPlanos: nextPlan },
+          "combinar aumento de uma folha com redução de altura"
+        );
+      }
     }
 
     executable.sort((left, right) => {
@@ -2152,7 +2167,7 @@
     return `
       <div class="solver-block">
         <strong>Análise automática</strong>
-        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis. A prioridade arquitetônica preserva planos e folhas; aumento de planos não é sugerido automaticamente.</span>
+        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis. A prioridade arquitetônica preserva planos e folhas; o app só considera, no máximo, uma folha a mais com o arranjo padrão correspondente.</span>
         <div class="solver-option">
           <strong>Melhor solução sugerida</strong>
           <span>${escapeHtml(describeScenario(input, best))}</span>
