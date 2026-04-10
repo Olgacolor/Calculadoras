@@ -1151,7 +1151,7 @@
         <input id="altura" type="hidden" value="2700">
         <div class="config-layout">
           <div class="grid">
-            <div class="field span-2">
+            <div class="field">
               <label for="quantidade">Quantidade de portas</label>
               <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
               <span class="unit">porta(s)</span>
@@ -1170,7 +1170,7 @@
             </div>
 
             <div class="field span-2">
-              <label>Largura por folha</label>
+              <label>Medida da folha</label>
               <div id="larguraFolhaChip" class="inline-chip">Aguardando dimensões</div>
               <span class="helper">Clique nas cotas da elevação para editar as dimensões.</span>
             </div>
@@ -2627,7 +2627,7 @@
 
   let doorGeo = { W: 5000, H: 2700, dX: 0, dY: 0, dW: 0, dH: 0, svgW: 240, svgH: 290 };
 
-  function buildDoorSvg({ W, H, folhas, planos, finish, theme }) {
+  function buildDoorSvg({ W, H, folhas, planos, finish, theme, pesoFolha = null }) {
     const isDark = theme !== "light";
 
     const profileColors     = { "Madeira": "#7d5228", "Inox escovado": "#546e7a", "Anod-Pint": "#2e4a60" };
@@ -2769,13 +2769,13 @@
               data-edit="width" style="cursor:text" stroke-dasharray="2,2"/>`;
     }
 
-    // Per-leaf width inside panels
-    if (leafW > 26 && folhas > 1) {
-      const lM = num(W / folhas, 0);
+    // Per-leaf label inside panels (weight if available, otherwise nothing)
+    if (leafW > 26 && pesoFolha != null) {
+      const label = `${num(pesoFolha, 1)} kgf`;
       for (let i = 0; i < folhas; i++) {
         const cx = innerX + i * leafW + leafW / 2;
         s += `<text x="${f(cx)}" y="${f(midY + 3)}" text-anchor="middle"
-                font-family="DM Mono, monospace" font-size="7" fill="${leafTextFill}">${lM}</text>`;
+                font-family="DM Mono, monospace" font-size="7" fill="${leafTextFill}">${label}</text>`;
       }
     }
 
@@ -2825,12 +2825,13 @@
 
   function renderDoorPreview() {
     const svg = buildDoorSvg({
-      W:      Math.max(200, Number(refs.largura.value) || 5000),
-      H:      Math.max(200, Number(refs.altura.value)  || 2700),
-      folhas: getFolhas(),
-      planos: state.selectedPlan || 2,
-      finish: state.selectedFinish,
-      theme:  "dark"
+      W:         Math.max(200, Number(refs.largura.value) || 5000),
+      H:         Math.max(200, Number(refs.altura.value)  || 2700),
+      folhas:    getFolhas(),
+      planos:    state.selectedPlan || 2,
+      finish:    state.selectedFinish,
+      theme:     "dark",
+      pesoFolha: state.lastResult ? state.lastResult.pesoTotalFolha : null
     });
     if (refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML = svg;
   }
