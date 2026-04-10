@@ -1518,10 +1518,10 @@
     return [folhas / 2, folhas];
   }
 
-  function renderPlanOptions(commit = false) {
+  function renderPlanOptions(commit = false, preferCompact = false) {
     const folhas = getFolhas(commit);
     const options = getPlanOptions(folhas);
-    if (!options.includes(state.selectedPlan)) {
+    if (preferCompact || !options.includes(state.selectedPlan)) {
       state.selectedPlan = options[0];
     }
 
@@ -1995,9 +1995,11 @@
   }
 
   function getScenarioGroup(original, result) {
-    return result.input.height !== original.height
-      ? "altura"
-      : getScenarioFamily(original, result);
+    const input = result.input;
+    if (input.height !== original.height) return "altura";
+    if (input.nFolhas !== original.nFolhas) return `folhas-${input.nFolhas}`;
+    if (input.nPlanos !== original.nPlanos) return "planos";
+    return "mesmo-desenho";
   }
 
   function pickDiverseAlternatives(original, sortedItems, limit = 3, primary = null) {
@@ -2535,7 +2537,7 @@
     clearError();
     clearDirty();
     renderFinishOptions();
-    renderPlanOptions(true);
+    renderPlanOptions(true, true);
     renderStateOptions();
     setGlassMode("auto", false);
   }
@@ -2553,7 +2555,7 @@
           updateLeafWidthChip(false);
         }
         if (element === refs.folhas) {
-          renderPlanOptions(false);
+          renderPlanOptions(false, true);
         }
         if (element === refs.windState) {
           renderCityOptions(refs.windState.value);
@@ -2564,7 +2566,7 @@
         markDirty();
       });
       element.addEventListener("change", () => {
-        if (element === refs.folhas) renderPlanOptions(true);
+        if (element === refs.folhas) renderPlanOptions(true, true);
         if (element === refs.largura || element === refs.altura) updateLeafWidthChip(true);
         if (element === refs.windState) {
           renderCityOptions(refs.windState.value);
@@ -2598,7 +2600,7 @@
 
   renderStateOptions();
   renderFinishOptions();
-  renderPlanOptions(true);
+  renderPlanOptions(true, true);
   bindInputEvents();
   updateLeafWidthChip(false);
   setGlassMode("auto", false);

@@ -208,6 +208,10 @@ if (!resultsVisible && !errorVisible) {
 assertNoBrokenText("Ajuda da norma", elements.get("glassNormHelp").textContent);
 assertNoBrokenText("Observacoes do resultado", elements.get("observations").innerHTML);
 
+if (elements.get("folhas").value === "4" && elements.get("planos").value !== "2") {
+  throw new Error(`Padrão de 4 folhas deveria iniciar com 2 planos, mas iniciou com ${elements.get("planos").value}.`);
+}
+
 elements.get("largura").value = "5000";
 elements.get("altura").value = "3200";
 elements.get("folhas").value = "4";
@@ -238,6 +242,10 @@ const solverOptions = [...solverHtml.matchAll(/<strong>(?:Melhor solução suger
 const heightFamilyOptions = solverOptions.filter((option) => /altura \d/.test(option));
 if (heightFamilyOptions.length > 1) {
   throw new Error(`Solver repetiu alternativas equivalentes de redução de altura: ${heightFamilyOptions.join(" | ")}`);
+}
+const fourLeafOptions = solverOptions.filter((option) => /\b4 folhas\b/.test(option));
+if (fourLeafOptions.length > 1) {
+  throw new Error(`Solver repetiu alternativas equivalentes com 4 folhas: ${fourLeafOptions.join(" | ")}`);
 }
 
 const solverButton = document.querySelectorAll(".solver-apply")[1] || document.querySelectorAll(".solver-apply")[0];
