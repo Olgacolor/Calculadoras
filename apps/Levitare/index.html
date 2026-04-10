@@ -426,6 +426,30 @@
     display: block;
     opacity: 0.95;
   }
+  .solver-block {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+  }
+  .solver-option {
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.055);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .solver-option strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+  .solver-option span {
+    display: block;
+    font-size: 12px;
+    opacity: 0.92;
+  }
+  .solver-muted {
+    font-size: 12px;
+    opacity: 0.86;
+  }
   .banner.error {
     border: 1px solid rgba(245, 111, 111, 0.35);
     background: rgba(245, 111, 111, 0.12);
@@ -1387,7 +1411,7 @@
     }));
   }
 
-  function suggestGlass() {
+  function suggestGlassFor(params) {
     if (!vidroEngine || !vidroConstants) {
       return {
         ok: false,
@@ -1400,12 +1424,13 @@
       };
     }
 
-    const { altura, larguraFolha } = updateLeafWidthChip();
+    const altura = params.altura;
+    const larguraFolha = params.larguraFolha;
     const family = "laminado";
     const apoio = "4";
-    const normative = getNormativeContext();
+    const normative = params.normative || getNormativeContext();
     const pressure = normative && normative.pe ? normative.pe : 750;
-    const eps3 = normalizeFloat(refs.glassHeat.value, 1, 0.61, 1);
+    const eps3 = normalizeFloat(params.eps3, 1, 0.61, 1);
 
     const candidates = buildCandidateList(family, eps3);
     let chosen = null;
@@ -1476,6 +1501,16 @@
       criterionLabel,
       raw: pick
     };
+  }
+
+  function suggestGlass() {
+    const { altura, larguraFolha } = updateLeafWidthChip();
+    return suggestGlassFor({
+      altura,
+      larguraFolha,
+      normative: getNormativeContext(),
+      eps3: refs.glassHeat.value
+    });
   }
 
   function updateGlassUI() {
@@ -1630,6 +1665,181 @@
     return warnings.filter(Boolean);
   }
 
+  function buildScenarioInput(original, scenario) {
+    const width = scenario.width || original.width;
+    const height = scenario.height || original.height;
+    const nFolhas = scenario.nFolhas || original.nFolhas;
+    const nPlanos = scenario.nPlanos || original.nPlanos;
+    const larguraFolha = width / nFolhas;
+    const eps3 = normalizeFloat(refs.glassHeat.value, 1, 0.61, 1);
+    const suggestion = suggestGlassFor({
+      altura: height,
+      larguraFolha,
+      normative: original.normative,
+      eps3
+    });
+
+    return {
+      ...original,
+      width,
+      height,
+      nFolhas,
+      nPlanos,
+      larguraFolha,
+      glassMode: "auto",
+      thickness: {
+        mode: "auto",
+        thickness: suggestion.adoptedThickness,
+        label: suggestion.chosenText,
+        suggestion
+      }
+    };
+  }
+
+  function describeScenario(original, result) {
+    const input = result.input;
+    const changes = [];
+
+    if (input.nFolhas !== original.nFolhas) {
+      changes.push(`${input.nFolhas} folhas`);
+    }
+    if (input.nPlanos !== original.nPlanos) {
+      changes.push(`${input.nPlanos} planos`);
+    }
+    if (input.height !== original.height) {
+      changes.push(`altura ${num(input.height, 0)} mm`);
+    }
+    if (!changes.length) changes.push("mesmas dimensões principais");
+
+    return `${changes.join(" / ")} · vidro ${input.thickness.label} · folha ${num(result.pesoTotalFolha, 1)} kg · carrinhos ${result.carrPerFolha}/${result.maxCarr} · ${brl(result.total)}`;
+  }
+
+  function scoreScenario(original, result) {
+    const input = result.input;
+    const heightPenalty = Math.abs(input.height - original.height) / 50 * 10;
+    const leafPenalty = Math.abs(input.nFolhas - original.nFolhas) * 22;
+    const planPenalty = Math.abs(input.nPlanos - original.nPlanos) * 6;
+    const thicknessPenalty = Math.max(0, input.thickness.thickness - original.thickness.thickness) * 7;
+    const lowerThicknessBonus = Math.max(0, original.thickness.thickness - input.thickness.thickness) * 3;
+    const safetyBonus = Math.max(0, result.maxCarr - result.carrPerFolha) * 5;
+    const costPenalty = Math.max(0, result.total / 1000);
+
+    return heightPenalty + leafPenalty + planPenalty + thicknessPenalty + costPenalty - lowerThicknessBonus - safetyBonus;
+  }
+
+  function analyzeExecutableAlternatives(original) {
+    const executable = [];
+    const rejected = [];
+    const seen = new Set();
+    const minHeight = Math.max(500, original.height - 1200);
+
+    function addScenario(scenario, reason) {
+      const width = scenario.width || original.width;
+      const height = scenario.height || original.height;
+      const nFolhas = scenario.nFolhas || original.nFolhas;
+      const nPlanos = scenario.nPlanos || original.nPlanos;
+      const key = [width, height, nFolhas, nPlanos].join("|");
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      const candidateInput = buildScenarioInput(original, { width, height, nFolhas, nPlanos });
+      const validation = validateInput(candidateInput);
+      if (!validation.ok) {
+        rejected.push({ reason, detail: validation.message });
+        return;
+      }
+
+      if (!candidateInput.thickness.suggestion || !candidateInput.thickness.suggestion.ok) {
+        rejected.push({ reason, detail: "vidro automático não encontrou composição padrão que atende" });
+        return;
+      }
+
+      const result = calculateQuoteMetrics(candidateInput, false);
+      const item = {
+        reason,
+        result,
+        score: scoreScenario(original, result)
+      };
+
+      if (result.overweight) {
+        rejected.push({
+          reason,
+          detail: `${candidateInput.nFolhas} folhas / ${candidateInput.nPlanos} planos / ${num(candidateInput.height, 0)} mm: ${result.carrPerFolha}/${result.maxCarr} carrinhos`
+        });
+        return;
+      }
+
+      executable.push(item);
+    }
+
+    for (let folhas = 2; folhas <= 12; folhas += 1) {
+      getPlanOptions(folhas).forEach((planos) => {
+        addScenario({ nFolhas: folhas, nPlanos: planos }, "alterar folhas/planos mantendo largura e altura");
+      });
+    }
+
+    for (let height = original.height - 50; height >= minHeight; height -= 50) {
+      addScenario({ height, nFolhas: original.nFolhas, nPlanos: original.nPlanos }, "reduzir altura mantendo folhas e planos");
+    }
+
+    for (let folhas = 2; folhas <= 12; folhas += 1) {
+      getPlanOptions(folhas).forEach((planos) => {
+        for (let height = original.height - 50; height >= minHeight; height -= 50) {
+          addScenario({ height, nFolhas: folhas, nPlanos: planos }, "combinar alteração de folhas/planos com redução de altura");
+        }
+      });
+    }
+
+    executable.sort((left, right) => left.score - right.score);
+
+    return {
+      best: executable[0] || null,
+      alternatives: executable.slice(1, 4),
+      rejected: rejected.slice(0, 4),
+      tested: seen.size,
+      executableCount: executable.length
+    };
+  }
+
+  function renderSolverAnalysis(input) {
+    const analysis = analyzeExecutableAlternatives(input);
+    if (!analysis.best) {
+      const rejected = analysis.rejected.length
+        ? `<ul>${analysis.rejected.map((item) => `<li>${escapeHtml(item.detail)}</li>`).join("")}</ul>`
+        : "";
+      return `
+        <div class="solver-block">
+          <strong>Análise automática</strong>
+          <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas, mas nenhuma solução padrão executável foi encontrada.</span>
+          ${rejected}
+          <span class="solver-muted">Neste caso, o caminho mais seguro é não gerar proposta comercial e encaminhar para validação específica.</span>
+        </div>
+      `;
+    }
+
+    const best = analysis.best.result;
+    const alternatives = analysis.alternatives.map((item, index) => `
+      <div class="solver-option">
+        <strong>Alternativa ${index + 2}</strong>
+        <span>${escapeHtml(describeScenario(input, item.result))}</span>
+      </div>
+    `).join("");
+
+    return `
+      <div class="solver-block">
+        <strong>Análise automática</strong>
+        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis.</span>
+        <div class="solver-option">
+          <strong>Melhor solução sugerida</strong>
+          <span>${escapeHtml(describeScenario(input, best))}</span>
+          <span>Motivo: menor alteração geral com vidro recalculado e carrinhos dentro do limite.</span>
+        </div>
+        ${alternatives}
+        <span class="solver-muted">A sugestão não foi aplicada automaticamente. Ajuste os campos e clique em Calcular custo para gerar um orçamento válido.</span>
+      </div>
+    `;
+  }
+
   function buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha) {
     if (!overweight) return null;
 
@@ -1665,18 +1875,11 @@
       <span class="blocking-summary">A folha pesa ${num(pesoTotalFolha, 1)} kg, sendo ${num(pesoVidroFolha, 1)} kg de vidro. Ela exige ${carrPerFolha} carrinhos, mas a largura útil de ${num(input.larguraFolha, 0)} mm comporta no máximo ${maxCarr}.</span>
       <strong>Possibilidades para análise:</strong>
       <ul>${options.map((option) => `<li>${option}</li>`).join("")}</ul>
+      ${renderSolverAnalysis(input)}
     `;
   }
 
-  function calculateQuote() {
-    const input = collectInput();
-    const validation = validateInput(input);
-    if (!validation.ok) {
-      blockQuote(validation.message);
-      return;
-    }
-    clearError();
-
+  function calculateQuoteMetrics(input, includeBlockingIssue = true) {
     const width = input.width;
     const height = input.height;
     const nFolhas = input.nFolhas;
@@ -1723,13 +1926,6 @@
     const maxCarr = Math.max(1, Math.floor(larguraFolha / 200));
     const carrPerFolha = Math.max(1, Math.ceil(pesoTotalFolha / CONFIG.capacidadeCarrinhoKg));
     const overweight = carrPerFolha > maxCarr;
-    const blockingIssue = buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha);
-
-    if (blockingIssue) {
-      blockQuote(blockingIssue, true);
-      return;
-    }
-
     const totalCarr = carrPerFolha * nFolhas * qty;
     const costCarr = totalCarr * CONFIG.precoCarrinho;
 
@@ -1755,10 +1951,28 @@
       totalCarr,
       maxCarr,
       overweight,
+      blockingIssue: includeBlockingIssue ? buildBlockingIssue(input, overweight, maxCarr, carrPerFolha, pesoTotalFolha, pesoVidroFolha) : null,
       trilhoM,
       snapshotAt: new Date().toISOString(),
       warnings
     };
+  }
+
+  function calculateQuote() {
+    const input = collectInput();
+    const validation = validateInput(input);
+    if (!validation.ok) {
+      blockQuote(validation.message);
+      return;
+    }
+    clearError();
+
+    const result = calculateQuoteMetrics(input);
+
+    if (result.blockingIssue) {
+      blockQuote(result.blockingIssue, true);
+      return;
+    }
 
     renderResults(result, true);
   }
