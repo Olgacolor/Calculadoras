@@ -276,12 +276,13 @@
 
   /* Leaf dimension bar — below the SVG elevation */
   .leaf-dim-bar {
+    min-height: 1px;
+    margin-top: 2px;
     text-align: center;
     font-family: "DM Mono", monospace;
-    font-size: 12px;
-    color: var(--muted);
-    padding-top: 6px;
-    letter-spacing: 0.02em;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.18);
+    letter-spacing: 0.03em;
   }
 
   .card-title {
@@ -1282,6 +1283,7 @@
                 <div class="field">
                   <label>Base normativa</label>
                   <div id="glassNormChip" class="inline-chip">Carregando...</div>
+                  <span id="glassNormHelp" class="helper">A pressão de referência segue a tabela da NBR 10821 conforme UF, cidade e faixa de pavimentos.</span>
                 </div>
               </div>
             </div>
@@ -1295,7 +1297,7 @@
             <div class="grid">
               <div class="field">
                 <label for="espessuraManual">Espessura total do vidro</label>
-                <input id="espessuraManual" type="number" value="12" min="4" max="40" step="1" inputmode="numeric">
+                <input id="espessuraManual" type="text" value="12" inputmode="decimal" pattern="[0-9]*[\\.,]?[0-9]*" enterkeyhint="done" autocomplete="off">
                 <span class="unit">mm</span>
               </div>
               <div class="field">
@@ -1564,7 +1566,10 @@
   }
 
   function normalizeFloat(value, fallback, min, max) {
-    const numeric = Number(value);
+    const normalizedValue = typeof value === "string"
+      ? value.replace(",", ".").trim()
+      : value;
+    const numeric = Number(normalizedValue);
     if (!Number.isFinite(numeric)) return fallback;
     return Math.min(max, Math.max(min, numeric));
   }
@@ -2671,8 +2676,8 @@
     const visPlanos  = planos;
     const trackLineH = (trackZoneH - (visPlanos - 1) * 2) / visPlanos;
 
-    const dimFont   = `font-family="DM Mono, monospace" font-size="8" fill="${dimColor}"`;
-    const labelFont = `font-family="DM Sans, sans-serif" font-size="9.5" font-weight="600" fill="${labelColor}"`;
+    const dimFont   = `font-family="DM Mono, monospace" font-size="7.2" font-weight="400" letter-spacing="0.2" fill="${dimColor}"`;
+    const labelFont = `font-family="DM Sans, sans-serif" font-size="8.4" font-weight="500" letter-spacing="0.35" fill="${labelColor}"`;
     const midX = dX + dW / 2;
     const midY = dY + dH / 2;
     const f = (n) => n.toFixed(1);
@@ -2772,12 +2777,22 @@
     }
 
     // Per-leaf weight label — clipped to panel, never overflows
+    const leafDimLabel = `${num(W / folhas, 0)} × ${num(H, 0)} mm / folha`;
+    const leafChipW = Math.max(88, Math.min(126, leafDimLabel.length * 4.15));
+    const leafChipX = midX - leafChipW / 2;
+    const leafChipY = wY + 18;
+    s += `<rect x="${f(leafChipX)}" y="${f(leafChipY)}" width="${f(leafChipW)}" height="17" rx="5"
+            fill="rgba(8,12,17,0.78)" stroke="rgba(19,162,179,0.22)" stroke-width="0.6"/>`;
+    s += `<text x="${f(midX)}" y="${f(leafChipY + 11.5)}" text-anchor="middle"
+            font-family="DM Sans, sans-serif" font-size="6.5" font-weight="500" letter-spacing="0.15"
+            fill="rgba(206,244,248,0.78)">${leafDimLabel}</text>`;
+
     if (pesoFolha != null) {
       const label = `${Math.round(pesoFolha)} kg`;
       for (let i = 0; i < folhas; i++) {
         const cx = innerX + i * leafW + leafW / 2;
         s += `<text x="${f(cx)}" y="${f(midY + 3)}" text-anchor="middle"
-                font-family="DM Mono, monospace" font-size="6.5" fill="${leafTextFill}"
+                font-family="DM Sans, sans-serif" font-size="5.9" font-weight="500" letter-spacing="0.1" fill="${leafTextFill}"
                 clip-path="url(#${uid}CP${i})">${label}</text>`;
       }
     }
@@ -2875,7 +2890,7 @@
     });
     if (refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML = svg;
     const leafDimBar = document.getElementById("leafDimBar");
-    if (leafDimBar) leafDimBar.textContent = `${num(W / folhas, 0)} × ${num(H, 0)} mm / folha`;
+    if (leafDimBar) leafDimBar.textContent = `Folha: ${num(W / folhas, 0)} x ${num(H, 0)} mm`;
   }
 
   function bindCoatEditor() {
@@ -3007,6 +3022,12 @@
 
     dirtyIds.forEach((element) => {
       element.addEventListener("input", () => {
+        if (element === refs.espessuraManual) {
+          element.value = element.value
+            .replace(/[^\d.,]/g, "")
+            .replace(/,/g, ".")
+            .replace(/(\..*)\./g, "$1");
+        }
         if (element === refs.folhas || element === refs.largura || element === refs.altura) {
           updateLeafWidthChip(false);
           renderDoorPreview();
