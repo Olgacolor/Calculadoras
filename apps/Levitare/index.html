@@ -8,22 +8,25 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b1220;
-    --bg-2: #10192d;
-    --card: #121a2b;
-    --surface: #1a2540;
-    --surface-2: #223156;
-    --line: #213251;
-    --text: #e4eaf4;
-    --muted: #7f8daa;
-    --accent: #5ba8f5;
-    --accent-2: #5cf0c8;
-    --warn: #f5b25b;
-    --bad: #f56f6f;
-    --good: #46d39b;
-    --radius: 14px;
-    --radius-sm: 9px;
-    --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+    --paper: #f4f1ea;
+    --paper-2: #ebe6dc;
+    --ink: #172033;
+    --ink-soft: #475569;
+    --muted: #6f7a8d;
+    --card: #fffdf8;
+    --surface: #f8f6f0;
+    --surface-2: #eef4fb;
+    --line: #d8dfeb;
+    --line-strong: #bfcede;
+    --accent: #1f6fb2;
+    --accent-2: #2aa889;
+    --warn: #b7791f;
+    --bad: #c24141;
+    --good: #14805e;
+    --radius: 22px;
+    --radius-sm: 14px;
+    --shadow: 0 24px 70px rgba(28, 39, 61, 0.12);
+    --shadow-soft: 0 12px 34px rgba(28, 39, 61, 0.08);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -34,14 +37,27 @@
     margin: 0;
     min-height: 100vh;
     background:
-      radial-gradient(circle at top left, rgba(91, 168, 245, 0.14), transparent 30%),
-      radial-gradient(circle at top right, rgba(92, 240, 200, 0.08), transparent 22%),
-      linear-gradient(180deg, #09111d 0%, #0b1220 100%);
-    color: var(--text);
+      linear-gradient(135deg, rgba(31, 111, 178, 0.12), transparent 34%),
+      radial-gradient(circle at 88% 8%, rgba(42, 168, 137, 0.16), transparent 26%),
+      linear-gradient(180deg, var(--paper) 0%, #f9f7f1 46%, #eef3f7 100%);
+    color: var(--ink);
     font-family: "DM Sans", sans-serif;
     line-height: 1.5;
     padding-bottom: 64px;
-    color-scheme: dark;
+    color-scheme: light;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.42;
+    background-image:
+      linear-gradient(rgba(23, 32, 51, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23, 32, 51, 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(180deg, black, transparent 70%);
   }
 
   header {
@@ -49,8 +65,8 @@
     top: 0;
     z-index: 20;
     backdrop-filter: blur(14px);
-    background: rgba(9, 17, 29, 0.84);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(244, 241, 234, 0.88);
+    border-bottom: 1px solid rgba(151, 163, 181, 0.22);
   }
 
   .header-inner {
@@ -76,7 +92,7 @@
 
   .brand-copy strong {
     display: block;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.2px;
   }
@@ -90,8 +106,8 @@
   }
 
   .header-badge {
-    border: 1px solid rgba(91, 168, 245, 0.28);
-    background: rgba(91, 168, 245, 0.1);
+    border: 1px solid rgba(31, 111, 178, 0.24);
+    background: rgba(31, 111, 178, 0.08);
     color: var(--accent);
     border-radius: 999px;
     padding: 8px 12px;
@@ -109,32 +125,38 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
-    margin-bottom: 18px;
+    margin-bottom: 0;
   }
 
   .hero,
   .quick-panel,
   .card {
-    background: rgba(18, 26, 43, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: color-mix(in srgb, var(--card) 94%, white);
+    border: 1px solid rgba(151, 163, 181, 0.28);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
   }
 
   .hero {
-    padding: 28px;
+    padding: 24px;
     position: relative;
     overflow: hidden;
+    background:
+      linear-gradient(145deg, rgba(255, 253, 248, 0.96), rgba(238, 244, 251, 0.94)),
+      radial-gradient(circle at 90% 0%, rgba(31, 111, 178, 0.2), transparent 32%);
   }
 
   .hero::after {
     content: "";
     position: absolute;
-    inset: auto -40px -60px auto;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(91, 168, 245, 0.22), transparent 70%);
+    inset: auto 20px 20px auto;
+    width: 88px;
+    height: 88px;
+    border: 1px solid rgba(31, 111, 178, 0.18);
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(31, 111, 178, 0.14), rgba(42, 168, 137, 0.12));
+    transform: rotate(8deg);
   }
 
   .eyebrow,
@@ -144,20 +166,21 @@
     font-weight: 700;
     letter-spacing: 1.4px;
     text-transform: uppercase;
-    color: var(--muted);
+    color: color-mix(in srgb, var(--accent) 74%, var(--ink-soft));
   }
 
   .hero h1 {
     margin: 10px 0 12px;
-    font-size: clamp(28px, 5vw, 42px);
+    font-size: clamp(25px, 4vw, 36px);
     line-height: 1.05;
     letter-spacing: -1.2px;
+    max-width: 680px;
   }
 
   .hero p {
-    max-width: 640px;
+    max-width: 660px;
     margin: 0;
-    color: #c2cedf;
+    color: var(--ink-soft);
     font-size: 15px;
   }
 
@@ -169,12 +192,13 @@
   }
 
   .hero-point {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(31, 111, 178, 0.16);
+    background: rgba(31, 111, 178, 0.06);
     border-radius: 999px;
     padding: 8px 12px;
     font-size: 12px;
-    color: #d6e0ee;
+    color: var(--accent);
+    font-weight: 700;
   }
 
   .quick-panel {
@@ -206,18 +230,28 @@
 
   .layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 20px;
     align-items: start;
   }
 
   .stack {
     display: grid;
-    gap: 16px;
+    gap: 18px;
   }
 
   .card {
-    padding: 22px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
   }
 
   .card-title {
@@ -225,14 +259,27 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 18px;
+    color: var(--ink);
   }
 
   .card-title::before {
     content: "";
-    width: 4px;
-    height: 14px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    background:
+      linear-gradient(135deg, rgba(31, 111, 178, 0.16), rgba(42, 168, 137, 0.12));
+    border: 1px solid rgba(31, 111, 178, 0.18);
+  }
+
+  .flow-card .card-title::before {
+    content: attr(data-step);
+    display: inline-grid;
+    place-items: center;
+    color: var(--accent);
+    font-family: "DM Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
   }
 
   .grid {
@@ -251,7 +298,7 @@
   .field label {
     font-size: 13px;
     font-weight: 600;
-    color: #c8d3e4;
+    color: var(--ink-soft);
   }
 
   .field input,
@@ -262,16 +309,16 @@
     padding: 0 14px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    background: linear-gradient(180deg, rgba(32, 45, 78, 0.92), rgba(28, 40, 68, 0.92));
-    color: var(--text);
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    color: var(--ink);
     font-family: "DM Mono", monospace;
     font-size: 16px;
     transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
 
   .field select option {
-    color: #0f172a;
-    background: #f8fafc;
+    color: var(--ink);
+    background: #ffffff;
   }
 
   .field textarea {
@@ -292,8 +339,8 @@
   .field textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(91, 168, 245, 0.14);
-    background: linear-gradient(180deg, rgba(35, 51, 89, 0.96), rgba(30, 44, 74, 0.96));
+    box-shadow: 0 0 0 4px rgba(31, 111, 178, 0.13);
+    background: #ffffff;
   }
 
   .hint,
@@ -304,7 +351,7 @@
   }
 
   .helper strong {
-    color: #d9e2f1;
+    color: var(--ink);
     font-weight: 600;
   }
 
@@ -321,7 +368,7 @@
   .color-pill {
     border: 1px solid var(--line);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: #ffffff;
     color: var(--muted);
     cursor: pointer;
     transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.18s ease;
@@ -345,16 +392,17 @@
   .plan-pill:hover,
   .color-pill:hover {
     transform: translateY(-1px);
-    border-color: rgba(91, 168, 245, 0.6);
-    color: #dce6f5;
+    border-color: rgba(31, 111, 178, 0.48);
+    color: var(--accent);
+    box-shadow: var(--shadow-soft);
   }
 
   .seg-btn.active,
   .plan-pill.active,
   .color-pill.active {
     border-color: var(--accent);
-    background: rgba(91, 168, 245, 0.12);
-    color: var(--text);
+    background: rgba(31, 111, 178, 0.09);
+    color: var(--accent);
   }
 
   .color-pill small {
@@ -366,9 +414,10 @@
   }
 
   .subcard {
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    background: linear-gradient(180deg, rgba(25, 37, 64, 0.86), rgba(20, 30, 52, 0.86));
-    border-radius: 14px;
+    border: 1px solid rgba(151, 163, 181, 0.28);
+    background:
+      linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(245, 247, 250, 0.92));
+    border-radius: 18px;
     padding: 16px;
     display: grid;
     gap: 14px;
@@ -380,7 +429,7 @@
 
   .subcard-note {
     font-size: 13px;
-    color: #c2cedf;
+    color: var(--ink-soft);
   }
 
   .glass-chip,
@@ -392,13 +441,14 @@
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(31, 111, 178, 0.18);
+    background: rgba(31, 111, 178, 0.07);
+    color: var(--accent);
   }
 
   .glass-chip.ok { color: var(--accent-2); }
   .glass-chip.warn { color: var(--warn); }
-  .glass-chip.bad { color: #ffb0b0; }
+  .glass-chip.bad { color: var(--bad); }
 
   .banner {
     display: none;
@@ -463,19 +513,19 @@
     opacity: 0.86;
   }
   .banner.error {
-    border: 1px solid rgba(245, 111, 111, 0.35);
-    background: rgba(245, 111, 111, 0.12);
-    color: #ffd1d1;
+    border: 1px solid rgba(194, 65, 65, 0.26);
+    background: #fff1f1;
+    color: #8f2424;
   }
   .banner.warn {
-    border: 1px solid rgba(245, 178, 91, 0.35);
-    background: rgba(245, 178, 91, 0.12);
-    color: #ffe0b8;
+    border: 1px solid rgba(183, 121, 31, 0.28);
+    background: #fff8e7;
+    color: #7a4b0b;
   }
   .banner.info {
-    border: 1px solid rgba(91, 168, 245, 0.28);
-    background: rgba(91, 168, 245, 0.1);
-    color: #d7e8ff;
+    border: 1px solid rgba(31, 111, 178, 0.2);
+    background: #edf6ff;
+    color: #185583;
   }
 
   .actions {
@@ -499,16 +549,16 @@
 
   .btn {
     padding: 0 20px;
-    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    background: linear-gradient(135deg, var(--accent), #2a82cf);
     color: white;
-    box-shadow: 0 18px 35px rgba(59, 130, 246, 0.22);
+    box-shadow: 0 18px 35px rgba(31, 111, 178, 0.22);
   }
 
   .ghost-btn {
     padding: 0 16px;
-    background: rgba(255, 255, 255, 0.04);
-    color: #d6e2f2;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
   }
 
   .btn:hover,
@@ -533,25 +583,26 @@
   }
 
   .hero-card {
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
-    padding: 18px;
-    background: linear-gradient(180deg, rgba(20, 30, 52, 0.92), rgba(16, 24, 42, 0.92));
+    border: 1px solid rgba(151, 163, 181, 0.28);
+    border-radius: 20px;
+    padding: 20px;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    box-shadow: var(--shadow-soft);
   }
 
   .hero-card.primary {
-    background: linear-gradient(135deg, rgba(91, 168, 245, 0.18), rgba(33, 49, 86, 0.96));
-    border-color: rgba(91, 168, 245, 0.3);
+    background: linear-gradient(135deg, #eff7ff, #ffffff);
+    border-color: rgba(31, 111, 178, 0.22);
   }
 
   .hero-card.secondary {
-    background: linear-gradient(135deg, rgba(92, 240, 200, 0.12), rgba(24, 43, 51, 0.96));
-    border-color: rgba(92, 240, 200, 0.2);
+    background: linear-gradient(135deg, #edfdf7, #ffffff);
+    border-color: rgba(42, 168, 137, 0.2);
   }
 
   .hero-card.alert {
-    background: linear-gradient(135deg, rgba(245, 178, 91, 0.12), rgba(46, 36, 23, 0.96));
-    border-color: rgba(245, 178, 91, 0.22);
+    background: linear-gradient(135deg, #fff8e8, #ffffff);
+    border-color: rgba(183, 121, 31, 0.2);
   }
 
   .hero-label {
@@ -559,7 +610,7 @@
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--ink-soft);
   }
 
   .hero-value {
@@ -567,12 +618,13 @@
     font-family: "DM Mono", monospace;
     font-size: clamp(26px, 4vw, 34px);
     letter-spacing: -0.8px;
+    color: var(--ink);
   }
 
   .hero-sub {
     margin-top: 8px;
     font-size: 13px;
-    color: #c9d4e4;
+    color: var(--ink-soft);
   }
 
   .breakdown-list,
@@ -592,7 +644,7 @@
   .breakdown-name {
     font-size: 14px;
     font-weight: 600;
-    color: #dce5f4;
+    color: var(--ink);
   }
 
   .breakdown-bar-wrap {
@@ -600,7 +652,7 @@
     height: 8px;
     border-radius: 999px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.06);
+    background: #e7edf5;
   }
 
   .breakdown-bar {
@@ -624,9 +676,9 @@
   }
 
   .detail-item {
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(151, 163, 181, 0.24);
+    border-radius: 14px;
+    background: #ffffff;
     padding: 14px;
   }
 
@@ -642,7 +694,7 @@
   .detail-item strong {
     font-family: "DM Mono", monospace;
     font-size: 14px;
-    color: var(--text);
+    color: var(--ink);
   }
 
   .detail-item strong.good { color: var(--good); }
@@ -653,10 +705,10 @@
   }
 
   .obs-item {
-    border-left: 3px solid rgba(91, 168, 245, 0.7);
-    padding-left: 12px;
+    border-left: 3px solid rgba(31, 111, 178, 0.7);
+    padding: 8px 0 8px 12px;
     font-size: 13px;
-    color: #c8d3e4;
+    color: var(--ink-soft);
   }
 
   .sidebar {
@@ -666,6 +718,25 @@
     gap: 16px;
   }
 
+  .sidebar .hero {
+    padding: 22px;
+  }
+
+  .sidebar .hero h1 {
+    font-size: clamp(22px, 3vw, 28px);
+    letter-spacing: -0.7px;
+  }
+
+  .sidebar .hero p {
+    font-size: 14px;
+  }
+
+  .sidebar .hero::after {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+  }
+
   .sidebar-card {
     padding: 20px;
   }
@@ -673,7 +744,7 @@
   .sidebar-card p {
     margin: 10px 0 0;
     font-size: 13px;
-    color: #c0cbdc;
+    color: var(--ink-soft);
   }
 
   .sidebar-list {
@@ -686,7 +757,7 @@
 
   .sidebar-list li {
     font-size: 13px;
-    color: #d7e0ee;
+    color: var(--ink-soft);
     padding-left: 18px;
     position: relative;
   }
@@ -704,10 +775,10 @@
 
   .report-btn {
     min-height: 48px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(31, 111, 178, 0.18);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    color: #dbe6f5;
+    background: rgba(31, 111, 178, 0.08);
+    color: var(--accent);
     font-family: "DM Sans", sans-serif;
     font-size: 14px;
     font-weight: 700;
@@ -718,7 +789,7 @@
     position: fixed;
     inset: 0;
     display: none;
-    background: rgba(6, 10, 18, 0.8);
+    background: rgba(23, 32, 51, 0.52);
     backdrop-filter: blur(12px);
     z-index: 40;
     padding: 24px;
@@ -745,7 +816,7 @@
     justify-content: space-between;
     gap: 12px;
     padding: 16px 18px;
-    background: #0f172a;
+    background: #172033;
     color: white;
     position: sticky;
     top: 0;
@@ -786,6 +857,11 @@
 
     .sidebar {
       position: static;
+      order: -1;
+    }
+
+    .sidebar .intro {
+      display: none;
     }
   }
 
@@ -806,6 +882,28 @@
     .quick-panel,
     .card {
       padding: 18px;
+    }
+
+    .actions,
+    .segmented,
+    .plan-pills,
+    .color-group {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .btn,
+    .ghost-btn,
+    .report-btn,
+    .seg-btn,
+    .plan-pill,
+    .color-pill {
+      width: 100%;
+    }
+
+    .breakdown-item {
+      grid-template-columns: 1fr;
+      gap: 8px;
     }
   }
 
@@ -841,23 +939,9 @@
 </header>
 
 <main>
-  <section class="intro">
-    <div class="hero">
-      <div class="eyebrow">Sistema Magnético</div>
-      <h1>Orçamento orientativo para portas Levitare.</h1>
-      <p>Preencha os dados da obra, dimensões, configuração da porta e acabamento para calcular materiais com apoio técnico na escolha do vidro.</p>
-      <div class="hero-points">
-        <div class="hero-point">Dimensões da porta</div>
-        <div class="hero-point">Planos permitidos</div>
-        <div class="hero-point">Vidro assistido</div>
-        <div class="hero-point">Relatório PDF</div>
-      </div>
-    </div>
-  </section>
-
   <section class="layout">
     <div class="stack">
-      <div class="card">
+      <div class="card flow-card" data-step="01">
         <div class="card-title">Dados da obra</div>
         <div class="grid">
           <div class="field span-2">
@@ -871,7 +955,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card flow-card" data-step="02">
         <div class="card-title">Configuração da Porta</div>
         <div class="grid">
           <div class="field">
@@ -910,7 +994,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card flow-card" data-step="03">
         <div class="card-title">Vidro</div>
         <div class="grid">
           <div class="field span-2">
@@ -1006,12 +1090,12 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card flow-card" data-step="04">
         <div class="card-title">Acabamento</div>
         <div id="colorGroup" class="color-group"></div>
       </div>
 
-      <div class="card">
+      <div class="card flow-card action-card" data-step="05">
         <div class="card-title">Ação</div>
         <div class="stack">
           <div id="errorBanner" class="banner error">
@@ -1075,6 +1159,20 @@
     </div>
 
     <aside class="sidebar">
+      <section class="intro">
+        <div class="hero">
+          <div class="eyebrow">Sistema Magnético</div>
+          <h1>Orçamento orientativo para portas Levitare.</h1>
+          <p>Preencha os dados da obra, dimensões, configuração da porta e acabamento para calcular materiais com apoio técnico na escolha do vidro.</p>
+          <div class="hero-points">
+            <div class="hero-point">Dimensões</div>
+            <div class="hero-point">Planos</div>
+            <div class="hero-point">Vidro assistido</div>
+            <div class="hero-point">PDF</div>
+          </div>
+        </div>
+      </section>
+
       <div class="card sidebar-card">
         <div class="card-title">Critérios</div>
         <ul class="sidebar-list">
