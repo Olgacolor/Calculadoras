@@ -1981,6 +1981,35 @@
     return architecturePenalty + adjustmentPenalty - technicalBonus;
   }
 
+  function getScenarioFamily(original, result) {
+    const input = result.input;
+    const sameLeaves = input.nFolhas === original.nFolhas;
+    const samePlans = input.nPlanos === original.nPlanos;
+    const sameHeight = input.height === original.height;
+
+    if (sameLeaves && samePlans && !sameHeight) return "altura";
+    if (sameHeight && sameLeaves && !samePlans) return "planos";
+    if (sameHeight && !sameLeaves) return "folhas-planos";
+    if (!sameHeight && sameLeaves && !samePlans) return "altura-planos";
+    if (!sameHeight && !sameLeaves) return "altura-folhas-planos";
+    return "mesmo-desenho";
+  }
+
+  function pickDiverseAlternatives(original, sortedItems, limit = 3) {
+    const picked = [];
+    const usedFamilies = new Set();
+
+    sortedItems.forEach((item) => {
+      if (picked.length >= limit) return;
+      const family = getScenarioFamily(original, item.result);
+      if (usedFamilies.has(family)) return;
+      usedFamilies.add(family);
+      picked.push(item);
+    });
+
+    return picked;
+  }
+
   function analyzeExecutableAlternatives(original) {
     const executable = [];
     const rejected = [];
@@ -2059,7 +2088,7 @@
 
     return {
       best: executable[0] || null,
-      alternatives: executable.slice(1, 4),
+      alternatives: pickDiverseAlternatives(original, executable.slice(1), 3),
       rejected: rejected.slice(0, 4),
       tested: seen.size,
       executableCount: executable.length

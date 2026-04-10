@@ -230,6 +230,12 @@ if (!bestMatch) {
 if (/\b(5|6|7|8|9|10|11|12) planos\b/.test(bestMatch[1])) {
   throw new Error(`Solver priorizou aumento de planos em vez de menor impacto visual: ${bestMatch[1]}`);
 }
+const solverOptions = [...solverHtml.matchAll(/<strong>(?:Melhor solução sugerida|Alternativa \d+)<\/strong>\s*<span>([\s\S]*?)<\/span>/g)]
+  .map((match) => match[1]);
+const heightOnlyOptions = solverOptions.filter((option) => /altura \d/.test(option) && !/folhas|planos/.test(option));
+if (heightOnlyOptions.length > 1) {
+  throw new Error(`Solver repetiu alternativas equivalentes de redução de altura: ${heightOnlyOptions.join(" | ")}`);
+}
 
 const solverButton = document.querySelectorAll(".solver-apply")[1] || document.querySelectorAll(".solver-apply")[0];
 if (!solverButton) {
