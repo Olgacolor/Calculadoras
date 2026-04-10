@@ -219,6 +219,18 @@ if (!elements.get("errorBanner").classList.contains("visible")) {
   throw new Error("Cenário bloqueado não exibiu alerta crítico.");
 }
 
+const solverHtml = elements.get("errorText").innerHTML;
+if (!solverHtml.includes("prioridade arquitetônica")) {
+  throw new Error("Solver não informa a prioridade arquitetônica no alerta.");
+}
+const bestMatch = solverHtml.match(/Melhor solução sugerida[\s\S]*?<span>([\s\S]*?)<\/span>/);
+if (!bestMatch) {
+  throw new Error("Solver não renderizou a melhor solução sugerida.");
+}
+if (/\b(5|6|7|8|9|10|11|12) planos\b/.test(bestMatch[1])) {
+  throw new Error(`Solver priorizou aumento de planos em vez de menor impacto visual: ${bestMatch[1]}`);
+}
+
 const solverButton = document.querySelectorAll(".solver-apply")[1] || document.querySelectorAll(".solver-apply")[0];
 if (!solverButton) {
   throw new Error("Cenário bloqueado não gerou botão para aplicar alternativa.");

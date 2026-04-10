@@ -1957,15 +1957,28 @@
 
   function scoreScenario(original, result) {
     const input = result.input;
-    const heightPenalty = Math.abs(input.height - original.height) / 50 * 10;
-    const leafPenalty = Math.abs(input.nFolhas - original.nFolhas) * 22;
-    const planPenalty = Math.abs(input.nPlanos - original.nPlanos) * 6;
-    const thicknessPenalty = Math.max(0, input.thickness.thickness - original.thickness.thickness) * 7;
-    const lowerThicknessBonus = Math.max(0, original.thickness.thickness - input.thickness.thickness) * 3;
-    const safetyBonus = Math.max(0, result.maxCarr - result.carrPerFolha) * 5;
-    const costPenalty = Math.max(0, result.total / 1000);
+    const heightSteps = Math.abs(input.height - original.height) / 50;
+    const planIncrease = Math.max(0, input.nPlanos - original.nPlanos);
+    const planDecrease = Math.max(0, original.nPlanos - input.nPlanos);
+    const leafChange = Math.abs(input.nFolhas - original.nFolhas);
+    const thicknessIncrease = Math.max(0, input.thickness.thickness - original.thickness.thickness);
+    const thicknessReduction = Math.max(0, original.thickness.thickness - input.thickness.thickness);
+    const costDelta = Math.max(0, result.total - calculateQuoteMetrics(original, false).total) / 1000;
+    const safetyMargin = Math.max(0, result.maxCarr - result.carrPerFolha);
 
-    return heightPenalty + leafPenalty + planPenalty + thicknessPenalty + costPenalty - lowerThicknessBonus - safetyBonus;
+    const architecturePenalty =
+      planIncrease * 180 +
+      leafChange * 95 +
+      planDecrease * 55;
+    const adjustmentPenalty =
+      heightSteps * 7 +
+      thicknessIncrease * 8 +
+      costDelta;
+    const technicalBonus =
+      thicknessReduction * 1.5 +
+      safetyMargin * 3;
+
+    return architecturePenalty + adjustmentPenalty - technicalBonus;
   }
 
   function analyzeExecutableAlternatives(original) {
@@ -2031,7 +2044,18 @@
       });
     }
 
-    executable.sort((left, right) => left.score - right.score);
+    executable.sort((left, right) => {
+      if (left.score !== right.score) return left.score - right.score;
+      const leftInput = left.result.input;
+      const rightInput = right.result.input;
+      const leftPlanIncrease = Math.max(0, leftInput.nPlanos - original.nPlanos);
+      const rightPlanIncrease = Math.max(0, rightInput.nPlanos - original.nPlanos);
+      if (leftPlanIncrease !== rightPlanIncrease) return leftPlanIncrease - rightPlanIncrease;
+      const leftLeafChange = Math.abs(leftInput.nFolhas - original.nFolhas);
+      const rightLeafChange = Math.abs(rightInput.nFolhas - original.nFolhas);
+      if (leftLeafChange !== rightLeafChange) return leftLeafChange - rightLeafChange;
+      return Math.abs(leftInput.height - original.height) - Math.abs(rightInput.height - original.height);
+    });
 
     return {
       best: executable[0] || null,
@@ -2074,11 +2098,11 @@
     return `
       <div class="solver-block">
         <strong>Análise automática</strong>
-        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis.</span>
+        <span class="solver-muted">Foram testadas ${analysis.tested} combinações internas. ${analysis.executableCount} ficaram executáveis. A prioridade arquitetônica preserva planos e folhas antes de otimizar espessura ou custo.</span>
         <div class="solver-option">
           <strong>Melhor solução sugerida</strong>
           <span>${escapeHtml(describeScenario(input, best))}</span>
-          <span>Motivo: menor alteração geral com vidro recalculado e carrinhos dentro do limite.</span>
+          <span>Motivo: menor impacto visual, preservando o desenho da porta sempre que possível, com vidro recalculado e carrinhos dentro do limite.</span>
           <button type="button" class="solver-apply" data-solver-index="0">Aplicar e recalcular</button>
         </div>
         ${alternatives}
