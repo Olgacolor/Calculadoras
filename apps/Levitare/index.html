@@ -1533,7 +1533,7 @@
 
     if (normative && normative.pe) {
       refs.glassNormChip.textContent = `${normative.cidade}/${normative.uf} • ${normative.isopleta} m/s • Região ${normative.region} • Pe ${normative.pe} Pa`;
-      refs.glassNormHelp.textContent = `Tabela 1 da NBR 10821 para até ${normative.floors} pavimentos. Ps de referência ${normative.ps} Pa e Pa ${normative.pa} Pa.`;
+      refs.glassNormHelp.textContent = `Tabela 1 da NBR 10821 para até ${normative.pavimentos} pavimentos. Ps de referência ${normative.ps} Pa e Pa ${normative.pa} Pa.`;
     } else {
       refs.glassNormChip.textContent = "Sem cidade ou tabela carregada";
       refs.glassNormHelp.textContent = "Selecione uma UF, uma cidade e uma faixa de pavimentos para calcular a pressão de ensaio.";
@@ -2086,7 +2086,7 @@
     const notes = [];
     notes.push(`Configuração selecionada: ${result.input.nFolhas} folhas com ${result.input.nPlanos} planos.`);
     notes.push(`Modo do vidro: ${result.input.glassMode === "auto" ? "espessura sugerida automaticamente" : "espessura definida manualmente"}.`);
-    notes.push(`Enquadramento da norma: ${result.input.normative.cidade}/${result.input.normative.uf}, isopleta ${result.input.normative.isopleta} m/s, região ${result.input.normative.region}, até ${result.input.normative.floors} pavimentos.`);
+    notes.push(`Enquadramento da norma: ${result.input.normative.cidade}/${result.input.normative.uf}, isopleta ${result.input.normative.isopleta} m/s, região ${result.input.normative.region}, até ${result.input.normative.pavimentos} pavimentos.`);
     if (result.input.thickness.suggestion) {
       notes.push(`Referência técnica: ${result.input.thickness.suggestion.chosenText}.`);
       notes.push(`Base técnica: ${num(result.input.thickness.suggestion.pressure, 0)} Pa e chapas ${result.input.thickness.suggestion.heatLabel.toLowerCase()}.`);
@@ -2177,7 +2177,7 @@
 
       <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin:14px 0 8px">Observações</div>
       <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.4">
-        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.floors} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável.
+        Referência técnica do vidro: ${escapeHtml(result.input.thickness.label)}. Cidade base: ${escapeHtml(result.input.normative.cidade)}/${result.input.normative.uf}. Faixa considerada: até ${result.input.normative.pavimentos} pavimentos. Isopleta ${result.input.normative.isopleta} m/s. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão; valide os perfis estruturalmente quando aplicável.
       </div>
     `;
   }

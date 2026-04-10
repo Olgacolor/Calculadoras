@@ -8,6 +8,13 @@ const rootDir = path.resolve(__dirname, "..");
 const appPath = path.join(rootDir, "apps", "Levitare", "index.html");
 const html = fs.readFileSync(appPath, "utf8");
 
+function assertNoBrokenText(label, value) {
+  const text = String(value || "");
+  if (/\bundefined\b|\bnull\b|\[object Object\]/i.test(text)) {
+    throw new Error(`${label} gerou texto quebrado: ${text}`);
+  }
+}
+
 class ClassList {
   constructor() {
     this.items = new Set();
@@ -198,6 +205,9 @@ if (!resultsVisible && !errorVisible) {
   throw new Error("Clique em Calcular custo não exibiu resultado nem erro.");
 }
 
+assertNoBrokenText("Ajuda da norma", elements.get("glassNormHelp").textContent);
+assertNoBrokenText("Observacoes do resultado", elements.get("observations").innerHTML);
+
 elements.get("largura").value = "5000";
 elements.get("altura").value = "3200";
 elements.get("folhas").value = "4";
@@ -222,6 +232,12 @@ if (elements.get("folhas").value === "4" && elements.get("altura").value === "32
 
 if (!elements.get("results").classList.contains("visible")) {
   throw new Error(`Aplicar alternativa do solver não recalculou o resultado. Erro visível: ${elements.get("errorBanner").classList.contains("visible")} Texto: ${elements.get("errorText").textContent || elements.get("errorText").innerHTML}`);
+}
+
+assertNoBrokenText("Resultado apos alternativa", elements.get("observations").innerHTML);
+
+if (/normative\.floors|\.floors\}/.test(html)) {
+  throw new Error("Levitare ainda referencia normative.floors; use normative.pavimentos.");
 }
 
 console.log("Runtime Levitare OK: carregamento, cálculo e aplicação de alternativa executados.");
