@@ -1118,9 +1118,23 @@
       grid-template-columns: 1fr;
       grid-template-areas:
         "fields"
-        "preview"
         "measure"
-        "finish";
+        "finish"
+        "preview";
+      row-gap: 0;
+    }
+
+    .config-layout > .measure-field,
+    .config-layout > .finish-field {
+      border-top: 1px solid var(--line-strong);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    .config-layout > .door-preview-wrap {
+      border-top: 2px solid var(--line-strong);
+      margin-top: 20px;
+      padding-top: 16px;
     }
   }
 
@@ -1191,14 +1205,12 @@
               <label>Planos / trilhos</label>
               <div id="planosPills" class="plan-pills"></div>
               <input id="planos" type="hidden" value="2">
-              <span id="planosHint" class="helper"></span>
             </div>
           </div>
 
           <div class="field measure-field">
             <label>Medida da folha</label>
             <div id="larguraFolhaChip" class="inline-chip" style="width:fit-content">Aguardando dimensões</div>
-            <span class="helper">Clique nas cotas da elevação para editar as dimensões.</span>
           </div>
 
           <div class="field finish-field">
@@ -1438,7 +1450,6 @@
     folhas: document.getElementById("folhas"),
     planos: document.getElementById("planos"),
     planosPills: document.getElementById("planosPills"),
-    planosHint: document.getElementById("planosHint"),
     quantidade: document.getElementById("quantidade"),
     larguraFolhaChip: document.getElementById("larguraFolhaChip"),
     glassFamily: document.getElementById("glassFamily"),
@@ -1592,9 +1603,6 @@
     }
 
     refs.planos.value = state.selectedPlan;
-    refs.planosHint.textContent = options.length === 1
-      ? ""
-      : "Escolha o arranjo de trilhos para esta configuração.";
 
     refs.planosPills.innerHTML = options.map((option) => {
       const folhasPorPlano = Math.ceil(folhas / option);
