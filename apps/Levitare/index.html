@@ -446,6 +446,18 @@
     font-size: 12px;
     opacity: 0.92;
   }
+  .solver-apply {
+    margin-top: 8px;
+    border: 1px solid rgba(92, 240, 200, 0.42);
+    background: rgba(92, 240, 200, 0.13);
+    color: #b7fff0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
   .solver-muted {
     font-size: 12px;
     opacity: 0.86;
@@ -1126,6 +1138,7 @@
     selectedPlan: 2,
     lastGlassSuggestion: null,
     lastResult: null,
+    solverOptions: [],
     dirty: false
   };
 
@@ -1803,6 +1816,8 @@
 
   function renderSolverAnalysis(input) {
     const analysis = analyzeExecutableAlternatives(input);
+    state.solverOptions = [];
+
     if (!analysis.best) {
       const rejected = analysis.rejected.length
         ? `<ul>${analysis.rejected.map((item) => `<li>${escapeHtml(item.detail)}</li>`).join("")}</ul>`
@@ -1817,11 +1832,14 @@
       `;
     }
 
+    const options = [analysis.best, ...analysis.alternatives];
+    state.solverOptions = options.map((item) => item.result.input);
     const best = analysis.best.result;
     const alternatives = analysis.alternatives.map((item, index) => `
       <div class="solver-option">
         <strong>Alternativa ${index + 2}</strong>
         <span>${escapeHtml(describeScenario(input, item.result))}</span>
+        <button type="button" class="solver-apply" data-solver-index="${index + 1}">Aplicar e recalcular</button>
       </div>
     `).join("");
 
@@ -1833,9 +1851,10 @@
           <strong>Melhor solução sugerida</strong>
           <span>${escapeHtml(describeScenario(input, best))}</span>
           <span>Motivo: menor alteração geral com vidro recalculado e carrinhos dentro do limite.</span>
+          <button type="button" class="solver-apply" data-solver-index="0">Aplicar e recalcular</button>
         </div>
         ${alternatives}
-        <span class="solver-muted">A sugestão não foi aplicada automaticamente. Ajuste os campos e clique em Calcular custo para gerar um orçamento válido.</span>
+        <span class="solver-muted">A sugestão só altera os campos depois do clique. O custo será recalculado em seguida.</span>
       </div>
     `;
   }
@@ -1976,6 +1995,25 @@
     }
 
     renderResults(result, true);
+  }
+
+  function applySolverOption(index) {
+    const option = state.solverOptions[index];
+    if (!option) return;
+
+    refs.altura.value = option.height;
+    refs.folhas.value = option.nFolhas;
+    if (option.thickness && option.thickness.thickness) {
+      refs.espessuraManual.value = option.thickness.thickness;
+    }
+    state.selectedPlan = option.nPlanos;
+    refs.planos.value = option.nPlanos;
+
+    renderPlanOptions(true);
+    updateLeafWidthChip(true);
+    setGlassMode("auto", false);
+    updateGlassUI();
+    calculateQuote();
   }
 
   function renderResults(result, scrollIntoView) {
@@ -2243,6 +2281,12 @@
     refs.printButton.addEventListener("click", printReport);
     refs.reportOverlay.addEventListener("click", (event) => {
       if (event.target === refs.reportOverlay) closeReport();
+    });
+
+    refs.errorBanner.addEventListener("click", (event) => {
+      const button = event.target.closest && event.target.closest(".solver-apply");
+      if (!button) return;
+      applySolverOption(Number(button.dataset.solverIndex));
     });
   }
 

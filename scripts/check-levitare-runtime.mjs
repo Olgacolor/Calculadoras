@@ -106,6 +106,12 @@ class Element {
     return null;
   }
 
+  closest(selector) {
+    if (!selector.startsWith(".")) return null;
+    const className = selector.slice(1);
+    return this.classList.contains(className) ? this : null;
+  }
+
   scrollIntoView() {}
 }
 
@@ -192,4 +198,30 @@ if (!resultsVisible && !errorVisible) {
   throw new Error("Clique em Calcular custo não exibiu resultado nem erro.");
 }
 
-console.log("Runtime Levitare OK: carregamento e clique de cálculo executados.");
+elements.get("largura").value = "5000";
+elements.get("altura").value = "3200";
+elements.get("folhas").value = "4";
+elements.get("espessuraManual").value = "19";
+document.querySelectorAll(".seg-btn").find((button) => button.dataset.mode === "manual").click();
+calcButton.click();
+
+if (!elements.get("errorBanner").classList.contains("visible")) {
+  throw new Error("Cenário bloqueado não exibiu alerta crítico.");
+}
+
+const solverButton = document.querySelectorAll(".solver-apply")[1] || document.querySelectorAll(".solver-apply")[0];
+if (!solverButton) {
+  throw new Error("Cenário bloqueado não gerou botão para aplicar alternativa.");
+}
+
+elements.get("errorBanner").dispatchEvent({ type: "click", target: solverButton });
+
+if (elements.get("folhas").value === "4" && elements.get("altura").value === "3200") {
+  throw new Error(`Aplicar alternativa não alterou campos. Botão: ${JSON.stringify(solverButton.dataset)} Classes: ${[...solverButton.classList.items].join(",")}`);
+}
+
+if (!elements.get("results").classList.contains("visible")) {
+  throw new Error(`Aplicar alternativa do solver não recalculou o resultado. Erro visível: ${elements.get("errorBanner").classList.contains("visible")} Texto: ${elements.get("errorText").textContent || elements.get("errorText").innerHTML}`);
+}
+
+console.log("Runtime Levitare OK: carregamento, cálculo e aplicação de alternativa executados.");
