@@ -70,15 +70,6 @@
     button.textContent = isMobileSharePreferred() ? "Compartilhar PDF" : "Imprimir / PDF";
   }
 
-  function pdfEscape(text) {
-    return String(text || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/\(/g, "\\(")
-      .replace(/\)/g, "\\)")
-      .replace(/\r/g, "")
-      .replace(/\n/g, " ");
-  }
-
   function latin1Bytes(text) {
     const bytes = [];
     const source = String(text || "");
@@ -87,6 +78,16 @@
       bytes.push(code <= 255 ? code : 63);
     }
     return bytes;
+  }
+
+  function pdfUtf16Hex(text) {
+    let hex = "FEFF";
+    const source = String(text || "").replace(/\r/g, "").replace(/\n/g, " ");
+    for (let index = 0; index < source.length; index += 1) {
+      const code = source.charCodeAt(index);
+      hex += code.toString(16).padStart(4, "0").toUpperCase();
+    }
+    return `<${hex}>`;
   }
 
   function buildPdfBlob(snapshot) {
@@ -133,7 +134,7 @@
     lines.forEach(function (line) {
       streamLines.push(`/F1 ${line.size} Tf`);
       streamLines.push(`1 0 0 1 ${line.x} ${line.y} Tm`);
-      streamLines.push(`(${pdfEscape(line.text)}) Tj`);
+      streamLines.push(`${pdfUtf16Hex(line.text)} Tj`);
     });
     streamLines.push("ET");
 
@@ -515,7 +516,6 @@
         if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
           await navigator.share({
             title: shareTitle,
-            text: "Memorial orientativo em PDF.",
             files: [pdfFile]
           });
           return;
