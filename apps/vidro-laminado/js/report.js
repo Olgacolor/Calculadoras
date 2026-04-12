@@ -482,6 +482,42 @@
     return `${slug || "memorial-calculo-vidro"}.pdf`;
   }
 
+  async function buildPdfBlobFromHtml() {
+    const element = app.UI.get("reportContent");
+    const canvas = await window.html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      removeContainer: true
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    const pageWidth  = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgProps   = pdf.getImageProperties(imgData);
+    const imgHeight  = (imgProps.height * pageWidth) / imgProps.width;
+
+    let heightLeft = imgHeight;
+    let position   = 0;
+
+    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position -= pageHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "JPEG", 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    return pdf.output("blob");
+  }
+
   function openBlobFile(blob, fileName) {
     const url = URL.createObjectURL(blob);
     if (isMobileSharePreferred()) {
@@ -512,8 +548,25 @@
     const snapshot = app.Controller.getSnapshot();
     if (!snapshot) return;
 
-    const pdfBlob = buildPdfBlob(snapshot);
-    const pdfName = buildPdfFileName();
+    const pdfName  = buildPdfFileName();
+    const btn      = app.UI.get("btnPrintReport");
+    const origText = btn ? btn.textContent : null;
+
+    if (btn) { btn.disabled = true; btn.textContent = "Gerando PDF…"; }
+
+    let pdfBlob;
+    try {
+      if (window.html2canvas && window.jspdf) {
+        pdfBlob = await buildPdfBlobFromHtml();
+      } else {
+        pdfBlob = buildPdfBlob(snapshot);
+      }
+    } catch (error) {
+      pdfBlob = buildPdfBlob(snapshot);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = origText; }
+    }
+
     const pdfFile = new File([pdfBlob], pdfName, {
       type: "application/pdf",
       lastModified: Date.now()
@@ -522,9 +575,7 @@
     if (navigator.share) {
       try {
         if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({
-            files: [pdfFile]
-          });
+          await navigator.share({ files: [pdfFile] });
           return;
         }
       } catch (error) {
