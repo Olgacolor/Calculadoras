@@ -501,7 +501,6 @@
     const snapshot = app.Controller.getSnapshot();
     if (!snapshot) return;
 
-    const shareTitle = (app.UI.get("obra").value || "").trim() || "Memorial de cálculo de vidro";
     const pdfBlob = buildPdfBlob(snapshot);
     const pdfName = buildPdfFileName();
     const pdfFile = new File([pdfBlob], pdfName, {
@@ -513,7 +512,6 @@
       try {
         if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
           await navigator.share({
-            title: shareTitle,
             files: [pdfFile]
           });
           return;

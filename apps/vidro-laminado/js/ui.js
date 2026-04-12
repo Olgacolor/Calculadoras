@@ -236,10 +236,10 @@
 
       ${buildIsoPanel({ x: x, y: y, w: panelW, h: panelH, depth: depth, supports: support, layers: layers })}
 
-      <line x1="${x - 22}" y1="${y}" x2="${x - 22}" y2="${y2}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
-      <line x1="${x - 30}" y1="${y}" x2="${x - 14}" y2="${y}" stroke="#d9506f" stroke-width="1.4"/>
-      <line x1="${x - 30}" y1="${y2}" x2="${x - 14}" y2="${y2}" stroke="#d9506f" stroke-width="1.4"/>
-      <text x="${x - 30}" y="${(y + y2) / 2 + 4}" text-anchor="end" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(heightMM, 0)} mm</text>
+      <line x1="${x - 20}" y1="${y}" x2="${x - 20}" y2="${y2}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="${x - 28}" y1="${y}" x2="${x - 12}" y2="${y}" stroke="#d9506f" stroke-width="1.4"/>
+      <line x1="${x - 28}" y1="${y2}" x2="${x - 12}" y2="${y2}" stroke="#d9506f" stroke-width="1.4"/>
+      <text x="${x - 10}" y="${(y + y2) / 2 + 4}" text-anchor="start" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(heightMM, 0)} mm</text>
 
       <line x1="${x}" y1="${y2 + 22}" x2="${x2}" y2="${y2 + 22}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
       <line x1="${x}" y1="${y2 + 14}" x2="${x}" y2="${y2 + 30}" stroke="#d9506f" stroke-width="1.4"/>
