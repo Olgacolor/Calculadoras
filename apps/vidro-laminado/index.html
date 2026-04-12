@@ -69,6 +69,7 @@
     font-family: "DM Sans", sans-serif;
     line-height: 1.5;
     padding-bottom: 80px;
+    overflow-x: hidden;
     color-scheme: dark;
   }
 
@@ -115,6 +116,7 @@
     padding: 7px 12px;
     font-size: 11px;
     font-weight: 600;
+    white-space: nowrap;
   }
 
   /* ── Shell ── */
@@ -355,6 +357,7 @@
     grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
     align-items: stretch;
   }
+  .panel-preview-main > * { min-width: 0; }
   .panel-preview-head {
     display: flex;
     align-items: flex-start;
@@ -802,16 +805,43 @@
   }
 
   @media (max-width: 640px) {
+    .header-inner, .shell { padding-left: 14px; padding-right: 14px; }
+    .header-inner {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 10px 12px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+    .shell { padding-top: 16px; }
+    .brand { gap: 10px; min-width: 0; flex: 1 1 calc(100% - 116px); }
+    .brand img { height: 24px; }
+    .brand-copy { min-width: 0; }
+    .brand-copy strong { font-size: 13px; }
+    .brand-copy span { font-size: 10px; letter-spacing: 0.12em; }
+    .header-badge { padding: 7px 10px; font-size: 10px; margin-left: auto; }
     .fg2 { grid-template-columns: 1fr; }
     .panel-config-grid { grid-template-columns: 1fr; }
     .panel-preview-main { grid-template-columns: 1fr; }
+    .panel-preview-stage { padding: 8px 10px 6px; }
+    .panel-preview-svg-wrap { max-width: 100%; }
     .panel-preview-footer {
       border-left: 0;
       border-top: 1px solid rgba(255,255,255,0.05);
       background: transparent;
+      gap: 8px;
+      padding: 12px 10px 14px;
     }
     .panel-preview-actions { grid-template-columns: 1fr; }
+    .panel-adjust { padding: 6px; gap: 6px; }
+    .panel-adjust button { width: 32px; height: 32px; }
+    .panel-adjust-label { font-size: 10px; }
+    .panel-adjust-value { font-size: 13px; line-height: 1.2; }
     .panel-support-pills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .panel-support-pill:first-child { grid-column: 1 / -1; }
+    .panel-support-pill { min-width: 0; padding: 8px 4px 7px; }
+    .panel-support-pill svg { max-width: 74px; }
+    .panel-support-pill-label { font-size: 9px; }
     .status-top { flex-direction: column; align-items: flex-start; }
     .status-facts { grid-template-columns: 1fr; }
     .validation-groups { grid-template-columns: 1fr; }
@@ -820,6 +850,13 @@
     .report-toolbar { padding: 10px 12px; }
     .report-toolbar-btns { width: 100%; }
     .btn-rprint, .btn-rclose { flex: 1; padding: 10px 12px; }
+    .fab {
+      left: 14px;
+      right: 14px;
+      bottom: 18px;
+      justify-content: center;
+      width: auto;
+    }
   }
 </style>
 </head>
@@ -947,7 +984,7 @@
             </div>
           </div>
           <div class="panel-preview-footer">
-            <div class="panel-preview-actions" style="grid-template-columns:1fr 1fr;">
+            <div class="panel-preview-actions">
               <div class="panel-adjust">
                 <button type="button" data-adjust="width-minus" aria-label="Reduzir largura">−</button>
                 <div class="panel-adjust-meta">

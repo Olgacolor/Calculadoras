@@ -67,7 +67,100 @@
   function syncPrimaryActionLabel() {
     const button = app.UI.get("btnPrintReport");
     if (!button) return;
-    button.textContent = isMobileSharePreferred() ? "Compartilhar" : "Imprimir / PDF";
+    button.textContent = isMobileSharePreferred() ? "Compartilhar PDF" : "Imprimir / PDF";
+  }
+
+  function pdfEscape(text) {
+    return String(text || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/\(/g, "\\(")
+      .replace(/\)/g, "\\)")
+      .replace(/\r/g, "")
+      .replace(/\n/g, " ");
+  }
+
+  function latin1Bytes(text) {
+    const bytes = [];
+    const source = String(text || "");
+    for (let index = 0; index < source.length; index += 1) {
+      const code = source.charCodeAt(index);
+      bytes.push(code <= 255 ? code : 63);
+    }
+    return bytes;
+  }
+
+  function buildPdfBlob(snapshot) {
+    const inputs = snapshot.inputs;
+    const result = snapshot.result;
+    const technicalResult = snapshot.technical || null;
+    const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
+    const obra = (app.UI.get("obra").value || "").trim();
+    const resp = (app.UI.get("resp").value || "").trim();
+    const apoioLabel = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
+    const title = technicalResult && technicalResult.status
+      ? technicalResult.status.title
+      : (result.ok ? "Composição aprovada" : "Composição em revisão");
+    const pressureLabel = pressure && pressure.mode === "auto" ? "Automática" : "Manual";
+    const criterionLabel = technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing);
+    const assumptions = (snapshot.assumptions || []).slice(0, 3);
+
+    const lines = [
+      { text: "Memorial de Cálculo de Vidro", size: 16, x: 50, y: 790 },
+      { text: constants.APP_META.normRef, size: 10, x: 50, y: 772 },
+      obra ? { text: `Obra / Projeto: ${obra}`, size: 11, x: 50, y: 748 } : null,
+      resp ? { text: `Responsável técnico: ${resp}`, size: 11, x: 50, y: obra ? 732 : 748 } : null,
+      { text: `Resultado: ${title}`, size: 12, x: 50, y: obra || resp ? 708 : 724 },
+      { text: `Painel: ${fmt(inputs.wMM, 0)} x ${fmt(inputs.hMM, 0)} mm`, size: 11, x: 50, y: obra || resp ? 686 : 702 },
+      { text: `Apoio: ${apoioLabel}`, size: 11, x: 50, y: obra || resp ? 670 : 686 },
+      { text: `Pe: ${inputs.Pv} Pa (${pressureLabel})`, size: 11, x: 50, y: obra || resp ? 654 : 670 },
+      { text: `Resistência: eR ${fmt(result.eR, 2)} mm | e1·c ${fmt(result.e1c, 2)} mm`, size: 11, x: 50, y: obra || resp ? 628 : 644 },
+      { text: `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`, size: 11, x: 50, y: obra || resp ? 612 : 628 },
+      { text: `Critério governante: ${criterionLabel}`, size: 11, x: 50, y: obra || resp ? 596 : 612 },
+      { text: "Premissas principais:", size: 11, x: 50, y: obra || resp ? 566 : 582 },
+      ...assumptions.map(function (item, offset) {
+        return { text: `- ${item}`, size: 10, x: 62, y: (obra || resp ? 548 : 564) - offset * 16 };
+      }),
+      { text: "Uso orientativo. A especificação final depende da validação técnica do responsável pelo projeto.", size: 10, x: 50, y: 120 },
+      { text: `Versão ${constants.APP_META.version}`, size: 9, x: 50, y: 96 }
+    ].filter(Boolean);
+
+    const streamLines = [
+      "BT",
+      "/F1 16 Tf",
+      "0 0 0 rg"
+    ];
+
+    lines.forEach(function (line) {
+      streamLines.push(`/F1 ${line.size} Tf`);
+      streamLines.push(`1 0 0 1 ${line.x} ${line.y} Tm`);
+      streamLines.push(`(${pdfEscape(line.text)}) Tj`);
+    });
+    streamLines.push("ET");
+
+    const stream = streamLines.join("\n");
+    const objects = [
+      "<< /Type /Catalog /Pages 2 0 R >>",
+      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
+      `<< /Length ${latin1Bytes(stream).length} >>\nstream\n${stream}\nendstream`,
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
+    ];
+
+    let pdf = "%PDF-1.4\n";
+    const offsets = [0];
+    objects.forEach(function (object, index) {
+      offsets.push(latin1Bytes(pdf).length);
+      pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+    });
+    const xrefOffset = latin1Bytes(pdf).length;
+    pdf += `xref\n0 ${objects.length + 1}\n`;
+    pdf += "0000000000 65535 f \n";
+    offsets.slice(1).forEach(function (offset) {
+      pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+    });
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+    return new Blob([new Uint8Array(latin1Bytes(pdf))], { type: "application/pdf" });
   }
 
   // ── Light-theme dimetric panel sketch for print ───────────────────
@@ -376,13 +469,58 @@
     window.print();
   }
 
+  function buildPdfFileName() {
+    const obra = (app.UI.get("obra").value || "").trim();
+    const source = obra || "memorial-calculo-vidro";
+    const slug = source
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48);
+    return `${slug || "memorial-calculo-vidro"}.pdf`;
+  }
+
+  function openBlobFile(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.target = "_blank";
+    anchor.rel = "noopener";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 4000);
+  }
+
   async function compartilharRelatorio() {
     const snapshot = app.Controller.getSnapshot();
+    if (!snapshot) return;
+
     const shareText = buildShareText(snapshot);
     const shareTitle = (app.UI.get("obra").value || "").trim() || "Memorial de cálculo de vidro";
+    const pdfBlob = buildPdfBlob(snapshot);
+    const pdfName = buildPdfFileName();
+    const pdfFile = new File([pdfBlob], pdfName, {
+      type: "application/pdf",
+      lastModified: Date.now()
+    });
 
     if (navigator.share) {
       try {
+        if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
+          await navigator.share({
+            title: shareTitle,
+            text: "Memorial orientativo em PDF.",
+            files: [pdfFile]
+          });
+          return;
+        }
+
         await navigator.share({
           title: shareTitle,
           text: shareText
@@ -393,8 +531,7 @@
       }
     }
 
-    const whatsappText = encodeURIComponent(shareText);
-    window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
+    openBlobFile(pdfBlob, pdfName);
   }
 
   function executarAcaoPrincipal() {
