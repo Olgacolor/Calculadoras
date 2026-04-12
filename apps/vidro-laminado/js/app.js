@@ -250,7 +250,7 @@
       }
       app.Report.gerarRelatorio();
     });
-    app.UI.get("btnPrintReport").addEventListener("click", app.Report.imprimirRelatorio);
+    app.UI.get("btnPrintReport").addEventListener("click", app.Report.executarAcaoPrincipal);
     app.UI.get("btnCloseReport").addEventListener("click", app.Report.fecharRelatorio);
   }
 
@@ -266,6 +266,7 @@
   populatePressureFields();
   app.UI.renderSupportThumbs();
   bindEvents();
+  app.Report.syncPrimaryActionLabel();
   app.UI.syncDisclaimer(false);
   calculateAndRender();
 }());

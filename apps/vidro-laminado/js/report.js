@@ -27,6 +27,49 @@
     return `<tr><td colspan="2" class="rp-section">${title}</td></tr>`;
   }
 
+  function isMobileSharePreferred() {
+    try {
+      return window.matchMedia("(max-width: 640px)").matches
+        || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function buildShareText(snapshot) {
+    const inputs = snapshot.inputs;
+    const result = snapshot.result;
+    const technicalResult = snapshot.technical || null;
+    const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
+    const obra = (app.UI.get("obra").value || "").trim();
+    const resp = (app.UI.get("resp").value || "").trim();
+    const apoioLabel = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
+    const title = technicalResult && technicalResult.status
+      ? technicalResult.status.title
+      : (result.ok ? "Composição aprovada" : "Composição em revisão");
+
+    return [
+      "Memorial orientativo de cálculo de vidro",
+      obra ? `Obra: ${obra}` : null,
+      resp ? `Responsável técnico: ${resp}` : null,
+      `Norma: ${constants.APP_META.normRef}`,
+      `Resultado: ${title}`,
+      `Painel: ${fmt(inputs.wMM, 0)} x ${fmt(inputs.hMM, 0)} mm`,
+      `Apoio: ${apoioLabel}`,
+      `Pe: ${inputs.Pv} Pa${pressure && pressure.mode === "auto" ? " (automática)" : " (manual)"}`,
+      `eR: ${fmt(result.eR, 2)} mm | e1·c: ${fmt(result.e1c, 2)} mm`,
+      `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`,
+      `Critério governante: ${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}`,
+      "Resultado orientativo. A especificação final depende da validação técnica do responsável pelo projeto."
+    ].filter(Boolean).join("\n");
+  }
+
+  function syncPrimaryActionLabel() {
+    const button = app.UI.get("btnPrintReport");
+    if (!button) return;
+    button.textContent = isMobileSharePreferred() ? "Compartilhar" : "Imprimir / PDF";
+  }
+
   // ── Light-theme dimetric panel sketch for print ───────────────────
   function supportsForReport(apoio) {
     const s = apoio === "2" ? "2altura" : (apoio || "4");
@@ -40,10 +83,10 @@
 
   function buildLightPanelSvg(wMM, hMM, apoio) {
     const ratio = Math.max(200, wMM) / Math.max(200, hMM);
-    const svgW = 168;
-    const svgH = 152;
-    const areaW = 64;
-    const areaH = 94;
+    const svgW = 152;
+    const svgH = 136;
+    const areaW = 58;
+    const areaH = 84;
     let panelW, panelH;
     if (ratio > areaW / areaH) { panelW = areaW; panelH = areaW / ratio; }
     else                        { panelH = areaH; panelW = areaH * ratio; }
@@ -57,7 +100,7 @@
     const y2 = y + panelH;
 
     // Dimetric depth: upper-right, same angle as screen renderer.
-    const d    = 13;
+    const d    = 11;
     const cosA = 0.94;
     const sinA = 0.34;
     const dx   = d * cosA;
@@ -316,6 +359,7 @@
         · v${constants.APP_META.version}
       </div>`;
 
+    syncPrimaryActionLabel();
     document.title = obra
       ? `${obra} — ${constants.APP_META.normRef}`
       : `Memorial de Cálculo — ${constants.APP_META.normRef}`;
@@ -332,9 +376,40 @@
     window.print();
   }
 
+  async function compartilharRelatorio() {
+    const snapshot = app.Controller.getSnapshot();
+    const shareText = buildShareText(snapshot);
+    const shareTitle = (app.UI.get("obra").value || "").trim() || "Memorial de cálculo de vidro";
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText
+        });
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    const whatsappText = encodeURIComponent(shareText);
+    window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
+  }
+
+  function executarAcaoPrincipal() {
+    if (isMobileSharePreferred()) {
+      return compartilharRelatorio();
+    }
+    return imprimirRelatorio();
+  }
+
   app.Report = {
+    compartilharRelatorio,
+    executarAcaoPrincipal,
     fecharRelatorio,
     gerarRelatorio,
-    imprimirRelatorio
+    imprimirRelatorio,
+    syncPrimaryActionLabel
   };
 }());
