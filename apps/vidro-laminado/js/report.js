@@ -80,14 +80,13 @@
     return bytes;
   }
 
-  function pdfUtf16Hex(text) {
-    let hex = "FEFF";
-    const source = String(text || "").replace(/\r/g, "").replace(/\n/g, " ");
-    for (let index = 0; index < source.length; index += 1) {
-      const code = source.charCodeAt(index);
-      hex += code.toString(16).padStart(4, "0").toUpperCase();
-    }
-    return `<${hex}>`;
+  function pdfEscape(text) {
+    return String(text || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/\(/g, "\\(")
+      .replace(/\)/g, "\\)")
+      .replace(/\r/g, "")
+      .replace(/\n/g, " ");
   }
 
   function buildPdfBlob(snapshot) {
@@ -134,7 +133,7 @@
     lines.forEach(function (line) {
       streamLines.push(`/F1 ${line.size} Tf`);
       streamLines.push(`1 0 0 1 ${line.x} ${line.y} Tm`);
-      streamLines.push(`${pdfUtf16Hex(line.text)} Tj`);
+      streamLines.push(`(${pdfEscape(line.text)}) Tj`);
     });
     streamLines.push("ET");
 
@@ -144,7 +143,7 @@
       "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
       "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
       `<< /Length ${latin1Bytes(stream).length} >>\nstream\n${stream}\nendstream`,
-      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"
     ];
 
     let pdf = "%PDF-1.4\n";
@@ -502,7 +501,6 @@
     const snapshot = app.Controller.getSnapshot();
     if (!snapshot) return;
 
-    const shareText = buildShareText(snapshot);
     const shareTitle = (app.UI.get("obra").value || "").trim() || "Memorial de cálculo de vidro";
     const pdfBlob = buildPdfBlob(snapshot);
     const pdfName = buildPdfFileName();
@@ -520,12 +518,6 @@
           });
           return;
         }
-
-        await navigator.share({
-          title: shareTitle,
-          text: shareText
-        });
-        return;
       } catch (error) {
         if (error && error.name === "AbortError") return;
       }
