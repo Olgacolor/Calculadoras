@@ -176,17 +176,17 @@
 
   function buildLightPanelSvg(wMM, hMM, apoio) {
     const ratio = Math.max(200, wMM) / Math.max(200, hMM);
-    const svgW = 152;
-    const svgH = 136;
-    const areaW = 58;
-    const areaH = 84;
+    const svgW = 176;
+    const svgH = 152;
+    const areaW = 62;
+    const areaH = 88;
     let panelW, panelH;
     if (ratio > areaW / areaH) { panelW = areaW; panelH = areaW / ratio; }
     else                        { panelH = areaH; panelW = areaH * ratio; }
 
     // Bias toward center-left so the right-side depth doesn't crowd the frame.
-    const cx = svgW * 0.46;
-    const cy = svgH * 0.54;
+    const cx = svgW * 0.54;
+    const cy = svgH * 0.52;
     const x  = cx - panelW / 2;
     const y  = cy - panelH / 2;
     const x2 = x + panelW;
@@ -247,18 +247,18 @@
     if (sup.right)  { s += edge(ftr, fbr); s += edge(btr, bbr); }
 
     // Height dim on LEFT.
-    const dimX = x - 12;
+    const dimX = x - 14;
     s += `<line x1="${dimX.toFixed(1)}" y1="${y.toFixed(1)}" x2="${dimX.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#6b7280" stroke-width="0.8" stroke-linecap="round"/>`;
     s += `<line x1="${(dimX - 5).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(dimX + 5).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
     s += `<line x1="${(dimX - 5).toFixed(1)}" y1="${y2.toFixed(1)}" x2="${(dimX + 5).toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
-    s += `<text x="${(dimX - 7).toFixed(1)}" y="${((y + y2) / 2 + 3).toFixed(1)}" text-anchor="end" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(hMM, 0)} mm</text>`;
+    s += `<text x="${(dimX - 6).toFixed(1)}" y="${((y + y2) / 2 + 3).toFixed(1)}" text-anchor="end" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(hMM, 0)} mm</text>`;
 
     // Width dim on BOTTOM.
-    const dimY = y2 + 11;
+    const dimY = y2 + 13;
     s += `<line x1="${x.toFixed(1)}" y1="${dimY.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${dimY.toFixed(1)}" stroke="#6b7280" stroke-width="0.8" stroke-linecap="round"/>`;
     s += `<line x1="${x.toFixed(1)}" y1="${(dimY - 5).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(dimY + 5).toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
     s += `<line x1="${x2.toFixed(1)}" y1="${(dimY - 5).toFixed(1)}" x2="${x2.toFixed(1)}" y2="${(dimY + 5).toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
-    s += `<text x="${((x + x2) / 2).toFixed(1)}" y="${(dimY + 12).toFixed(1)}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(wMM, 0)} mm</text>`;
+    s += `<text x="${((x + x2) / 2).toFixed(1)}" y="${(dimY + 14).toFixed(1)}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(wMM, 0)} mm</text>`;
 
     s += "</svg>";
     return s;
@@ -484,6 +484,17 @@
 
   function openBlobFile(blob, fileName) {
     const url = URL.createObjectURL(blob);
+    if (isMobileSharePreferred()) {
+      const popup = window.open(url, "_blank", "noopener");
+      if (!popup) {
+        window.location.href = url;
+      }
+      window.setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 12000);
+      return;
+    }
+
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = fileName;

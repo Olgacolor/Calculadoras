@@ -196,13 +196,13 @@
     const widthMM = Math.max(200, Number(inputs.wMM) || 1200);
     const heightMM = Math.max(200, Number(inputs.hMM) || 2400);
     const ratio = widthMM / heightMM;
-    const svgW = 360;
-    const svgH = 320;
+    const svgW = 420;
+    const svgH = 360;
     // Reserve room for the height dimension on the LEFT and the width
     // dimension on the BOTTOM, plus headroom on the upper-right for the
     // dimetric depth axis.
-    const areaW = 152;
-    const areaH = 168;
+    const areaW = 168;
+    const areaH = 188;
     let panelW;
     let panelH;
     if (ratio > areaW / areaH) {
@@ -215,8 +215,8 @@
 
     // Slight bias to the left so the upper-right depth slab does not
     // collide with the inner stage frame.
-    const cx = svgW * 0.49;
-    const cy = svgH * 0.54;
+    const cx = svgW * 0.53;
+    const cy = svgH * 0.53;
     const x = cx - panelW / 2;
     const y = cy - panelH / 2;
     const x2 = x + panelW;
@@ -232,19 +232,19 @@
           <stop offset="100%" stop-color="#1c9fe3" stop-opacity="0.78"/>
         </linearGradient>
       </defs>
-      <rect x="12" y="12" width="336" height="296" rx="22" fill="rgba(8,12,16,0.5)" stroke="rgba(255,255,255,0.06)"/>
+      <rect x="18" y="18" width="384" height="324" rx="22" fill="rgba(8,12,16,0.5)" stroke="rgba(255,255,255,0.06)"/>
 
       ${buildIsoPanel({ x: x, y: y, w: panelW, h: panelH, depth: depth, supports: support, layers: layers })}
 
-      <line x1="${x - 20}" y1="${y}" x2="${x - 20}" y2="${y2}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
-      <line x1="${x - 28}" y1="${y}" x2="${x - 12}" y2="${y}" stroke="#d9506f" stroke-width="1.4"/>
-      <line x1="${x - 28}" y1="${y2}" x2="${x - 12}" y2="${y2}" stroke="#d9506f" stroke-width="1.4"/>
-      <text x="${x - 10}" y="${(y + y2) / 2 + 4}" text-anchor="start" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(heightMM, 0)} mm</text>
+      <line x1="${x - 24}" y1="${y}" x2="${x - 24}" y2="${y2}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="${x - 32}" y1="${y}" x2="${x - 16}" y2="${y}" stroke="#d9506f" stroke-width="1.4"/>
+      <line x1="${x - 32}" y1="${y2}" x2="${x - 16}" y2="${y2}" stroke="#d9506f" stroke-width="1.4"/>
+      <text x="${x - 42}" y="${(y + y2) / 2 + 4}" text-anchor="end" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(heightMM, 0)} mm</text>
 
-      <line x1="${x}" y1="${y2 + 22}" x2="${x2}" y2="${y2 + 22}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
-      <line x1="${x}" y1="${y2 + 14}" x2="${x}" y2="${y2 + 30}" stroke="#d9506f" stroke-width="1.4"/>
-      <line x1="${x2}" y1="${y2 + 14}" x2="${x2}" y2="${y2 + 30}" stroke="#d9506f" stroke-width="1.4"/>
-      <text x="${(x + x2) / 2}" y="${y2 + 38}" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(widthMM, 0)} mm</text>
+      <line x1="${x}" y1="${y2 + 24}" x2="${x2}" y2="${y2 + 24}" stroke="#d9506f" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="${x}" y1="${y2 + 16}" x2="${x}" y2="${y2 + 32}" stroke="#d9506f" stroke-width="1.4"/>
+      <line x1="${x2}" y1="${y2 + 16}" x2="${x2}" y2="${y2 + 32}" stroke="#d9506f" stroke-width="1.4"/>
+      <text x="${(x + x2) / 2}" y="${y2 + 42}" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="#ffb4be">${fmt(widthMM, 0)} mm</text>
     `;
   }
 
@@ -316,6 +316,7 @@
     pressureChip.textContent = pressure && pressure.pe ? `Pe ${fmt(pressure.pe, 0)} Pa` : "Pe —";
     widthValue.textContent = `${fmt(inputs.wMM, 0)} mm`;
     heightValue.textContent = `${fmt(inputs.hMM, 0)} mm`;
+    svg.setAttribute("viewBox", "0 0 420 360");
     svg.innerHTML = buildPanelPreviewSvg(inputs);
 
     document.querySelectorAll(".panel-support-pill").forEach((button) => {
