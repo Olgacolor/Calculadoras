@@ -324,29 +324,6 @@
     });
   }
 
-  function unusedSyncDisclaimerLegacy(accepted, showWarning) {
-    const checkbox = get("disclaimerAccept");
-    const status = get("disclaimerStatus");
-    const reportButton = get("btnRelatorio");
-    if (!status || !reportButton) return;
-
-    if (checkbox && checkbox.checked !== accepted) {
-      checkbox.checked = accepted;
-    }
-
-    reportButton.disabled = !accepted;
-    if (accepted) {
-      status.textContent = "Aceite registrado. A geração do relatório PDF está liberada.";
-      status.style.color = "#57dca8";
-      return;
-    }
-
-    status.textContent = showWarning
-      ? "Marque o aceite para gerar o relatório PDF."
-      : "Marque o aceite para liberar a geração do relatório PDF.";
-    status.style.color = showWarning ? "#ff7d7d" : "#f4b64a";
-  }
-
   function renderLockedState() {
     const issueList = get("validationIssues");
     const assumptionsList = get("validationAssumptions");
@@ -777,6 +754,7 @@
     renderStatus,
     renderValidation,
     updateCross,
-    updateInfoApoio
+    updateInfoApoio,
+    supportsFor
   };
 }());

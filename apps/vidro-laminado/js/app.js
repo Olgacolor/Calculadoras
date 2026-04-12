@@ -91,6 +91,16 @@
       return null;
     }
 
+    if (rawInputs.pressureMeta.mode === "auto" && rawInputs.Pv === null) {
+      app.UI.renderValidation([{
+        tone: "warn",
+        title: "Pressão de vento indisponível",
+        body: "A resolução automática não encontrou dados para a cidade selecionada. Escolha outra cidade ou use pressão manual."
+      }], []);
+      state.snapshot = null;
+      return null;
+    }
+
     const fallbackValidation = technical && technical.evaluate ? null : app.Engine.validateInputs(rawInputs);
     const evaluation = technical && technical.evaluate
       ? technical.evaluate(rawInputs)
