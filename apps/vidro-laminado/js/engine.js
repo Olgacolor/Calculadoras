@@ -85,17 +85,17 @@
       });
     }
 
-    if (normalized.apoio === "2") {
+    if (normalized.apoio === "2" || normalized.apoio === "2largura" || normalized.apoio === "2altura") {
       issues.push({
         tone: "warn",
         title: "Flecha depende de criterio de projeto",
-        body: "Para 2 lados opostos, a norma exige que o limite de flecha seja definido em projeto. O app calcula a flecha, mas nao fecha o atendimento final por esse criterio."
+        body: "Para 2 lados apoiados, a norma exige que o limite de flecha seja definido em projeto. O app calcula a flecha, mas nao fecha o atendimento final por esse criterio."
       });
       assumptions.push("Para 2 apoios, o atendimento final de flecha precisa de validacao complementar do projeto.");
     }
 
     if (normalized.family === "laminado" && normalized.panes[0].h !== normalized.panes[1].h) {
-      assumptions.push("A espessura equivalente usa a soma das folhas e o pior eps3 entre as duas faces.");
+      assumptions.push("Tipo de vidro único aplicado a ambas as lâminas (F1 = F2).");
     }
 
     if (!issues.length) {
@@ -110,20 +110,30 @@
   }
 
   function calcNBR(inputs) {
+    const apoio = inputs.apoio === "2" ? "2altura" : inputs.apoio;
     const c = 1.0;
+    const widthM = inputs.wMM / 1000;
+    const heightM = inputs.hMM / 1000;
     const lM = Math.min(inputs.wMM, inputs.hMM) / 1000;
     const LM = Math.max(inputs.wMM, inputs.hMM) / 1000;
     const S = LM * lM;
     const P = inputs.Pv * 1.5;
     const ratioLL = LM / lM;
+    const twoSideSpanM = apoio === "2largura"
+      ? widthM
+      : apoio === "2altura"
+      ? heightM
+      : null;
 
     let e1;
-    if (inputs.apoio === "4") {
+    if (apoio === "4") {
       e1 = ratioLL <= 2.5 ? Math.sqrt(S * P / 100) : lM * Math.sqrt(P) / 6.3;
-    } else if (inputs.apoio === "3menor") {
+    } else if (apoio === "3menor") {
       e1 = lM * Math.sqrt(P) / 6.3;
-    } else if (inputs.apoio === "3maior") {
+    } else if (apoio === "3maior") {
       e1 = ratioLL <= 7.5 ? Math.sqrt(LM * 3 * lM * P / 100) : 3 * lM * Math.sqrt(P) / 6.3;
+    } else if (apoio === "2largura" || apoio === "2altura") {
+      e1 = twoSideSpanM * Math.sqrt(P) / 6.3;
     } else {
       e1 = lM * Math.sqrt(P) / 6.3;
     }
@@ -155,18 +165,22 @@
     let alpha;
     let b;
     let fLim;
-    if (inputs.apoio === "4") {
+    if (apoio === "4") {
       alpha = interp(constants.TAB6, lM / LM);
       b = lM;
       fLim = Math.min((lM * 1000) / 60, 30);
-    } else if (inputs.apoio === "3menor") {
+    } else if (apoio === "3menor") {
       alpha = interp(constants.TAB7, LM / lM);
       b = lM;
       fLim = Math.min((lM * 1000) / 100, 50);
-    } else if (inputs.apoio === "3maior") {
+    } else if (apoio === "3maior") {
       alpha = interp(constants.TAB7, lM / LM);
       b = LM;
       fLim = Math.min((LM * 1000) / 100, 50);
+    } else if (apoio === "2largura" || apoio === "2altura") {
+      alpha = 2.1143;
+      b = twoSideSpanM;
+      fLim = null;
     } else {
       alpha = 2.1143;
       b = lM;
@@ -182,7 +196,8 @@
       lM, LM, S, P, Pv: inputs.Pv, ratioLL, c, e1, e1c, okR, uR,
       eps2, eps3vals, maxEps3, eR, eF, alpha, b, f, fLim, okF, uF,
       ok: okF === null ? okR : okR && okF,
-      apoio: inputs.apoio,
+      apoio: apoio,
+      twoSideSpanM,
       family: inputs.family,
       governing
     };

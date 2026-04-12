@@ -4,6 +4,11 @@
   const engine = app.Engine;
   const technical = app.Technical;
 
+  function fmt(value, decimals) {
+    const places = typeof decimals === "number" ? decimals : 2;
+    return Number(value).toFixed(places).replace(".", ",");
+  }
+
   function governingLabel(governing) {
     if (technical && technical.governingLabel) return technical.governingLabel(governing);
     return governing === "resistencia" ? "resistência" : "flecha";
@@ -22,135 +27,298 @@
     return `<tr><td colspan="2" class="rp-section">${title}</td></tr>`;
   }
 
+  // ── Light-theme dimetric panel sketch for print ───────────────────
+  function supportsForReport(apoio) {
+    const s = apoio === "2" ? "2altura" : (apoio || "4");
+    return {
+      top:    s === "4" || s === "2altura" || s === "3maior",
+      bottom: s === "4" || s === "2altura" || s === "3menor" || s === "3maior",
+      left:   s === "4" || s === "2largura" || s === "3menor" || s === "3maior",
+      right:  s === "4" || s === "2largura" || s === "3menor"
+    };
+  }
+
+  function buildLightPanelSvg(wMM, hMM, apoio) {
+    const ratio = Math.max(200, wMM) / Math.max(200, hMM);
+    const svgW = 168;
+    const svgH = 152;
+    const areaW = 64;
+    const areaH = 94;
+    let panelW, panelH;
+    if (ratio > areaW / areaH) { panelW = areaW; panelH = areaW / ratio; }
+    else                        { panelH = areaH; panelW = areaH * ratio; }
+
+    // Bias toward center-left so the right-side depth doesn't crowd the frame.
+    const cx = svgW * 0.46;
+    const cy = svgH * 0.54;
+    const x  = cx - panelW / 2;
+    const y  = cy - panelH / 2;
+    const x2 = x + panelW;
+    const y2 = y + panelH;
+
+    // Dimetric depth: upper-right, same angle as screen renderer.
+    const d    = 13;
+    const cosA = 0.94;
+    const sinA = 0.34;
+    const dx   = d * cosA;
+    const dy   = -d * sinA;
+
+    const ftl = [x,  y];   const ftr = [x2, y];
+    const fbl = [x,  y2];  const fbr = [x2, y2];
+    const btl = [x  + dx, y  + dy];
+    const btr = [x2 + dx, y  + dy];
+    const bbr = [x2 + dx, y2 + dy];
+
+    const sup = supportsForReport(apoio);
+    const da  = `stroke="#dc2626" stroke-width="1.3" stroke-dasharray="4 2.5" stroke-linecap="round" fill="none"`;
+    function edge(p1, p2) {
+      return `<line x1="${p1[0].toFixed(2)}" y1="${p1[1].toFixed(2)}" x2="${p2[0].toFixed(2)}" y2="${p2[1].toFixed(2)}" ${da}/>`;
+    }
+
+    // Glass depth layers (subtle for print: F1 blue / PVB yellow / F2 green).
+    const layers = [
+      { t0: 0,    t1: 0.46, topFill: "#c7d9f0",  rightFill: "#b0c8e0" },
+      { t0: 0.46, t1: 0.54, topFill: "#f5e7a0",  rightFill: "#ecdfa0" },
+      { t0: 0.54, t1: 1,    topFill: "#b5ddc8",   rightFill: "#9ecbb5" }
+    ];
+
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}">`;
+
+    // Side layer slices (top + right faces).
+    layers.forEach(function (layer) {
+      const ox0 = layer.t0 * dx; const oy0 = layer.t0 * dy;
+      const ox1 = layer.t1 * dx; const oy1 = layer.t1 * dy;
+      // Top face slice.
+      s += `<path d="M${(x  + ox0).toFixed(2)} ${(y  + oy0).toFixed(2)} L${(x2 + ox0).toFixed(2)} ${(y  + oy0).toFixed(2)} L${(x2 + ox1).toFixed(2)} ${(y  + oy1).toFixed(2)} L${(x  + ox1).toFixed(2)} ${(y  + oy1).toFixed(2)} Z" fill="${layer.topFill}" stroke="#b0bec5" stroke-width="0.5"/>`;
+      // Right face slice.
+      s += `<path d="M${(x2 + ox0).toFixed(2)} ${(y  + oy0).toFixed(2)} L${(x2 + ox0).toFixed(2)} ${(y2 + oy0).toFixed(2)} L${(x2 + ox1).toFixed(2)} ${(y2 + oy1).toFixed(2)} L${(x2 + ox1).toFixed(2)} ${(y  + oy1).toFixed(2)} Z" fill="${layer.rightFill}" stroke="#b0bec5" stroke-width="0.5"/>`;
+    });
+
+    // Glass front face.
+    s += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${panelW.toFixed(2)}" height="${panelH.toFixed(2)}" fill="rgba(147,210,255,0.28)" stroke="#60a5fa" stroke-width="1.1"/>`;
+
+    // Subtle // shine.
+    const sLen = Math.min(panelW, panelH) * 0.12;
+    const sx = x + panelW * 0.72;
+    const sy = y + panelH * 0.17;
+    s += `<line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${(sx + sLen * 0.55).toFixed(1)}" y2="${(sy - sLen).toFixed(1)}" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round"/>`;
+    s += `<line x1="${(sx + sLen * 0.48).toFixed(1)}" y1="${(sy + sLen * 0.06).toFixed(1)}" x2="${(sx + sLen * 1.03).toFixed(1)}" y2="${(sy - sLen * 0.94).toFixed(1)}" stroke="rgba(255,255,255,0.5)" stroke-width="0.9" stroke-linecap="round"/>`;
+
+    // Support dashes.
+    if (sup.top)    { s += edge(ftl, ftr); s += edge(btl, btr); }
+    if (sup.bottom) { s += edge(fbl, fbr); }
+    if (sup.left)   { s += edge(ftl, fbl); }
+    if (sup.right)  { s += edge(ftr, fbr); s += edge(btr, bbr); }
+
+    // Height dim on LEFT.
+    const dimX = x - 12;
+    s += `<line x1="${dimX.toFixed(1)}" y1="${y.toFixed(1)}" x2="${dimX.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#6b7280" stroke-width="0.8" stroke-linecap="round"/>`;
+    s += `<line x1="${(dimX - 5).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(dimX + 5).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
+    s += `<line x1="${(dimX - 5).toFixed(1)}" y1="${y2.toFixed(1)}" x2="${(dimX + 5).toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
+    s += `<text x="${(dimX - 7).toFixed(1)}" y="${((y + y2) / 2 + 3).toFixed(1)}" text-anchor="end" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(hMM, 0)} mm</text>`;
+
+    // Width dim on BOTTOM.
+    const dimY = y2 + 11;
+    s += `<line x1="${x.toFixed(1)}" y1="${dimY.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${dimY.toFixed(1)}" stroke="#6b7280" stroke-width="0.8" stroke-linecap="round"/>`;
+    s += `<line x1="${x.toFixed(1)}" y1="${(dimY - 5).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(dimY + 5).toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
+    s += `<line x1="${x2.toFixed(1)}" y1="${(dimY - 5).toFixed(1)}" x2="${x2.toFixed(1)}" y2="${(dimY + 5).toFixed(1)}" stroke="#6b7280" stroke-width="0.8"/>`;
+    s += `<text x="${((x + x2) / 2).toFixed(1)}" y="${(dimY + 12).toFixed(1)}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#374151">${fmt(wMM, 0)} mm</text>`;
+
+    s += "</svg>";
+    return s;
+  }
+
+  // ── Laminate construction stack ───────────────────────────────────
+  function buildLaminateStack(inputs, result) {
+    function hLabel(eps3) {
+      return technical && technical.heatLabel ? technical.heatLabel(eps3) : engine.gtLabel(eps3);
+    }
+    if (inputs.family !== "laminado" || !Array.isArray(inputs.panes) || inputs.panes.length < 2) {
+      const p = inputs.panes[0];
+      return `<div class="rp-lam-stack">
+        <div class="rp-lam-pane rp-lam-f1">Monolítico · ${hLabel(p.eps3)}<span>${p.h} mm</span></div>
+        <div class="rp-lam-total">Espessura nominal: <strong>${p.h} mm</strong></div>
+      </div>`;
+    }
+    const p1 = inputs.panes[0];
+    const p2 = inputs.panes[1];
+    return `<div class="rp-lam-stack">
+      <div class="rp-lam-pane rp-lam-f1">F1 · Exterior<span>${p1.h} mm</span></div>
+      <div class="rp-lam-pane rp-lam-pvb">Intercalar PVB<span>0,38 mm</span></div>
+      <div class="rp-lam-pane rp-lam-f2">F2 · Interior<span>${p2.h} mm</span></div>
+      <div class="rp-lam-total">
+        ${hLabel(p1.eps3)} &nbsp;·&nbsp;
+        Esp. nominal: <strong>${p1.h + p2.h} mm</strong>
+        &nbsp;·&nbsp; ε₂ = <strong>${result.eps2.toFixed(2)}</strong>
+        &nbsp;·&nbsp; ε₃ = <strong>${result.eps3vals[0].toFixed(2)}</strong>
+      </div>
+    </div>`;
+  }
+
+  // ── Utilization bar ───────────────────────────────────────────────
+  function uBar(ratio, ok) {
+    if (ratio === null || ratio === undefined) return "";
+    const pct = Math.min(100, (ratio * 100)).toFixed(0);
+    const cls  = ok ? "ok" : "fail";
+    return `<div class="rp-ubar"><div class="rp-ubar-fill ${cls}" style="width:${pct}%"></div></div>`;
+  }
+
+  // ── Main report generator ─────────────────────────────────────────
   function gerarRelatorio() {
-    const snapshot = app.Controller.getSnapshot();
-    const inputs = snapshot.inputs;
-    const result = snapshot.result;
-    const assumptions = snapshot.assumptions;
+    const snapshot      = app.Controller.getSnapshot();
+    const inputs        = snapshot.inputs;
+    const result        = snapshot.result;
+    const assumptions   = snapshot.assumptions;
     const technicalResult = snapshot.technical || (technical && technical.buildTechnicalResult
       ? technical.buildTechnicalResult(inputs, result, { assumptions, issues: snapshot.issues || [] })
       : null);
     const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
-    const status = technicalResult && technicalResult.status ? technicalResult.status : null;
+    const status   = technicalResult && technicalResult.status   ? technicalResult.status   : null;
+
     const obra = (app.UI.get("obra").value || "").trim();
     const resp = (app.UI.get("resp").value || "").trim();
     const data = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-    const composicao = technicalResult && technicalResult.compositionLabel
-      ? technicalResult.compositionLabel
-      : (inputs.family === "laminado"
-        ? `Laminado ${inputs.panes[0].h}+${inputs.panes[1].h} mm (${engine.gtLabel(inputs.panes[0].eps3)} + ${engine.gtLabel(inputs.panes[1].eps3)})`
-        : `Monolítico ${inputs.panes[0].h} mm (${engine.gtLabel(inputs.panes[0].eps3)})`);
-    const pressureLabel = pressure && pressure.mode === "auto"
-      ? "Automática (NBR 10821)"
-      : "Manual";
+    // Result state.
+    const isOk   = result.ok;
+    const isWarn = !result.ok && result.okR && result.okF === null;
+    const title  = status ? status.title
+      : isOk   ? "Composição aprovada"
+      : isWarn ? "Aprovada em resistência — flecha a definir em projeto"
+      : "Composição reprovada";
 
+    const resultColor  = isOk ? "#16a34a" : isWarn ? "#d97706" : "#dc2626";
+    const resultBg     = isOk ? "#f0fdf4" : isWarn ? "#fffbeb" : "#fef2f2";
+    const resultBorder = isOk ? "#bbf7d0" : isWarn ? "#fde68a" : "#fecaca";
+    const resultIcon   = isOk ? "✓"       : isWarn ? "~"       : "✕";
+
+    const apoioLabel    = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
+    const pressureLabel = pressure && pressure.mode === "auto" ? "Automática — ABNT NBR 10821" : "Manual";
+
+    // Formula labels.
     const eFLabel = inputs.family === "laminado"
-      ? `(${inputs.panes.map((pane) => pane.h).join("+")} mm) / eps2 ${result.eps2.toFixed(2)} = ${result.eF.toFixed(2)} mm`
+      ? `(${inputs.panes.map(function (p) { return p.h; }).join("+")}) / ε₂ ${result.eps2.toFixed(2)} = ${result.eF.toFixed(2)} mm`
       : `${inputs.panes[0].h} mm`;
-
     const eRFormula = inputs.family === "laminado"
-      ? `(${inputs.panes.map((pane) => pane.h).join("+")} mm) / (0,9 x eps2 ${result.eps2.toFixed(2)} x MAX(eps3) ${result.maxEps3.toFixed(2)}) = ${result.eR.toFixed(2)} mm`
-      : `${inputs.panes[0].h} mm / eps3 ${result.maxEps3.toFixed(2)} = ${result.eR.toFixed(2)} mm`;
+      ? `(${inputs.panes.map(function (p) { return p.h; }).join("+")}) / (0,9 × ε₂ ${result.eps2.toFixed(2)} × MAX(ε₃) ${result.maxEps3.toFixed(2)}) = ${result.eR.toFixed(2)} mm`
+      : `${inputs.panes[0].h} mm / ε₃ ${result.maxEps3.toFixed(2)} = ${result.eR.toFixed(2)} mm`;
 
-    const alphaRatio = result.apoio === "4"
-      ? result.lM / result.LM
-      : result.apoio === "3menor"
-      ? result.LM / result.lM
-      : result.apoio === "3maior"
-      ? result.lM / result.LM
+    const alphaRatio = result.apoio === "4"      ? result.lM / result.LM
+      : result.apoio === "3menor"                ? result.LM / result.lM
+      : result.apoio === "3maior"                ? result.lM / result.LM
       : null;
+    const alphaLabel = result.apoio === "4"
+      ? `α (Tab. 6${alphaRatio !== null ? " · razão " + fmt(alphaRatio, 3) : ""})`
+      : result.apoio === "3menor" || result.apoio === "3maior"
+      ? `α (Tab. 7${alphaRatio !== null ? " · razão " + fmt(alphaRatio, 3) : ""})`
+      : "α (constante — 2 lados)";
 
-    const title = status ? status.title : (result.ok
-      ? "Composição aprovada"
-      : result.okF === null && result.okR
-      ? "Composição aprovada em resistência"
-      : "Composição reprovada");
+    function heatLabel(eps3) {
+      return technical && technical.heatLabel ? technical.heatLabel(eps3) : engine.gtLabel(eps3);
+    }
+
+    // Utilization.
+    const uR    = result.uR  || 0;
+    const uF    = result.uF  !== null && result.uF !== undefined ? result.uF : null;
+    const vCardR = result.okR ? "ok" : "fail";
+    const vCardF = uF === null ? "neutral" : result.okF ? "ok" : "fail";
 
     app.UI.get("reportContent").innerHTML = `
+      <!-- ── Header ── -->
       <div class="rp-header">
         <div>
           <img src="../../assets/olgacolor-logo.png" alt="Olgacolor" class="rp-logo">
           <div class="rp-title">Memorial de Cálculo de Vidro</div>
-          <div class="rp-sub">${constants.APP_META.normRef} · versão ${constants.APP_META.version}</div>
+          <div class="rp-sub">${constants.APP_META.normRef} · v${constants.APP_META.version}</div>
         </div>
         <div class="rp-meta">
           Data: ${data}<br>
           ${resp ? `Responsável: ${resp}<br>` : ""}
           Norma: ${constants.APP_META.normRef}<br>
-          Fator c = 1,0
+          Coeficiente c = 1,0
         </div>
       </div>
+
       ${obra ? `<div class="rp-obra">Obra / Projeto: ${obra}</div>` : ""}
-      <div class="rp-summary">
-        <div class="rp-summary-card">
-          <div class="rp-summary-k">Resultado</div>
-          <div class="rp-summary-v">${title}</div>
+
+      <!-- ── 2-column overview ── -->
+      <div class="rp-overview">
+        <div>
+          <div class="rp-block-title">Dados do Painel</div>
+          <table class="rp-info-table">
+            <tr><td class="rp-ik">Largura × Altura</td><td class="rp-iv">${fmt(inputs.wMM, 0)} × ${fmt(inputs.hMM, 0)} mm</td></tr>
+            <tr><td class="rp-ik">Área S</td><td class="rp-iv">${fmt(result.S, 4)} m²</td></tr>
+            <tr><td class="rp-ik">Apoio</td><td class="rp-iv">${apoioLabel}</td></tr>
+            <tr><td class="rp-ik">Pe</td><td class="rp-iv">${inputs.Pv} Pa (${pressureLabel.toLowerCase()})</td></tr>
+            <tr><td class="rp-ik">P = 1,5 × Pe</td><td class="rp-iv">${result.P.toFixed(0)} Pa</td></tr>
+          </table>
+
+          <div class="rp-block-title" style="margin-top:10px">Composição</div>
+          ${buildLaminateStack(inputs, result)}
         </div>
-        <div class="rp-summary-card">
-          <div class="rp-summary-k">Composição analisada</div>
-          <div class="rp-summary-v">${composicao}</div>
-        </div>
-        <div class="rp-summary-card">
-          <div class="rp-summary-k">Critério governante</div>
-          <div class="rp-summary-v">${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}</div>
-        </div>
-        <div class="rp-summary-card">
-          <div class="rp-summary-k">Leitura rápida</div>
-          <div class="rp-summary-v">${status ? status.quickSummary : `eR ${result.okR ? "ok" : "não ok"} · ${result.fLim !== null ? `f ${result.okF ? "ok" : "não ok"}` : "f depende do projeto"}`}</div>
+
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div class="rp-sketch-wrap">
+            ${buildLightPanelSvg(inputs.wMM, inputs.hMM, inputs.apoio)}
+          </div>
+          <div class="rp-apoio-label">${apoioLabel}</div>
         </div>
       </div>
-      <table class="rp-table">
-        ${rsection("Dados do painel")}
-        ${rrow("Dimensões (largura x altura)", `${inputs.wMM} x ${inputs.hMM} mm`)}
-        ${rrow("Área S", `${app.UI.fmt(result.S, 4)} m²`)}
-        ${rrow("Condição de apoio", constants.APOIO_LABEL[inputs.apoio])}
-        ${rrow("Método da pressão", pressureLabel)}
-        ${rrow("Pe - pressão de ensaio", `${inputs.Pv} Pa`)}
-        ${rrow("P = 1,5 x Pe", `${result.P.toFixed(0)} Pa`)}
-        ${pressure ? rrow(pressure.detailPrimaryLabel, pressure.detailPrimaryValue) : ""}
-        ${pressure && pressure.mode === "auto" && inputs.pressureMeta && inputs.pressureMeta.context ? rrow("Isopleta básica", `${inputs.pressureMeta.context.isopleta} m/s`) : ""}
-        ${pressure ? rrow(pressure.detailSecondaryLabel, pressure.detailSecondaryValue) : ""}
-        ${pressure && pressure.mode === "auto" && inputs.pressureMeta && inputs.pressureMeta.context ? rrow("Faixa de pavimentos", `Até ${inputs.pressureMeta.context.pavimentos}`) : ""}
-        ${rsection("Composição")}
-        ${rrow("Tipo", composicao)}
-        ${inputs.family === "laminado" ? rrow("eps2 (Tab. 4 - 2 vidros)", result.eps2.toFixed(2)) : ""}
-        ${inputs.family === "laminado"
-          ? rrow(`eps3 F1 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[0]) : engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))
-          : rrow(`eps3 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[0]) : engine.gtLabel(result.eps3vals[0])}`, result.eps3vals[0].toFixed(2))}
-        ${inputs.family === "laminado" ? rrow(`eps3 F2 - ${technical && technical.heatLabel ? technical.heatLabel(result.eps3vals[1]) : engine.gtLabel(result.eps3vals[1])}`, result.eps3vals[1].toFixed(2)) : ""}
-        ${inputs.family === "laminado" ? rrow("MAX(eps3)", result.maxEps3.toFixed(2)) : ""}
-        ${rsection("Verificação da resistência")}
-        ${rrow("Espessura de referência e1", `${result.e1.toFixed(2)} mm`)}
-        ${rrow("Limite mínimo e1 x c", `${result.e1c.toFixed(2)} mm`)}
-        ${rrow(`eR = ${eRFormula}`, `${result.eR.toFixed(2)} mm`, result.okR)}
-        ${rsection("Verificação da flecha")}
-        ${rrow(`eF = ${eFLabel}`, `${result.eF.toFixed(2)} mm`)}
-        ${rrow("b - vão de referência", `${app.UI.fmt(result.b * 1000, 0)} mm`)}
-        ${rrow(`alfa (Tab. ${result.apoio === "4" ? "6" : "7"}${alphaRatio !== null ? ` - razão ${alphaRatio.toFixed(3)}` : ""})`, result.alpha.toFixed(5))}
-        ${rrow("Flecha f = alfa x Pe x b^4 / eF^3", `${result.f.toFixed(2)} mm`, result.okF)}
-        ${rrow("Limite de flecha", result.fLim !== null ? `${result.fLim.toFixed(2)} mm` : "a definir em projeto (§ 4.7.7.3)")}
-        ${rsection("Hipóteses e rastreabilidade")}
-        ${rrow("Versão da calculadora", constants.APP_META.version)}
-        ${rrow("Critério governante", technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing))}
-        ${assumptions.map((assumption, index) => rrow(`Hipótese ${index + 1}`, assumption)).join("")}
-      </table>
-      <div class="rp-result ${result.ok ? "ok" : "fail"}">
-        <div class="rp-result-icon">${result.ok ? "✓" : "✕"}</div>
-        <div>
-          <div class="rp-result-title">${title}</div>
-          <div class="rp-result-sub">
-            Resistência: eR = ${result.eR.toFixed(2)} mm ${result.okR ? ">=" : "<"} ${result.e1c.toFixed(2)} mm (${(result.uR * 100).toFixed(0)}% da demanda)
-            &nbsp;·&nbsp;
-            Flecha: f = ${result.f.toFixed(2)} mm ${result.fLim !== null ? (result.okF ? "<=" : ">") : "com"} ${result.fLim !== null ? `${result.fLim.toFixed(2)} mm` : "limite a definir"}${result.fLim !== null ? ` (${((result.uF || 0) * 100).toFixed(0)}%)` : ""}
+
+      <!-- ── Verification cards with formula details ── -->
+      <div class="rp-verify-row">
+        <div class="rp-verify-card ${vCardR}">
+          <div class="rp-verify-label">Resistência — eR</div>
+          <div class="rp-verify-val">${fmt(result.eR, 2)} mm</div>
+          <div class="rp-verify-limit">${result.okR ? "≥" : "<"} e1·c = ${fmt(result.e1c, 2)} mm</div>
+          ${uBar(uR, result.okR)}
+          <div class="rp-verify-pct">${(uR * 100).toFixed(0)}% da demanda</div>
+          <div class="rp-verify-detail">
+            e1 = ${fmt(result.e1, 2)} mm &nbsp;·&nbsp; eR = ${eRFormula}
+          </div>
+        </div>
+        <div class="rp-verify-card ${vCardF}">
+          <div class="rp-verify-label">Flecha — f</div>
+          <div class="rp-verify-val">${fmt(result.f, 2)} mm</div>
+          <div class="rp-verify-limit">${result.fLim !== null
+            ? `${result.okF ? "≤" : ">"} fLim = ${fmt(result.fLim, 2)} mm`
+            : "Limite a definir em projeto"}</div>
+          ${uBar(uF, result.okF)}
+          <div class="rp-verify-pct">${uF !== null ? `${(uF * 100).toFixed(0)}% da demanda` : "§ 4.7.7.3"}</div>
+          <div class="rp-verify-detail">
+            eF = ${eFLabel} &nbsp;·&nbsp; b = ${fmt(result.b * 1000, 0)} mm<br>
+            ${alphaLabel} = ${result.alpha.toFixed(5)}
           </div>
         </div>
       </div>
+
+      <!-- ── Result box ── -->
+      <div class="rp-result-big" style="background:${resultBg};border-color:${resultBorder}">
+        <div class="rp-result-big-icon" style="background:${resultColor}">${resultIcon}</div>
+        <div>
+          <div class="rp-result-big-title" style="color:${resultColor}">${title}</div>
+          <div class="rp-result-big-sub">
+            eR ${fmt(result.eR, 2)} ${result.okR ? "≥" : "<"} ${fmt(result.e1c, 2)} mm (${(uR * 100).toFixed(0)}%)
+            &nbsp;·&nbsp;
+            f ${fmt(result.f, 2)} ${result.fLim !== null
+              ? `${result.okF ? "≤" : ">"} ${fmt(result.fLim, 2)} mm (${((uF || 0) * 100).toFixed(0)}%)`
+              : "— limite a definir"}
+            &nbsp;·&nbsp; Gov: ${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}
+          </div>
+        </div>
+      </div>
+
       <div class="rp-norma">
-        ${constants.APP_META.normRef} · Fórmulas principais: §§ 4.7.3, 4.7.6.3, 4.7.7.2 e 4.7.7.5 · Tabelas 4, 6 e 7
+        ${assumptions.join(" · ")}
+        <br>
+        ${constants.APP_META.normRef} · §§ 4.7.3 · 4.7.6.3 · 4.7.7.2 · 4.7.7.5 · Tab. 4, 6, 7
+        ${pressure && pressure.mode === "auto" ? " · Pressão via NBR 10821" : ""}
+        · v${constants.APP_META.version}
       </div>`;
 
-    document.title = obra ? `${obra} - ${constants.APP_META.normRef}` : `Memorial de Cálculo - ${constants.APP_META.normRef}`;
+    document.title = obra
+      ? `${obra} — ${constants.APP_META.normRef}`
+      : `Memorial de Cálculo — ${constants.APP_META.normRef}`;
     app.UI.get("reportOverlay").classList.add("active");
     window.scrollTo(0, 0);
   }

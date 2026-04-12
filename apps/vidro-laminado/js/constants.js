@@ -27,15 +27,19 @@
     },
     APOIO_LABEL: {
       "4": "4 lados (perimetro)",
-      "3menor": "3 lados - borda livre = menor dim.",
-      "3maior": "3 lados - borda livre = maior dim.",
-      "2": "2 lados opostos"
+      "2largura": "2 lados - laterais apoiadas",
+      "2altura": "2 lados - topo e base apoiados",
+      "3menor": "3 lados - largura livre",
+      "3maior": "3 lados - altura livre",
+      "2": "2 lados - topo e base apoiados"
     },
     SUPPORT_INFO: {
       "4": "<span>4 lados:</span> e1 = raiz(S x P / 100) se L/l <= 2,5; ou e1 = l x raiz(P) / 6,3 se L/l > 2,5. Limite de flecha: l/60 com cap de 30 mm.",
-      "3menor": "<span>3 lados, borda livre = menor:</span> e1 = l x raiz(P) / 6,3. b = l (borda livre). Limite de flecha: l/100 com cap de 50 mm.",
-      "3maior": "<span>3 lados, borda livre = maior:</span> e1 = raiz(L x 3 x l x P / 100) se L/l <= 7,5; ou 3 x l x raiz(P) / 6,3 se L/l > 7,5. b = L (borda livre). Limite: L/100 com cap de 50 mm.",
-      "2": "<span>2 lados opostos:</span> e1 = l x raiz(P) / 6,3 e alfa = 2,1143. O limite de flecha deve ser definido em projeto, conforme a norma."
+      "2largura": "<span>2 lados, laterais apoiadas:</span> os apoios estao nas bordas verticais e o vao entre apoios e a largura. e1 = vao x raiz(P) / 6,3 e alfa = 2,1143. O limite de flecha deve ser definido em projeto.",
+      "2altura": "<span>2 lados, topo e base apoiados:</span> os apoios estao nas bordas horizontais e o vao entre apoios e a altura. e1 = vao x raiz(P) / 6,3 e alfa = 2,1143. O limite de flecha deve ser definido em projeto.",
+      "3menor": "<span>3 lados, largura livre:</span> a borda sem apoio é a horizontal. e1 = l x raiz(P) / 6,3. b = l (borda livre). Limite de flecha: l/100 com cap de 50 mm.",
+      "3maior": "<span>3 lados, altura livre:</span> a borda sem apoio é a vertical. e1 = raiz(L x 3 x l x P / 100) se L/l <= 7,5; ou 3 x l x raiz(P) / 6,3 se L/l > 7,5. b = L (borda livre). Limite: L/100 com cap de 50 mm.",
+      "2": "<span>2 lados, topo e base apoiados:</span> os apoios estao nas bordas horizontais e o vao entre apoios e a altura. e1 = vao x raiz(P) / 6,3 e alfa = 2,1143. O limite de flecha deve ser definido em projeto."
     },
     CONFIGS_LAM: [
       { h1: 3, h2: 3 }, { h1: 4, h2: 4 }, { h1: 4, h2: 5 }, { h1: 5, h2: 5 },

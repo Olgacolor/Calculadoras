@@ -5,7 +5,8 @@
   const state = {
     family: "laminado",
     pressureMode: "auto",
-    snapshot: null
+    snapshot: null,
+    disclaimerAccepted: false
   };
 
   function resolveAutoPressure() {
@@ -32,10 +33,13 @@
       family: state.family,
       pressureMeta: pressureMeta,
       panes: state.family === "laminado"
-        ? [
-          { h: Number(app.UI.get("h1").value), eps3: Number(app.UI.get("gt1").value) },
-          { h: Number(app.UI.get("h2").value), eps3: Number(app.UI.get("gt2").value) }
-        ]
+        ? (function () {
+          var gt = Number(app.UI.get("gtLam").value);
+          return [
+            { h: Number(app.UI.get("h1").value), eps3: gt },
+            { h: Number(app.UI.get("h2").value), eps3: gt }
+          ];
+        })()
         : [
           { h: Number(app.UI.get("monoH").value), eps3: Number(app.UI.get("monoGt").value) }
         ]
@@ -53,16 +57,40 @@
     if (inputs.family === "laminado") {
       app.UI.get("h1").value = inputs.panes[0].h;
       app.UI.get("h2").value = inputs.panes[1].h;
-      app.UI.get("gt1").value = inputs.panes[0].eps3.toFixed(2);
-      app.UI.get("gt2").value = inputs.panes[1].eps3.toFixed(2);
+      app.UI.get("gtLam").value = inputs.panes[0].eps3.toFixed(2);
     } else {
       app.UI.get("monoH").value = inputs.panes[0].h;
       app.UI.get("monoGt").value = inputs.panes[0].eps3.toFixed(2);
     }
   }
 
+  function buildPreviewInputs(rawInputs) {
+    return {
+      wMM: Number.isFinite(rawInputs.wMM) && rawInputs.wMM > 0 ? rawInputs.wMM : 1200,
+      hMM: Number.isFinite(rawInputs.hMM) && rawInputs.hMM > 0 ? rawInputs.hMM : 2400,
+      Pv: Number.isFinite(rawInputs.Pv) && rawInputs.Pv > 0 ? rawInputs.Pv : 0,
+      apoio: rawInputs.apoio || "4",
+      family: rawInputs.family,
+      pressureMeta: rawInputs.pressureMeta,
+      panes: rawInputs.panes
+    };
+  }
+
   function calculateAndRender() {
     const rawInputs = readInputs();
+    const previewInputs = buildPreviewInputs(rawInputs);
+
+    app.UI.updateInfoApoio(previewInputs.apoio);
+    app.UI.renderPressureContext(previewInputs);
+    app.UI.renderPanelPreview(previewInputs, null);
+    app.UI.updateCross(previewInputs);
+
+    if (!state.disclaimerAccepted) {
+      app.UI.renderLockedState();
+      state.snapshot = null;
+      return null;
+    }
+
     const fallbackValidation = technical && technical.evaluate ? null : app.Engine.validateInputs(rawInputs);
     const evaluation = technical && technical.evaluate
       ? technical.evaluate(rawInputs)
@@ -83,6 +111,7 @@
     syncNormalizedInputs(inputs);
     app.UI.updateInfoApoio(inputs.apoio);
     app.UI.renderPressureContext(inputs, technicalResult && technicalResult.pressure);
+    app.UI.renderPanelPreview(inputs, technicalResult);
     app.UI.updateCross(inputs);
     app.UI.renderValidation(validation.issues, validation.assumptions);
     app.UI.renderStatus(inputs, result, technicalResult);
@@ -169,7 +198,7 @@
       });
     });
 
-    ["width", "height", "pv", "apoio", "h1", "h2", "gt1", "gt2", "monoH", "monoGt"].forEach((id) => {
+    ["width", "height", "pv", "apoio", "h1", "h2", "gtLam", "monoH", "monoGt"].forEach((id) => {
       const element = app.UI.get(id);
       if (!element) return;
       element.addEventListener("change", calculateAndRender);
@@ -182,7 +211,45 @@
       element.addEventListener("change", calculateAndRender);
     });
 
-    app.UI.get("btnRelatorio").addEventListener("click", app.Report.gerarRelatorio);
+    const disclaimerAccept = app.UI.get("disclaimerAccept");
+    if (disclaimerAccept) {
+      disclaimerAccept.addEventListener("change", function () {
+        state.disclaimerAccepted = Boolean(disclaimerAccept.checked);
+        app.UI.syncDisclaimer(state.disclaimerAccepted);
+        calculateAndRender();
+      });
+    }
+
+    document.querySelectorAll("[data-adjust]").forEach((button) => {
+      button.addEventListener("click", function () {
+        const widthInput = app.UI.get("width");
+        const heightInput = app.UI.get("height");
+        const currentWidth = Number(widthInput.value || 1200);
+        const currentHeight = Number(heightInput.value || 2400);
+        const step = 50;
+
+        if (button.dataset.adjust === "width-minus") widthInput.value = Math.max(200, currentWidth - step);
+        if (button.dataset.adjust === "width-plus") widthInput.value = Math.min(6000, currentWidth + step);
+        if (button.dataset.adjust === "height-minus") heightInput.value = Math.max(200, currentHeight - step);
+        if (button.dataset.adjust === "height-plus") heightInput.value = Math.min(6000, currentHeight + step);
+        calculateAndRender();
+      });
+    });
+
+    document.querySelectorAll("[data-apoio-preview]").forEach((button) => {
+      button.addEventListener("click", function () {
+        app.UI.get("apoio").value = button.dataset.apoioPreview;
+        calculateAndRender();
+      });
+    });
+
+    app.UI.get("btnRelatorio").addEventListener("click", function () {
+      if (!state.disclaimerAccepted) {
+        app.UI.syncDisclaimer(false, true);
+        return;
+      }
+      app.Report.gerarRelatorio();
+    });
     app.UI.get("btnPrintReport").addEventListener("click", app.Report.imprimirRelatorio);
     app.UI.get("btnCloseReport").addEventListener("click", app.Report.fecharRelatorio);
   }
@@ -197,6 +264,8 @@
   setFamily("laminado");
   setPressureMode("auto");
   populatePressureFields();
+  app.UI.renderSupportThumbs();
   bindEvents();
+  app.UI.syncDisclaimer(false);
   calculateAndRender();
 }());

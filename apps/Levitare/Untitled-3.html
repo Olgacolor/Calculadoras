@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levitare - Custo de Venda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #161b22; --bg-2: #1c2230; --panel: #1f242d; --panel-2: #252b35; --panel-3: #2a3040;
+    --ink: #e8edf3; --ink-soft: #b8c8d8; --muted: #7a8a9a; --line: #2e3642; --line-strong: #3d4a5c;
+    --teal-deep: #078392; --accent: #13a2b3; --accent-2: #42d6aa; --sun: #f4d73d; --warn: #f4b64a;
+    --bad: #ff7d7d; --good: #57dca8; --radius: 10px; --radius-sm: 6px;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.30); --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.20);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100vh; background: linear-gradient(180deg, #1a1f27 0%, var(--bg) 50%);
+    color: var(--ink); font-family: "DM Sans", sans-serif; line-height: 1.5; padding-bottom: 64px; color-scheme: dark;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: 0.24;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 52px 52px; mask-image: linear-gradient(180deg, black 0 280px, transparent 520px);
+  }
+  header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); background: rgba(22, 27, 34, 0.90); border-bottom: 1px solid var(--line); }
+  .header-inner { max-width: 1080px; margin: 0 auto; padding: 24px 20px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { height: 34px; display: block; }
+  .brand-copy strong { display: block; font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+  .brand-copy span { display: block; font-size: 11px; color: rgba(255, 255, 255, 0.58); text-transform: uppercase; letter-spacing: 1.3px; }
+  .header-result { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+  .header-result.visible { opacity: 1; pointer-events: auto; }
+  .hr-value { font-family: "DM Mono", monospace; font-size: 18px; font-weight: 400; color: var(--accent-2); letter-spacing: -0.5px; }
+  .hr-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.3px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 0; position: relative; z-index: 1; }
+  .intro { display: grid; grid-template-columns: 1fr; gap: 0; margin-bottom: 0; }
+  .hero, .quick-panel, .card { background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-soft); }
+  .hero { padding: 26px; position: relative; overflow: hidden; background: linear-gradient(160deg, var(--panel-2), var(--panel)); color: #ffffff; }
+  .eyebrow, .card-title, .subcard-title { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #91a5b8; }
+  .hero .eyebrow { color: rgba(244, 215, 61, 0.86); }
+  .hero h1 { margin: 10px 0 12px; font-size: clamp(25px, 4vw, 36px); line-height: 1.05; letter-spacing: -1.2px; max-width: 680px; color: #ffffff; }
+  .hero p { max-width: 660px; margin: 0; color: rgba(255, 255, 255, 0.72); font-size: 15px; }
+  .hero-points { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-point { border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 8px 12px; font-size: 12px; color: #ffffff; font-weight: 700; }
+  .quick-panel { padding: 22px; display: grid; gap: 14px; align-content: start; }
+  .quick-metric { border: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 14px; }
+  .quick-metric strong { display: block; font-size: 13px; color: #dce7f5; margin-bottom: 4px; }
+  .quick-metric span { display: block; font-size: 12px; color: var(--muted); }
+  .layout { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid var(--line); border-radius: 12px; padding: 28px; box-shadow: var(--shadow); }
+  .stack { display: grid; gap: 18px; position: relative; z-index: 1; margin-top: 26px; }
+  .card { padding: 24px; position: relative; background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); box-shadow: var(--shadow-soft); }
+  .leaf-dim-bar { min-height: 1px; margin-top: 2px; text-align: center; font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255, 255, 255, 0.18); letter-spacing: 0.03em; }
+  .card-title { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; color: var(--ink); position: relative; z-index: 1; }
+  .card-title::before { content: ""; width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(135deg, rgba(19, 162, 179, 0.2), rgba(66, 214, 170, 0.12)); border: 1px solid rgba(19, 162, 179, 0.24); }
+  .flow-card .card-title::before { display: inline-grid; place-items: center; color: #9ff4ff; font-family: "DM Mono", monospace; font-size: 11px; font-weight: 700; }
+  .flow-card[data-step="01"] .card-title::before { content: "01"; } .flow-card[data-step="02"] .card-title::before { content: "02"; }
+  .flow-card[data-step="03"] .card-title::before { content: "03"; } .flow-card[data-step="04"] .card-title::before { content: "04"; }
+  .flow-card[data-step="05"] .card-title::before { content: "05"; }
+  .flow-card { border-left: 0; }
+  .flow-card::before { content: ""; position: absolute; left: 0; top: 22px; bottom: 22px; width: 5px; border-radius: 999px; background: linear-gradient(180deg, var(--teal-deep), var(--accent-2)); }
+  .action-card { background: linear-gradient(135deg, rgba(17, 19, 18, 0.96), rgba(28, 32, 31, 0.96)); border-color: rgba(255, 255, 255, 0.08); color: #ffffff; }
+  .action-card .card-title { color: #ffffff; }
+  .action-card .card-title::before { background: rgba(244, 215, 61, 0.14); border-color: rgba(244, 215, 61, 0.28); color: var(--sun); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .span-2 { grid-column: 1 / -1; }
+  .field { display: grid; gap: 7px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .field input, .field select, .field textarea { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: linear-gradient(180deg, rgba(15, 22, 30, 0.98), rgba(12, 18, 25, 0.98)); color: var(--ink); font-family: "DM Mono", monospace; font-size: 16px; transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease; }
+  .action-card .ghost-btn { background: rgba(255, 255, 255, 0.08); color: #ffffff; border-color: rgba(255, 255, 255, 0.12); }
+  .action-card .btn { background: linear-gradient(135deg, var(--sun), #f5bb2b); color: #151713; box-shadow: 0 18px 35px rgba(244, 215, 61, 0.18); }
+  .field select option { color: #e8f1fb; background: #121a22; }
+  .field textarea { min-height: 92px; resize: vertical; padding: 12px 14px; font-family: "DM Sans", sans-serif; }
+  .field select { font-family: "DM Sans", sans-serif; font-weight: 600; color-scheme: dark; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(19, 162, 179, 0.16); background: #0e151d; }
+  .hint, .unit, .helper { font-size: 12px; color: var(--muted); }
+  .helper strong { color: var(--ink); font-weight: 600; }
+  .segmented, .plan-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .color-group { display: flex; gap: 8px; flex-wrap: nowrap; }
+  .seg-btn, .plan-pill, .color-pill { border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); color: var(--muted); cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.18s ease; }
+  .seg-btn { min-height: 42px; padding: 0 14px; font-size: 13px; font-weight: 700; font-family: "DM Sans", sans-serif; }
+  .plan-pill { padding: 12px 14px; min-width: 110px; }
+  .color-pill { padding: 10px 12px; flex: 1; min-width: 0; text-align: center; }
+  .plan-pill { display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 700; line-height: 1.2; }
+  .plan-pill small { font-size: 10px; font-weight: 400; font-family: "DM Mono", monospace; color: var(--muted); letter-spacing: 0.2px; }
+  .plan-pill.active small { color: rgba(223, 252, 255, 0.7); }
+  .seg-btn:hover, .plan-pill:hover, .color-pill:hover { transform: translateY(-1px); border-color: rgba(19, 162, 179, 0.58); color: #c6f7ff; box-shadow: var(--shadow-soft); }
+  .seg-btn.active, .plan-pill.active, .color-pill.active { border-color: var(--accent); background: rgba(19, 162, 179, 0.16); color: #dffcff; }
+  .color-pill small { display: block; font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .subcard { border: 1px solid var(--line); background: var(--panel-2); border-radius: 8px; padding: 16px; display: grid; gap: 14px; }
+  .subcard-title { margin-bottom: 2px; }
+  .subcard-note { font-size: 13px; color: var(--ink-soft); }
+  .glass-chip, .inline-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid rgba(19, 162, 179, 0.22); background: rgba(19, 162, 179, 0.11); color: #b9f8ff; }
+  .glass-chip.ok { color: var(--accent-2); } .glass-chip.warn { color: var(--warn); } .glass-chip.bad { color: var(--bad); }
+  .banner { display: none; align-items: flex-start; gap: 10px; padding: 13px 14px; border-radius: 12px; font-size: 13px; line-height: 1.45; position: relative; z-index: 1; }
+  .banner.visible { display: flex; } .banner strong { color: inherit; }
+  .banner ul { margin: 8px 0 0; padding-left: 18px; } .banner li { margin: 4px 0; }
+  .blocking-title { display: block; font-weight: 800; margin-bottom: 4px; }
+  .blocking-summary { display: block; opacity: 0.95; }
+  .solver-block { margin-top: 12px; display: grid; gap: 8px; }
+  .solver-option { border: 1px solid rgba(255, 255, 255, 0.11); background: rgba(255, 255, 255, 0.055); border-radius: 10px; padding: 10px 12px; }
+  .solver-option strong { display: block; margin-bottom: 4px; }
+  .solver-option span { display: block; font-size: 12px; opacity: 0.92; }
+  .solver-apply { margin-top: 8px; border: 1px solid rgba(92, 240, 200, 0.42); background: rgba(92, 240, 200, 0.13); color: #b7fff0; border-radius: 999px; padding: 8px 12px; font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; }
+  .solver-muted { font-size: 12px; opacity: 0.86; }
+  .banner.error { border: 1px solid rgba(255, 125, 125, 0.34); background: rgba(255, 125, 125, 0.13); color: #ffd0d0; }
+  .banner.warn { border: 1px solid rgba(244, 182, 74, 0.34); background: rgba(244, 182, 74, 0.12); color: #ffe1a8; }
+  .banner.info { border: 1px solid rgba(19, 162, 179, 0.28); background: rgba(19, 162, 179, 0.11); color: #d5faff; }
+  .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .btn, .ghost-btn { min-height: 50px; border: none; border-radius: 6px; font-family: "DM Sans", sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+  .btn { padding: 0 20px; background: linear-gradient(135deg, var(--accent), #2a82cf); color: white; box-shadow: 0 18px 35px rgba(31, 111, 178, 0.22); }
+  .ghost-btn { padding: 0 16px; background: rgba(255, 255, 255, 0.06); color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn:hover, .ghost-btn:hover, .report-btn:hover { transform: translateY(-1px); }
+  #results { display: none; gap: 16px; } #results.visible { display: grid; }
+  .hero-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .hero-card { border: 1px solid var(--line); border-radius: 8px; padding: 20px; background: var(--panel); box-shadow: var(--shadow-soft); }
+  .hero-card.primary { background: linear-gradient(135deg, #057080, #0e8fa0); border-color: rgba(19, 162, 179, 0.38); color: #ffffff; }
+  .hero-card.primary .hero-label, .hero-card.primary .hero-sub, .hero-card.primary .hero-value { color: #ffffff; }
+  .hero-card.secondary { background: linear-gradient(135deg, rgba(66, 214, 170, 0.14), rgba(25, 33, 42, 0.98)); border-color: rgba(66, 214, 170, 0.22); }
+  .hero-card.alert { background: linear-gradient(135deg, rgba(244, 182, 74, 0.14), rgba(25, 33, 42, 0.98)); border-color: rgba(244, 182, 74, 0.22); }
+  .hero-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+  .hero-value { margin-top: 8px; font-family: "DM Mono", monospace; font-size: clamp(26px, 4vw, 34px); letter-spacing: -0.8px; color: var(--ink); }
+  .hero-sub { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  .breakdown-list, .detail-grid, .observations { display: grid; gap: 12px; }
+  .breakdown-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+  .breakdown-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .breakdown-bar-wrap { margin-top: 8px; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255, 255, 255, 0.08); }
+  .breakdown-bar { height: 100%; border-radius: 999px; }
+  .breakdown-value { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 600; }
+  .divider { height: 1px; background: rgba(255, 255, 255, 0.06); }
+  .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detail-item { border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); padding: 14px; }
+  .detail-item span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+  .detail-item strong { font-family: "DM Mono", monospace; font-size: 14px; color: var(--ink); }
+  .detail-item strong.good { color: var(--good); } .detail-item strong.warn { color: var(--warn); }
+  .observations { margin-top: 4px; }
+  .obs-item { border-left: 3px solid rgba(19, 162, 179, 0.78); padding: 8px 0 8px 12px; font-size: 13px; color: var(--ink-soft); }
+  .sidebar { position: sticky; top: 92px; display: grid; gap: 16px; z-index: 1; margin-top: 26px; }
+  .sidebar .hero { padding: 22px; box-shadow: 0 24px 70px rgba(5, 9, 14, 0.22); }
+  .sidebar .hero h1 { font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.7px; }
+  .sidebar .hero p { font-size: 14px; }
+  .sidebar .hero::after { width: 64px; height: 64px; border-radius: 20px; }
+  .sidebar-card { padding: 20px; }
+  .sidebar-card p { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
+  .sidebar-list { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .sidebar-list li { font-size: 13px; color: var(--ink-soft); padding-left: 18px; position: relative; }
+  .sidebar-list li::before { content: ""; position: absolute; left: 0; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .report-btn { min-height: 48px; border: 1px solid rgba(19, 162, 179, 0.24); border-radius: 6px; background: rgba(19, 162, 179, 0.11); color: #d5faff; font-family: "DM Sans", sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .wind-toggle { display: flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: border-color 0.18s, color 0.18s; width: 100%; text-align: left; }
+  .wind-toggle:hover { border-color: var(--accent); color: var(--ink-soft); }
+  .wind-toggle .wt-arrow { display: inline-block; transition: transform 0.22s; font-style: normal; font-size: 10px; }
+  .wind-toggle.open .wt-arrow { transform: rotate(90deg); }
+  .wind-params { display: none; } .wind-params.open { display: grid; gap: 14px; }
+  .measure-display { display: flex; align-items: baseline; gap: 6px; }
+  .measure-value { font-family: "DM Mono", monospace; font-size: 22px; font-weight: 300; color: var(--ink); letter-spacing: -0.5px; }
+  .measure-unit { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+  #reportOverlay { position: fixed; inset: 0; display: none; background: rgba(23, 32, 51, 0.52); backdrop-filter: blur(12px); z-index: 40; padding: 24px; overflow: auto; }
+  #reportOverlay.visible { display: block; }
+  .report-shell { max-width: 980px; margin: 0 auto; background: white; color: #111827; border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+  .report-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; background: #172033; color: white; position: sticky; top: 0; }
+  .report-toolbar strong { font-size: 14px; letter-spacing: 0.3px; }
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .report-actions button { min-height: 38px; border-radius: 10px; border: none; padding: 0 14px; font-family: "DM Sans", sans-serif; font-weight: 700; cursor: pointer; }
+  .print-btn { background: #2563eb; color: white; } .close-btn { background: rgba(255, 255, 255, 0.1); color: white; }
+  #reportContent { padding: 28px; }
+  .config-layout { display: flex; flex-direction: column; gap: 16px; }
+  .door-preview-wrap { background: rgba(0, 0, 0, 0.22); border-radius: 8px; padding: 10px 8px 6px; border: 1px solid rgba(255, 255, 255, 0.06); position: relative; }
+  .coat-edit-input { position: absolute; background: rgba(8, 12, 17, 0.96); border: 1px solid var(--accent); color: var(--ink); font-family: "DM Mono", monospace; font-size: 11px; padding: 3px 8px; border-radius: 6px; width: 90px; text-align: center; z-index: 10; outline: none; display: none; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; padding: 22px; } .sidebar { position: static; order: -1; margin-top: 0; } .sidebar .intro { display: none; } }
+  @media (max-width: 720px) {
+    .grid, .hero-row, .detail-grid { grid-template-columns: 1fr; }
+    .header-inner, main { padding-left: 16px; padding-right: 16px; }
+    main { padding-top: 18px; } .layout { border-radius: 8px; padding: 16px; } .stack { margin-top: 18px; }
+    .hero, .quick-panel, .card { padding: 18px; }
+    .actions, .segmented { display: grid; grid-template-columns: 1fr; }
+    .btn, .ghost-btn, .report-btn, .seg-btn, .plan-pill, .color-pill { width: 100%; }
+    .plan-pills { display: flex; flex-wrap: nowrap; } .plan-pill { flex: 1; width: auto; }
+    .breakdown-item { grid-template-columns: 1fr; gap: 8px; }
+  }
+  @media print {
+    body { background: white; } #reportOverlay { position: static; display: block; background: white; padding: 0; overflow: visible; }
+    .report-toolbar { display: none; } .report-shell { box-shadow: none; border-radius: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Olgacolor">
+      <div class="brand-copy">
+        <strong>Levitare</strong>
+        <span>Orçamento orientativo de materiais</span>
+      </div>
+    </div>
+    <div class="header-result" id="headerResult">
+      <div class="hr-value" id="hrTotal">—</div>
+      <div class="hr-sub" id="hrSub">—</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="layout">
+    <div class="stack">
+      <div class="card flow-card" data-step="01">
+        <div class="card-title">Dados da obra</div>
+        <div class="grid">
+          <div class="field span-2">
+            <label for="cliente">Cliente</label>
+            <input id="cliente" type="text" placeholder="Nome do cliente" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div class="field span-2">
+            <label for="obra">Obra / ambiente</label>
+            <input id="obra" type="text" placeholder="Ex.: Sala de estar - Bloco B" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div class="field">
+            <label for="quantidade">Quantidade de portas</label>
+            <input id="quantidade" type="number" value="1" min="1" max="100" step="1" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <div class="card flow-card" data-step="02">
+        <div class="card-title">Configuração da Porta</div>
+        <input id="largura" type="hidden" value="5000">
+        <input id="altura" type="hidden" value="2700">
+        <input id="folhas" type="hidden" value="2">
+        <input id="planos" type="hidden" value="2">
+        <div id="planosPills" hidden></div>
+        <div id="larguraFolhaChip" hidden></div>
+        <div class="config-layout">
+          <div class="field finish-field">
+            <label>Acabamento</label>
+            <div id="colorGroup" class="color-group"></div>
+          </div>
+          <div class="door-preview-wrap">
+            <input class="coat-edit-input" id="coatEditInput" type="number">
+            <svg id="doorPreviewSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block;touch-action:none"></svg>
+            <div id="leafDimBar" class="leaf-dim-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card flow-card" data-step="03">
+        <div class="card-title">Vidro</div>
+        <div class="grid">
+          <div class="field span-2">
+            <label>Modo de espessura</label>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-mode="auto">Calculada</button>
+              <button type="button" class="seg-btn" data-mode="manual">Manual</button>
+            </div>
+            <span class="helper">No modo calculado, o app usa a lógica do calculador de vidro para sugerir uma composição mínima.</span>
+          </div>
+          <div id="glassAutoBox" class="subcard span-2">
+            <div class="grid">
+              <div class="field">
+                <label>Tipo de vidro</label>
+                <input id="glassFamily" type="hidden" value="laminado">
+                <div class="inline-chip">Vidro laminado</div>
+              </div>
+              <div class="field">
+                <label for="glassHeat">Tratamento das chapas</label>
+                <select id="glassHeat">
+                  <option value="1.00" selected>Recozido (float)</option>
+                  <option value="0.80">Termoendurecido</option>
+                  <option value="0.61">Temperado</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Sugestão calculada</label>
+                <div id="glassChip" class="glass-chip">Calculando...</div>
+              </div>
+              <div class="field">
+                <label>Espessura adotada no custo</label>
+                <div id="glassChosenChip" class="inline-chip">Aguardando cálculo</div>
+              </div>
+            </div>
+            <button type="button" class="wind-toggle open" id="windToggle">
+              <i class="wt-arrow">▶</i>
+              Parâmetros de vento e norma (UF · cidade · pavimentos)
+            </button>
+            <div class="wind-params open" id="windParams">
+              <div class="grid">
+                <div class="field">
+                  <label for="windState">UF</label>
+                  <select id="windState"></select>
+                </div>
+                <div class="field">
+                  <label for="windCity">Cidade de referência</label>
+                  <select id="windCity"></select>
+                </div>
+                <div class="field">
+                  <label for="buildingFloors">Pavimentos</label>
+                  <select id="buildingFloors">
+                    <option value="2">Até 2 pavimentos (até 6 m)</option>
+                    <option value="5" selected>Até 5 pavimentos (até 15 m)</option>
+                    <option value="10">Até 10 pavimentos (até 30 m)</option>
+                    <option value="20">Até 20 pavimentos (até 60 m)</option>
+                    <option value="30">Até 30 pavimentos (até 90 m)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Base normativa</label>
+                  <div id="glassNormChip" class="inline-chip">Carregando...</div>
+                  <span id="glassNormHelp" class="helper">A pressão de referência segue a tabela da NBR 10821 conforme UF, cidade e faixa de pavimentos.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="glassManualBox" class="subcard span-2" style="display:none">
+            <div>
+              <div class="subcard-title">Espessura manual</div>
+              <div class="subcard-note">Use este modo quando você já tiver uma definição técnica e quiser sobrepor a sugestão do app.</div>
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label for="espessuraManual">Espessura total do vidro</label>
+                <input id="espessuraManual" type="text" value="12" inputmode="decimal" pattern="[0-9]*[\\.,]?[0-9]*" enterkeyhint="done" autocomplete="off">
+                <span class="unit">mm</span>
+              </div>
+              <div class="field">
+                <label>Espessura mínima que atende</label>
+                <div id="manualCompareChip" class="glass-chip warn">Aguardando sugestão automática para comparar.</div>
+                <span id="manualCompareHelp" class="helper">O app continua calculando a referência técnica ao fundo para mostrar qual composição atende neste cenário.</span>
+              </div>
+            </div>
+          </div>
+          <div id="glassAlert" class="banner info span-2">
+            <span>i</span>
+            <span id="glassAlertText"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card flow-card action-card" data-step="04">
+        <div class="card-title">Ação</div>
+        <div class="stack">
+          <div id="errorBanner" class="banner error">
+            <span>!</span>
+            <span id="errorText"></span>
+          </div>
+          <div id="dirtyBanner" class="banner info">
+            <span>i</span>
+            <span>As entradas técnicas foram alteradas depois do último cálculo. Clique em <strong>Calcular custo</strong> para atualizar o resultado.</span>
+          </div>
+          <div class="actions">
+            <button id="calcButton" class="btn" type="button">Calcular custo</button>
+            <button id="resetButton" class="ghost-btn" type="button">Voltar ao padrão</button>
+          </div>
+        </div>
+      </div>
+
+      <section id="results">
+        <div id="warnBanner" class="banner warn"><span>!</span><span id="warnText"></span></div>
+        <div class="hero-row">
+          <div class="hero-card primary"><div class="hero-label">Total de materiais</div><div class="hero-value" id="rTotal">-</div><div class="hero-sub" id="rQtyNote"></div></div>
+          <div class="hero-card secondary"><div class="hero-label">Custo por m²</div><div class="hero-value" id="rM2">-</div><div class="hero-sub" id="rArea"></div></div>
+          <div class="hero-card alert"><div class="hero-label">Vidro adotado</div><div class="hero-value" id="rGlass">-</div><div class="hero-sub" id="rGlassMode"></div></div>
+        </div>
+        <div class="card"><div class="card-title">Composição do custo</div><div id="breakdownList" class="breakdown-list"></div></div>
+        <div class="card"><div class="card-title">Leitura técnica</div><div id="detailGrid" class="detail-grid"></div><div id="observations" class="observations"></div></div>
+        <div class="card">
+          <div class="card-title">Memória comercial</div>
+          <p class="helper">Orçamento orientativo de materiais do sistema Levitare. Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. A inércia dos perfis não é calculada nesta versão.</p>
+          <div class="actions" style="margin-top:14px"><button id="reportButton" class="report-btn" type="button">Gerar relatório PDF</button></div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--warn)">
+          <div class="card-title">Atenção</div>
+          <p class="helper">Quando houver definição técnica prévia, use a espessura manual para refletir o projeto.</p>
+          <p class="helper" style="margin-top:8px">Configurações fora dos limites de peso ou carrinhos não geram custo e devem ser revisadas antes da proposta.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div id="reportOverlay">
+  <div class="report-shell">
+    <div class="report-toolbar">
+      <strong>Relatório orientativo Levitare</strong>
+      <div class="report-actions">
+        <button type="button" class="print-btn" id="printButton">Imprimir / PDF</button>
+        <button type="button" class="close-btn" id="closeReportButton">Fechar</button>
+      </div>
+    </div>
+    <div id="reportContent"></div>
+  </div>
+</div>
+
+<script src="../../assets/nbr10821/data.js"></script>
+<script src="../../assets/nbr10821/index.js"></script>
+<script src="../vidro-laminado/js/constants.js"></script>
+<script src="../vidro-laminado/js/engine.js"></script>
+<script>
+(() => {
+  if (!window.NBR10821) console.warn("Levitare: Biblioteca NBR10821 não encontrada.");
+  if (!window.VidroApp?.Engine) console.warn("Levitare: Motor de vidro não encontrado.");
+
+  const debounce = (fn, ms) => { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); }; };
+
+  const CONFIG = {
+    finishes: [ { key: "Madeira", label: "Madeira", priceKg: 60 }, { key: "Inox escovado", label: "Anodizado", priceKg: 55 }, { key: "Anod-Pint", label: "Pintura", priceKg: 45 } ],
+    perfisKgM: { LEV001: 1.57, OM005: 1.25, OM002: 1.284, OM006: 1.784, OM009: 2.054, LEV002: 0.22, OM011: 0.138, OM012: 0.333, OM018: 0.513, GSK046: 0.174, FK048: 0.054 },
+    precoTrilhoM: 300, precoCarrinho: 1000, precoAcessoriosFolha: 650, fatorPerdaAluminio: 1.1, fatorAcabamento: 1.15, capacidadeCarrinhoKg: 25
+  };
+
+  const state = { glassMode: "auto", selectedFinish: CONFIG.finishes[0], selectedPlan: 2, lastGlassSuggestion: null, lastResult: null, solverOptions: [], dirty: false };
+
+  const refs = {
+    cliente: document.getElementById("cliente"), obra: document.getElementById("obra"), largura: document.getElementById("largura"), altura: document.getElementById("altura"),
+    folhas: document.getElementById("folhas"), planos: document.getElementById("planos"), planosPills: document.getElementById("planosPills"), quantidade: document.getElementById("quantidade"),
+    larguraFolhaChip: document.getElementById("larguraFolhaChip"), glassFamily: document.getElementById("glassFamily"), glassHeat: document.getElementById("glassHeat"),
+    windState: document.getElementById("windState"), windCity: document.getElementById("windCity"), buildingFloors: document.getElementById("buildingFloors"),
+    glassNormChip: document.getElementById("glassNormChip"), glassChip: document.getElementById("glassChip"), glassChosenChip: document.getElementById("glassChosenChip"),
+    windToggle: document.getElementById("windToggle"), windParams: document.getElementById("windParams"), glassAutoBox: document.getElementById("glassAutoBox"),
+    glassManualBox: document.getElementById("glassManualBox"), espessuraManual: document.getElementById("espessuraManual"), manualCompareChip: document.getElementById("manualCompareChip"),
+    glassAlert: document.getElementById("glassAlert"), glassAlertText: document.getElementById("glassAlertText"), errorBanner: document.getElementById("errorBanner"),
+    errorText: document.getElementById("errorText"), dirtyBanner: document.getElementById("dirtyBanner"), colorGroup: document.getElementById("colorGroup"),
+    calcButton: document.getElementById("calcButton"), resetButton: document.getElementById("resetButton"), results: document.getElementById("results"),
+    warnBanner: document.getElementById("warnBanner"), warnText: document.getElementById("warnText"), rTotal: document.getElementById("rTotal"),
+    rQtyNote: document.getElementById("rQtyNote"), rM2: document.getElementById("rM2"), rArea: document.getElementById("rArea"), rGlass: document.getElementById("rGlass"),
+    rGlassMode: document.getElementById("rGlassMode"), breakdownList: document.getElementById("breakdownList"), detailGrid: document.getElementById("detailGrid"),
+    observations: document.getElementById("observations"), reportButton: document.getElementById("reportButton"), reportOverlay: document.getElementById("reportOverlay"),
+    reportContent: document.getElementById("reportContent"), printButton: document.getElementById("printButton"), closeReportButton: document.getElementById("closeReportButton"),
+    doorPreviewSvg: document.getElementById("doorPreviewSvg"), coatEditInput: document.getElementById("coatEditInput"), headerResult: document.getElementById("headerResult"),
+    hrTotal: document.getElementById("hrTotal"), hrSub: document.getElementById("hrSub")
+  };
+
+  const vidroConstants = window.VidroApp?.Constants;
+  const vidroEngine = window.VidroApp?.Engine;
+  const brl = (v) => "R$ " + Number(v||0).toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+  const num = (v, d=0) => Number(v||0).toLocaleString("pt-BR", {minimumFractionDigits:d, maximumFractionDigits:d});
+  const escapeHtml = (v) => String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\"","&quot;").replaceAll("'","&#39;");
+
+  function setBanner(node, text, visible, variant) {
+    if(!node) return; node.classList.remove("visible","error","warn","info");
+    if(variant) node.classList.add(variant); if(!visible) return; node.classList.add("visible");
+    const t = node.querySelector("span:last-child"); if(t) t.innerHTML = text;
+  }
+  function showError(m, h=false) { if(h) refs.errorText.innerHTML = m; else refs.errorText.textContent = m; refs.errorBanner.classList.add("visible"); }
+  function blockQuote(m, h=false) { clearResultsPreview(); clearDirty(); showError(m, h); }
+  function clearError() { refs.errorBanner.classList.remove("visible"); }
+  function clearResultsPreview() { refs.results.classList.remove("visible"); refs.warnBanner.classList.remove("visible"); refs.reportOverlay.classList.remove("visible"); refs.headerResult.classList.remove("visible"); state.lastResult = null; }
+  function markDirty() { if(!state.lastResult) return; clearResultsPreview(); state.dirty = true; refs.dirtyBanner.classList.add("visible"); }
+  function clearDirty() { state.dirty = false; refs.dirtyBanner.classList.remove("visible"); }
+  function normalizeInt(v, f, min, max) { const n=Number.parseInt(v,10); return Number.isFinite(n)?Math.min(max,Math.max(min,n)):f; }
+  function normalizeFloat(v, f, min, max) { const s=typeof v==="string"?v.replace(",",".").trim():v; const n=Number(s); return Number.isFinite(n)?Math.min(max,Math.max(min,n)):f; }
+  function getFolhas(c=false) { const n=Number.parseInt(refs.folhas.value,10); const f=Number.isFinite(n)?Math.min(12,Math.max(2,n)):2; if(c)refs.folhas.value=f; return f; }
+  function getPlanOptions(f) { if(f<=2) return [2]; if(f%2!==0) return [f]; return [f/2, f]; }
+  function getDefaultPlanForLeaves(f) { return getPlanOptions(f)[0]; }
+  
+  function renderPlanOptions(c=false, p=false) {
+    const f=getFolhas(c); const o=getPlanOptions(f);
+    if(p||!o.includes(state.selectedPlan)) state.selectedPlan=o[0];
+    refs.planos.value=state.selectedPlan; renderDoorPreview();
+  }
+  function renderFinishOptions() {
+    refs.colorGroup.innerHTML = CONFIG.finishes.map(f => `<button type="button" class="color-pill ${f.key===state.selectedFinish.key?"active":""}" data-finish="${f.key}"><strong>${f.label}</strong></button>`).join("");
+    refs.colorGroup.querySelectorAll(".color-pill").forEach(b => { b.addEventListener("click", () => { const f=CONFIG.finishes.find(i=>i.key===b.dataset.finish); if(!f)return; state.selectedFinish=f; renderFinishOptions(); markDirty(); }); });
+    renderDoorPreview();
+  }
+  function renderStateOptions() {
+    const s=window.NBR10821?window.NBR10821.getStates():[]; if(!s.length){refs.windState.innerHTML=`<option value="">Base indisponível</option>`;refs.windCity.innerHTML=`<option value="">Sem cidades</option>`;return;}
+    refs.windState.innerHTML=s.map(i=>`<option value="${i.uf}">${i.uf} - ${i.estado}</option>`).join("");
+    refs.windState.value=s.some(i=>i.uf==="SP")?"SP":(s[0]?s[0].uf:""); renderCityOptions(refs.windState.value);
+  }
+  function renderCityOptions(uf) {
+    const s=window.NBR10821?window.NBR10821.getStates():[]; const st=s.find(i=>i.uf===uf)||s[0]; const c=window.NBR10821?window.NBR10821.getCities(st?st.uf:uf):[];
+    if(!c.length){refs.windCity.innerHTML=`<option value="">Sem cidades</option>`;return;}
+    refs.windCity.innerHTML=c.map(i=>`<option value="${escapeHtml(i.cidade)}">${i.cidade}</option>`).join("");
+    refs.windCity.value=c.some(i=>i.cidade==="São Paulo")?"São Paulo":(c[0]?c[0].cidade:"");
+  }
+  function getNormativeContext() { const f=normalizeInt(refs.buildingFloors.value,5,2,30); refs.buildingFloors.value=f; if(!window.NBR10821) return null; return window.NBR10821.resolve({uf:refs.windState.value,city:refs.windCity.value,floors:f}); }
+  function updateLeafWidthChip(c=false) {
+    const w=normalizeFloat(refs.largura.value,5000,500,12000); const h=normalizeFloat(refs.altura.value,2700,500,5000); const f=getFolhas(c);
+    if(c){refs.largura.value=w;refs.altura.value=h;} const lw=w/f; refs.larguraFolhaChip.textContent=`${num(lw,0)} × ${num(h,0)} mm`; return {largura:w,altura:h,folhas:f,larguraFolha:lw};
+  }
+  function getHeatLabel(e) { return {"1.00":"Recozido","0.80":"Termoendurecido","0.61":"Temperado"}[String(Number(e).toFixed(2))]<<"Especial"; }
+  function buildCandidateList(fam, eps) { if(!vidroConstants)return[]; if(fam==="monolitico") return vidroConstants.CONFIGS_MONO.map(t=>({label:`${t} mm`,totalThickness:t,panes:[{h:t,eps3:eps}]})); return vidroConstants.CONFIGS_LAM.map(c=>({label:`${c.h1} + ${c.h2} mm`,totalThickness:c.h1+c.h2,panes:[{h:c.h1,eps3:eps},{h:c.h2,eps3:eps}]})); }
+
+  function suggestGlassFor(p) {
+    if(!vidroEngine||!vidroConstants) return {ok:false,tone:"bad",chipText:"Motor indisponível",helpText:"Scripts não encontrados.",chosenText:"Sem ref.",alertText:"Depende dos arquivos de vidro.",adoptedThickness:null};
+    const alt=p.altura, lw=p.larguraFolha, fam="laminado", ap="4", norm=p.normative||getNormativeContext(), pres=norm&&norm.pe?norm.pe:750, eps=normalizeFloat(p.eps3,1,0.61,1);
+    const cands=buildCandidateList(fam,eps); let chosen=null, fallback=null;
+    for(const c of cands) {
+      const val=vidroEngine.validateInputs({family:fam,apoio:ap,wMM:lw,hMM:alt,Pv:pres,panes:c.panes});
+      const res=vidroEngine.calcNBR(val.normalized); const sc=Math.max(res.uR||0,res.uF||0); const att={candidate:c,validation:val,result:res,score:sc};
+      if(!fallback||sc<fallback.score) fallback=att; if(res.ok&&!chosen){chosen=att;break;}
+    }
+    const pick=chosen||fallback;
+    if(!pick) return {ok:false,tone:"bad",chipText:"Sem composições",helpText:"Catálogo indisponível.",chosenText:"Sem ref.",alertText:"Sem composições.",adoptedThickness:null};
+    const crit=pick.result.governing==="flecha"?"flecha":"resistência", hl=getHeatLabel(eps), tone=chosen?"ok":"bad";
+    const chipT=chosen?`${pick.candidate.label} sugerido`:"Nenhuma composição atendeu";
+    const helpT=chosen?`Baseado em ${num(pres,0)} Pa e ${hl.toLowerCase()}. Gov: ${crit}.`:`Nenhuma fechou. Revise NBR 10821.`;
+    const notes=[]; pick.validation.issues.forEach(i=>notes.push(i.body)); if(!chosen)notes.push("Lista é a mais próxima."); if(norm)notes.push(`Ref: ${norm.cidade}/${norm.uf}, iso ${norm.isopleta} m/s, Pe ${norm.pe} Pa.`);
+    return {ok:Boolean(chosen),tone,chipText:chipT,helpText:helpT,chosenText:`${pick.candidate.label} (${pick.candidate.totalThickness} mm)`,alertText:notes.join(" "),adoptedThickness:pick.candidate.totalThickness,compositionLabel:pick.candidate.label,family:fam,pressure:pres,apoio:ap,normative:norm,heatLabel:hl,criterionLabel:crit,raw:pick};
+  }
+  function suggestGlass() { const {altura,larguraFolha}=updateLeafWidthChip(); return suggestGlassFor({altura,larguraFolha,normative:getNormativeContext(),eps3:refs.glassHeat.value}); }
+
+  function updateGlassUI() {
+    state.lastGlassSuggestion=suggestGlass(); const s=state.lastGlassSuggestion; const n=s.normative||getNormativeContext();
+    if(n&&n.pe) refs.glassNormChip.textContent=`${n.cidade}/${n.uf} • ${n.isopleta} m/s • Região ${n.region} • Pe ${n.pe} Pa`; else refs.glassNormChip.textContent="Sem tabela carregada";
+    refs.glassChip.className=`glass-chip ${s.tone}`; refs.glassChip.textContent=s.chipText;
+    if(state.glassMode==="auto") refs.glassChosenChip.textContent=s.adoptedThickness?`${s.chosenText} adotado`:"Sem espessura auto";
+    const m=normalizeFloat(refs.espessuraManual.value,12,4,40); refs.espessuraManual.value=m;
+    if(!s.adoptedThickness){refs.manualCompareChip.className="glass-chip warn";refs.manualCompareChip.textContent="Sem ref.";}
+    else if(m<s.adoptedThickness){refs.manualCompareChip.className="glass-chip bad";refs.manualCompareChip.textContent=`Atende c/ ${s.adoptedThickness} mm; manual ${m} mm`;}
+    else if(m===s.adoptedThickness){refs.manualCompareChip.className="glass-chip ok";refs.manualCompareChip.textContent=`Atende c/ ${s.adoptedThickness} mm; alinhado`;}
+    else{refs.manualCompareChip.className="glass-chip ok";refs.manualCompareChip.textContent=`Atende c/ ${s.adoptedThickness} mm; manual ${m} mm`;}
+    if(s.alertText) setBanner(refs.glassAlert,escapeHtml(s.alertText),true,s.tone==="bad"?"warn":"info"); else setBanner(refs.glassAlert,"",false,"info");
+  }
+  function setGlassMode(m, d) { state.glassMode=m; document.querySelectorAll(".seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.mode===m)); refs.glassAutoBox.style.display=m==="auto"?"grid":"none"; refs.glassManualBox.style.display=m==="manual"?"grid":"none"; if(d)markDirty(); updateGlassUI(); }
+  function getSelectedThickness() { const s=state.lastGlassSuggestion||suggestGlass(); if(state.glassMode==="manual") return {mode:"manual",thickness:normalizeFloat(refs.espessuraManual.value,12,4,40),label:`${num(refs.espessuraManual.value,0)} mm`,suggestion:s}; return {mode:"auto",thickness:s?s.adoptedThickness:null,label:s?s.chosenText:"Sem sugestão",suggestion:s}; }
+  
+  function collectInput() {
+    const b=updateLeafWidthChip(true); const t=getSelectedThickness(); const q=normalizeInt(refs.quantidade.value,1,1,100); const n=getNormativeContext(); refs.quantidade.value=q;
+    return {cliente:refs.cliente.value.trim(),obra:refs.obra.value.trim(),width:b.largura,height:b.altura,nFolhas:b.folhas,nPlanos:Number(refs.planos.value||state.selectedPlan||2),larguraFolha:b.larguraFolha,qty:q,finish:state.selectedFinish,thickness:t,glassMode:state.glassMode,glassHeatLabel:{"1.00":"Recozido (float)","0.80":"Termoendurecido","0.61":"Temperado"}[refs.glassHeat.value]||"Recozido (float)",normative:n};
+  }
+  function validateInput(i) {
+    if(!i.width||!i.height) return {ok:false,message:"Informe largura e altura válidas."}; if(!i.nFolhas||i.nFolhas<2) return {ok:false,message:"Mínimo 2 folhas."};
+    if(!i.nPlanos) return {ok:false,message:"Selecione planos."}; if(!i.qty||i.qty<1) return {ok:false,message:"Qtd > 0."};
+    if(!i.thickness.thickness) return {ok:false,message:"Espessura do vidro indefinida."}; if(!i.normative||!i.normative.pe) return {ok:false,message:"Defina UF, cidade e pavimentos."};
+    return {ok:true};
+  }
+  function buildWarnings(i, ow, mc, cf) {
+    const w=[]; if(i.larguraFolha<500)w.push("Folhas muito estreitas."); if(i.larguraFolha>1600)w.push("Folhas largas pedem engenharia."); if(i.height>3200)w.push("Altura elevada.");
+    if(i.glassMode==="manual"&&i.thickness.suggestion&&i.thickness.suggestion.adoptedThickness&&i.thickness.thickness<i.thickness.suggestion.adoptedThickness)w.push("Espessura manual abaixo da sugerida.");
+    if(i.thickness.suggestion&&i.thickness.suggestion.tone==="bad"&&i.thickness.suggestion.alertText)w.push(i.thickness.suggestion.alertText); return w.filter(Boolean);
+  }
+  function buildScenarioInput(o, sc) { const w=sc.width||o.width,h=sc.height||o.height,nf=sc.nFolhas||o.nFolhas,np=sc.nPlanos||o.nPlanos,lw=w/nf,eps=normalizeFloat(refs.glassHeat.value,1,0.61,1),s=suggestGlassFor({altura:h,larguraFolha:lw,normative:o.normative,eps3:eps}); return {...o,width:w,height:h,nFolhas:nf,nPlanos:np,larguraFolha:lw,glassMode:"auto",thickness:{mode:"auto",thickness:s.adoptedThickness,label:s.chosenText,suggestion:s}}; }
+  function describeScenario(o, r) { const i=r.input,c=[]; if(i.nFolhas!==o.nFolhas)c.push(`${i.nFolhas} folhas`); if(i.nPlanos!==o.nPlanos)c.push(`${i.nPlanos} planos`); if(i.height!==o.height)c.push(`alt ${num(i.height,0)}`); if(!c.length)c.push("mesmas dim"); return `${c.join(" / ")} · vidro ${i.thickness.label} · folha ${num(r.pesoTotalFolha,1)}kg · carr ${r.carrPerFolha}/${r.maxCarr} · ${brl(r.total)}`; }
+  function scoreScenario(o, r) { const i=r.input; return (Math.max(0,i.nPlanos-o.nPlanos)*180+Math.abs(i.nFolhas-o.nFolhas)*95+Math.abs(i.height-o.height)/50*7+Math.max(0,i.thickness.thickness-o.thickness.thickness)*8+Math.max(0,r.total-calculateQuoteMetrics(o,false).total)/1000)-(Math.max(0,o.thickness.thickness-i.thickness.thickness)*1.5+Math.max(0,r.maxCarr-r.carrPerFolha)*3); }
+  function getScenarioGroup(o, r) { const i=r.input; if(i.height!==o.height)return"altura"; if(i.nFolhas!==o.nFolhas)return`folhas-${i.nFolhas}`; if(i.nPlanos!==o.nPlanos)return"planos"; return"mesmo"; }
+  function pickDiverseAlternatives(o, si, l=3, p=null) { const pk=[],uf=new Set(); if(p)uf.add(getScenarioGroup(o,p.result)); si.forEach(i=>{if(pk.length>=l)return;const f=getScenarioGroup(o,i.result);if(uf.has(f))return;uf.add(f);pk.push(i);}); return pk; }
+  function shouldOfferScenario(o, sc) { const nf=sc.nFolhas||o.nFolhas,np=sc.nPlanos||o.nPlanos; if(nf>o.nFolhas+1)return{ok:false,message:"aumentar +1 folha muda arquitetura"}; if(np>o.nPlanos)return{ok:false,message:"aumentar planos muda visual"}; return{ok:true}; }
+
+  function analyzeExecutableAlternatives(o) {
+    const ex=[],rej=[],seen=new Set(),minH=Math.max(500,o.height-1200);
+    function add(sc,reason) { const w=sc.width||o.width,h=sc.height||o.height,nf=sc.nFolhas||o.nFolhas,np=sc.nPlanos||o.nPlanos,k=[w,h,nf,np].join("|"); if(seen.has(k))return; seen.add(k); const of=shouldOfferScenario(o,{width:w,height:h,nFolhas:nf,nPlanos:np}); if(!of.ok){rej.push({reason,detail:`${nf}f/${np}p/${num(h,0)}mm: ${of.message}`});return;} const ci=buildScenarioInput(o,{width:w,height:h,nFolhas:nf,nPlanos:np}); const v=validateInput(ci); if(!v.ok){rej.push({reason,detail:v.message});return;} if(!ci.thickness.suggestion||!ci.thickness.suggestion.ok){rej.push({reason,detail:"vidro auto falhou"});return;} const r=calculateQuoteMetrics(ci,false); if(r.overweight){rej.push({reason,detail:`${ci.nFolhas}f/${ci.nPlanos}p/${num(ci.height,0)}mm: ${r.carrPerFolha}/${r.maxCarr} carr`});return;} ex.push({reason,result:r,score:scoreScenario(o,r)}); }
+    const nl=Math.min(12,o.nFolhas+1); if(nl!==o.nFolhas) add({nFolhas:nl,nPlanos:getDefaultPlanForLeaves(nl)},"aumentar folha");
+    for(let h=o.height-50;h>=minH;h-=50) add({height:h,nFolhas:o.nFolhas,nPlanos:o.nPlanos},"reduzir alt");
+    if(nl!==o.nFolhas){const np=getDefaultPlanForLeaves(nl);for(let h=o.height-50;h>=minH;h-=50)add({height:h,nFolhas:nl,nPlanos:np},"aumentar folha e reduzir alt");}
+    ex.sort((a,b)=>a.score!==b.score?a.score-b.score:Math.abs(a.result.input.height-o.height)-Math.abs(b.result.input.height-o.height));
+    return {best:ex[0]||null,alternatives:pickDiverseAlternatives(o,ex.slice(1),3,ex[0]||null),rejected:rej.slice(0,4),tested:seen.size,executableCount:ex.length};
+  }
+  function renderSolverAnalysis(i) { const a=analyzeExecutableAlternatives(i); state.solverOptions=[]; if(!a.best){const r=a.rejected.length?`<ul>${a.rejected.map(x=>`<li>${escapeHtml(x.detail)}</li>`).join("")}</ul>`:""; return `<div class="solver-block"><strong>Análise automática</strong><span class="solver-muted">${a.tested} testadas, nenhuma executável.</span>${r}</div>`;} const opts=[a.best,...a.alternatives]; state.solverOptions=opts.map(x=>x.result.input); const alt=a.alternatives.map((x,idx)=>`<div class="solver-option"><strong>Alternativa ${idx+2}</strong><span>${escapeHtml(describeScenario(i,x.result))}</span><button type="button" class="solver-apply" data-solver-index="${idx+1}">Aplicar e recalcular</button></div>`).join(""); return `<div class="solver-block"><strong>Análise automática</strong><span class="solver-muted">${a.tested} testadas. ${a.executableCount} executáveis.</span><div class="solver-option"><strong>Melhor solução</strong><span>${escapeHtml(describeScenario(i,a.best.result))}</span><button type="button" class="solver-apply" data-solver-index="0">Aplicar e recalcular</button></div>${alt}</div>`; }
+  function buildBlockingIssue(i, ow, mc, cf, ptf, pvf) {
+    if(!ow) return null; const muw=cf*200, ew=Math.max(0,muw-i.larguraFolha), mwc=mc*CONFIG.capacidadeCarrinhoKg, htf=Math.floor((i.height*mwc/ptf)/50)*50, mlw=Math.floor(i.width/muw), opts=[];
+    opts.push(`Aumentar largura folha p/ ${num(muw,0)} mm (+${num(ew,0)} mm). Recalcular após.`);
+    if(mlw>=2&&mlw<i.nFolhas) opts.push(`Simular com até ${mlw} folhas.`);
+    if(htf>=500&&htf<i.height) opts.push(`Reduzir altura p/ ~${num(htf,0)} mm.`); else opts.push("Reduzir altura pouco ajuda nesta config.");
+    if(i.glassMode==="manual"&&i.thickness.suggestion&&i.thickness.suggestion.adoptedThickness&&i.thickness.thickness>i.thickness.suggestion.adoptedThickness) opts.push(`Revisar manual: ref é ${i.thickness.suggestion.adoptedThickness} mm.`); else opts.push("Revisar pressão/tratamento chapas.");
+    opts.push("Se inviável, encaminhar p/ engenharia.");
+    return `<span class="blocking-title">Custo não gerado: porta não executável.</span><span class="blocking-summary">Folha pesa ${num(ptf,1)}kg (${num(pvf,1)}kg vidro). Exige ${cf} carrinhos, mas comporta máx ${mc}.</span><strong>Possibilidades:</strong><ul>${opts.map(o=>`<li>${o}</li>`).join("")}</ul>${renderSolverAnalysis(i)}`;
+  }
+
+  function calculateQuoteMetrics(i, ib=true) {
+    const w=i.width,h=i.height,nf=i.nFolhas,np=i.nPlanos,esp=i.thickness.thickness,qty=i.qty,pk=i.finish.priceKg,lw=i.larguraFolha,at=w*h/1e6,c=CONFIG.perfisKgM;
+    const cTrilhoInf=lw*nf/1000, cMarcoV=2*h/1000, cTrilhoSup=w*np/1000, cAlinhV=cMarcoV, cTravaSup=cTrilhoSup, cFechamento=((nf*2)-2)*h/1000, cBagueteV=w*np/1000, cGuarnL=cMarcoV*2, cGuarnSI=cTrilhoSup*2, cRodapeInf=cTrilhoInf*2, cRodapeFolha=nf*h/1000*2, cGuarnInt=cAlinhV, cFitaFech=cFechamento;
+    const rawW=cTrilhoInf*c.LEV001+cMarcoV*c.OM005+cTrilhoSup*c.OM005+cAlinhV*c.OM002+cTravaSup*c.OM006+cFechamento*c.OM009+cBagueteV*c.LEV002+cGuarnL*c.OM011+cGuarnSI*c.OM012+cRodapeInf*c.OM018+cRodapeFolha*c.OM018+cGuarnInt*c.GSK046+cFitaFech*c.FK048;
+    const aluKg=rawW*CONFIG.fatorPerdaAluminio*CONFIG.fatorAcabamento, costAlu=aluKg*pk*qty;
+    const trM=np*qty*w/1000, costTrilho=trM*CONFIG.precoTrilhoM;
+    const pVidroF=lw*h/1e6*esp*2.5, pAluF=(h*2/1000)*c.OM009+(lw/1000)*c.LEV001+((cRodapeInf+cRodapeFolha)/nf)*c.OM018, pTotalF=pVidroF+pAluF;
+    const maxC=Math.max(1,Math.floor(lw/200)), cPF=Math.max(1,Math.ceil(pTotalF/CONFIG.capacidadeCarrinhoKg)), ow=cPF>maxC, tCarr=cPF*nf*qty, costCarr=tCarr*CONFIG.precoCarrinho;
+    const costAcess=nf*qty*CONFIG.precoAcessoriosFolha*CONFIG.fatorAcabamento, total=costAlu+costTrilho+costCarr+costAcess, cM2=total/(at*qty);
+    return {input:i,total,custoM2:cM2,areaTotal:at,costAlu,costTrilho,costCarr,costAcess,aluKg,pesoVidroFolha:pVidroF,pesoAluminioFolha:pAluF,pesoTotalFolha:pTotalF,carrPerFolha:cPF,totalCarr:tCarr,maxCarr:maxC,overweight:ow,blockingIssue:ib?buildBlockingIssue(i,ow,maxC,cPF,pTotalF,pVidroF):null,trilhoM:trM,snapshotAt:new Date().toISOString(),warnings:buildWarnings(i,ow,maxC,cPF)};
+  }
+  function calculateQuote() { const i=collectInput(), v=validateInput(i); if(!v.ok){blockQuote(v.message);return;} clearError(); const r=calculateQuoteMetrics(i); if(r.blockingIssue){blockQuote(r.blockingIssue,true);return;} renderResults(r,true); }
+  function applySolverOption(idx) { const o=state.solverOptions[idx]; if(!o)return; refs.altura.value=o.height; refs.folhas.value=o.nFolhas; if(o.thickness&&o.thickness.thickness) refs.espessuraManual.value=o.thickness.thickness; state.selectedPlan=o.nPlanos; refs.planos.value=o.nPlanos; renderPlanOptions(true); updateLeafWidthChip(true); setGlassMode("auto",false); updateGlassUI(); calculateQuote(); }
+
+  function renderResults(r, s) {
+    state.lastResult=r; clearDirty(); refs.results.classList.add("visible");
+    if(r.warnings.length){refs.warnText.textContent=r.warnings.join(" ");refs.warnBanner.classList.add("visible");}else{refs.warnBanner.classList.remove("visible");}
+    refs.rTotal.textContent=brl(r.total); refs.rQtyNote.textContent=`${r.input.qty} porta${r.input.qty>1?"s":""} • ${r.input.nFolhas} folhas • ${r.input.nPlanos} planos`;
+    refs.hrTotal.textContent=brl(r.total); refs.hrSub.textContent=`${num(r.areaTotal*r.input.qty,2)} m² · ${r.input.qty} porta${r.input.qty>1?"s":""}`; refs.headerResult.classList.add("visible");
+    refs.rM2.textContent=brl(r.custoM2); refs.rArea.textContent=`${num(r.areaTotal*r.input.qty,2)} m² totais`;
+    refs.rGlass.textContent=`${num(r.input.thickness.thickness,0)} mm`; refs.rGlassMode.textContent=r.input.glassMode==="auto"?`Sugestão: ${r.input.thickness.label}`:`Manual (${r.input.thickness.suggestion&&r.input.thickness.suggestion.adoptedThickness?r.input.thickness.suggestion.adoptedThickness+" mm":""})`;
+    const bi=[{name:"Alumínio",value:r.costAlu,color:"#5ba8f5"},{name:"Trilho magnético",value:r.costTrilho,color:"#8b7cf5"},{name:"Carrinhos magnéticos",value:r.costCarr,color:"#5cf0c8"},{name:"Acessórios diversos",value:r.costAcess,color:"#f5c85b"}]; const mv=Math.max(...bi.map(x=>x.value),1);
+    refs.breakdownList.innerHTML=bi.map(x=>`<div class="breakdown-item"><div><div class="breakdown-name">${x.name}</div><div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${(x.value/mv*100).toFixed(1)}%;background:${x.color}"></div></div></div><div class="breakdown-value" style="color:${x.color}">${brl(x.value)}</div></div><div class="divider"></div>`).join("")+`<div class="breakdown-item"><div class="breakdown-name">Total</div><div class="breakdown-value" style="color:#5ba8f5">${brl(r.total)}</div></div>`;
+    const di=[{label:"Largura por folha",value:`${num(r.input.larguraFolha,0)} mm`},{label:"Espessura adotada",value:`${num(r.input.thickness.thickness,0)} mm`},{label:"Pressão de ensaio",value:`${num(r.input.normative.pe,0)} Pa`},{label:"Peso do vidro por folha",value:`${num(r.pesoVidroFolha,1)} kg`},{label:"Peso total da folha",value:`${num(r.pesoTotalFolha,1)} kg`},{label:"Carrinhos por folha",value:`${r.carrPerFolha} un (máx ${r.maxCarr})`,cls:r.overweight?"warn":"good"},{label:"Total de carrinhos",value:`${r.totalCarr} un`},{label:"Metros de trilho",value:`${num(r.trilhoM,2)} m`},{label:"Acabamento",value:r.input.finish.label},{label:"Cidade de referência",value:`${r.input.normative.cidade}/${r.input.normative.uf}`},{label:"Região NBR",value:`${r.input.normative.region} (${r.input.normative.isopleta} m/s)`}];
+    refs.detailGrid.innerHTML=di.map(x=>`<div class="detail-item"><span>${x.label}</span><strong class="${x.cls||""}">${x.value}</strong></div>`).join("");
+    const notes=[]; notes.push(`Config: ${r.input.nFolhas} folhas c/ ${r.input.nPlanos} planos.`); notes.push(`Modo vidro: ${r.input.glassMode==="auto"?"sugerido auto":"manual"}.`); notes.push(`Norma: ${r.input.normative.cidade}/${r.input.normative.uf}, iso ${r.input.normative.isopleta} m/s, Região ${r.input.normative.region}.`); if(r.input.thickness.suggestion){notes.push(`Ref técnica: ${r.input.thickness.suggestion.chosenText}.`);notes.push(`Base: ${num(r.input.thickness.suggestion.pressure,0)} Pa, ${r.input.thickness.suggestion.heatLabel.toLowerCase()}.`);} notes.push("Inércia dos perfis não calculada."); notes.push("Vidros não inclusos na proposta; espessura é referência técnica.");
+    refs.observations.innerHTML=notes.map(n=>`<div class="obs-item">${n}</div>`).join(""); if(s) refs.results.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  function buildReportHtml(r) {
+    const cl=escapeHtml(r.input.cliente),ob=escapeHtml(r.input.obra),td=new Date(r.snapshotAt).toLocaleString("pt-BR"),wb=r.warnings.length?`<div style="margin:12px 0 14px;padding:10px 12px;border-radius:10px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-size:11px;line-height:1.4">${escapeHtml(r.warnings.join(" "))}</div>`:"";
+    const m=(l,v)=>`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;min-width:132px;flex:1"><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${l}</div><div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:#0f172a">${v}</div></div>`;
+    const rw=(l,v,e)=>`<tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#0f172a">${l}</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'DM Mono',monospace;font-weight:${e?"700":"500"};color:${e?"#2563eb":"#0f172a"}">${v}</td></tr>`;
+    return `<div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:14px;margin-bottom:16px"><div><img src="assets/logo.png" alt="Olgacolor" style="height:32px;display:block"><div style="font-size:13px;color:#475569;margin-top:8px">Sistema Levitare</div></div><div style="text-align:right;font-size:12px;color:#475569;line-height:1.7"><strong style="display:block;font-size:14px;color:#0f172a">Levitare</strong>${td}<br>${r.input.qty} porta${r.input.qty>1?"s":""}</div></div>${(cl||ob)?`<div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0">${cl?`<div style="font-size:15px;font-weight:700;color:#0f172a">${cl}</div>`:""}${ob?`<div style="font-size:12px;color:#475569;margin-top:4px">${ob}</div>`:""}</div>`:""}${wb}<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px"><div style="flex:1"><div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:10px">Resumo</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${m("Total",brl(r.total))}${m("Custo m²",brl(r.custoM2))}${m("Vidro",`${num(r.input.thickness.thickness,0)} mm`)}${m("Config",`${r.input.nFolhas}f / ${r.input.nPlanos}p`)}</div></div><div style="flex-shrink:0;width:160px;background:#f1f5f9;border-radius:10px;padding:8px;border:1px solid #e2e8f0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 290" width="100%" style="display:block">${buildDoorSvg({W:r.input.width,H:r.input.height,folhas:r.input.nFolhas,planos:r.input.nPlanos,finish:r.input.finish,theme:"light"})}</svg></div></div><div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px">Custos</div><table style="width:100%;border-collapse:collapse;margin-bottom:12px">${rw("Alumínio",brl(r.costAlu))}${rw("Trilho",brl(r.costTrilho))}${rw("Carrinhos",brl(r.costCarr))}${rw("Acessórios",brl(r.costAcess))}${rw("Total",brl(r.total),true)}</table><div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:8px">Técnico</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${m("Larg. Folha",`${num(r.input.larguraFolha,0)} mm`)}${m("Peso Folha",`${num(r.pesoTotalFolha,1)} kg`)}${m("Carr/Folha",`${r.carrPerFolha} un (máx ${r.maxCarr})`)}${m("Trilho",`${num(r.trilhoM,2)} m`)}</div><div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:10.5px;color:#334155;line-height:1.8"><strong>Base:</strong> ${escapeHtml(r.input.normative.cidade)}/${escapeHtml(r.input.normative.uf)} · iso ${r.input.normative.isopleta} m/s · Região ${r.input.normative.region}.<br><strong>Vidro Ref:</strong> ${escapeHtml(r.input.thickness.label)}.<br><br>Sistema de fecho MR Brasil incluso. Não inclui vidros, arremates, parafusos, silicone e contramarco. Inércia não calculada.</div>`;
+  }
+  function openReport() { if(!state.lastResult)return; refs.reportContent.innerHTML=buildReportHtml(state.lastResult); refs.reportOverlay.classList.add("visible"); refs.reportOverlay.scrollTop=0; }
+  function closeReport() { refs.reportOverlay.classList.remove("visible"); }
+  function printReport() { if(!state.lastResult)return; const f=document.createElement("iframe"); f.style.cssText="position:fixed;right:-9999px;bottom:0"; document.body.appendChild(f); const d=f.contentWindow.document; d.open(); d.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório Levitare</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}img{max-width:100%}table{page-break-inside:auto}tr,td{break-inside:avoid}@page{margin:8mm}</style></head><body>${buildReportHtml(state.lastResult)}</body></html>`); d.close(); f.onload=()=>{f.contentWindow.focus();f.contentWindow.print();setTimeout(()=>f.remove(),400);}; }
+
+  function resetForm() { refs.cliente.value="";refs.obra.value="";refs.largura.value=5000;refs.altura.value=2700;refs.folhas.value=2;refs.quantidade.value=1;refs.glassFamily.value="laminado";refs.glassHeat.value="1.00";refs.buildingFloors.value="5";refs.espessuraManual.value=12; state.selectedFinish=CONFIG.finishes[0]; state.selectedPlan=2; state.lastResult=null; refs.results.classList.remove("visible");refs.warnBanner.classList.remove("visible");refs.headerResult.classList.remove("visible"); clearError();clearDirty(); renderFinishOptions();renderPlanOptions(true,true);renderStateOptions();setGlassMode("auto",false); }
+
+  let doorGeo = { W: 5000, H: 2700, dX: 0, dY: 0, dW: 0, dH: 0, svgW: 240, svgH: 290 };
+
+  function buildDoorSvg({ W, H, folhas, planos, finish, theme, pesoFolha = null }) {
+    const isDark = theme !== "light";
+    const pc = { "Madeira": "#7d5228", "Inox escovado": "#546e7a", "Anod-Pint": "#2e4a60" };
+    const ph = { "Madeira": "#a06830", "Inox escovado": "#78909c", "Anod-Pint": "#3d6080" };
+    const p = pc[finish.key]||pc["Inox escovado"], hi = ph[finish.key]||ph["Inox escovado"];
+    const gB=isDark?"#0e1419":"#dde5ed", gT=isDark?"rgba(220,228,235,0.10)":"rgba(220,228,235,0.55)", gS=isDark?"rgba(200,215,225,0.22)":"rgba(150,175,195,0.45)", rF=isDark?"rgba(255,255,255,0.09)":"rgba(255,255,255,0.60)";
+    const dC=isDark?"#4e6070":"#94a3b8", lC=isDark?"#13a2b3":"#0369a1", lT=isDark?"rgba(255,255,255,0.25)":"rgba(15,23,42,0.40)", fC=isDark?"rgba(255,255,255,0.07)":"rgba(15,23,42,0.12)";
+    const sW=240,sH=290,mL=40,mT=46,mR=14,mB=36,aW=sW-mL-mR,aH=sH-mT-mB;
+    const ratio=W/H; let dW,dH; if(ratio>aW/aH){dW=aW;dH=aW/ratio;}else{dH=aH;dW=aH*ratio;} if(dH<40){dH=40;dW=40*ratio;}
+    const dX=mL+(aW-dW)/2,dY=mT,ft=Math.max(2,Math.min(4,dW*0.025));
+    if(isDark) Object.assign(doorGeo,{W,H,dX,dY,dW,dH,svgW:sW,svgH:sH});
+    const iX=dX+ft,iY=dY+ft,iW=dW-2*ft,iH=dH-2*ft,lW=iW/folhas;
+    const tZH=20,tZY=dY-tZH-6,vP=planos,tLH=(tZH-(vP-1)*2)/vP;
+    const dF=`font-family="DM Mono, monospace" font-size="7.2" font-weight="400" letter-spacing="0.2" fill="${dC}"`;
+    const lF=`font-family="DM Sans, sans-serif" font-size="8.4" font-weight="500" letter-spacing="0.35" fill="${lC}"`;
+    const mX=dX+dW/2,mY=dY+dH/2,fc=n=>n.toFixed(1),uid=isDark?"dpD":"dpL";
+    const cp=Array.from({length:folhas},(_,i)=>{const lx=iX+i*lW;return`<clipPath id="${uid}CP${i}"><rect x="${fc(lx)}" y="${fc(iY)}" width="${fc(lW)}" height="${fc(iH)}"/></clipPath>`;}).join("");
+    let s=`<defs><linearGradient id="${uid}PF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${hi}"/><stop offset="100%" stop-color="${p}"/></linearGradient><linearGradient id="${uid}RF" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${rF}"/><stop offset="65%" stop-color="rgba(255,255,255,0)"/></linearGradient>${cp}</defs>`;
+    for(let i=0;i<vP;i++){const ty=tZY+i*(tLH+2);s+=`<rect x="${fc(dX)}" y="${fc(ty)}" width="${fc(dW)}" height="${fc(tLH)}" rx="0" fill="url(#${uid}PF)" stroke="${hi}" stroke-width="0.4" stroke-opacity="0.5"/>`;s+=`<rect x="${fc(dX+ft)}" y="${fc(ty+tLH*0.35)}" width="${fc(dW-2*ft)}" height="${fc(tLH*0.3)}" rx="0" fill="rgba(0,0,0,0.32)"/>`;}
+    if(isDark)s+=`<rect x="${fc(dX+2)}" y="${fc(dY+3)}" width="${fc(dW)}" height="${fc(dH)}" rx="1" fill="rgba(0,0,0,0.40)"/>`;
+    s+=`<rect x="${fc(dX)}" y="${fc(dY)}" width="${fc(dW)}" height="${fc(dH)}" rx="1" fill="url(#${uid}PF)" stroke="${hi}" stroke-width="0.8" stroke-opacity="0.5"/>`;
+    for(let i=0;i<folhas;i++){const lx=iX+i*lW,dv=i>0?Math.max(ft*0.6,Math.min(ft,lW*0.10)):0,px=lx+dv/2,pw=lW-dv;s+=`<rect x="${fc(px)}" y="${fc(iY)}" width="${fc(pw)}" height="${fc(iH)}" fill="${gB}"/>`;s+=`<rect x="${fc(px)}" y="${fc(iY)}" width="${fc(pw)}" height="${fc(iH)}" fill="${gT}" stroke="${gS}" stroke-width="0.6"/>`;s+=`<rect x="${fc(px+1)}" y="${fc(iY+1)}" width="${fc(pw*0.28)}" height="${fc(iH-2)}" fill="url(#${uid}RF)"/>`;if(i>0)s+=`<rect x="${fc(lx-dv/2)}" y="${fc(iY)}" width="${fc(dv)}" height="${fc(iH)}" fill="url(#${uid}PF)" stroke="${hi}" stroke-width="0.4" stroke-opacity="0.4"/>`;}
+    s+=`<rect x="${fc(dX)}" y="${fc(dY)}" width="${fc(dW)}" height="${fc(ft)}" rx="0" fill="url(#${uid}PF)"/>`;s+=`<rect x="${fc(dX)}" y="${fc(dY+dH-ft)}" width="${fc(dW)}" height="${fc(ft)}" fill="url(#${uid}PF)"/>`;s+=`<rect x="${fc(dX)}" y="${fc(dY)}" width="${fc(ft)}" height="${fc(dH)}" fill="url(#${uid}PF)"/>`;s+=`<rect x="${fc(dX+dW-ft)}" y="${fc(dY)}" width="${fc(ft)}" height="${fc(dH)}" fill="url(#${uid}PF)"/>`;
+    s+=`<line x1="${fc(dX-4)}" y1="${fc(dY+dH+1)}" x2="${fc(dX+dW+4)}" y2="${fc(dY+dH+1)}" stroke="${fC}" stroke-width="2" stroke-linecap="round"/>`;
+    const hX=dX-14;s+=`<line x1="${fc(hX)}" y1="${fc(dY)}" x2="${fc(hX)}" y2="${fc(dY+dH)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<line x1="${fc(hX-3.5)}" y1="${fc(dY+1)}" x2="${fc(hX+3.5)}" y2="${fc(dY+1)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<line x1="${fc(hX-3.5)}" y1="${fc(dY+dH-1)}" x2="${fc(hX+3.5)}" y2="${fc(dY+dH-1)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<text transform="rotate(-90,${fc(hX-10)},${fc(mY)})" x="${fc(hX-10)}" y="${fc(mY+3)}" text-anchor="middle" ${dF}>${num(H,0)} mm</text>`;
+    if(isDark)s+=`<rect x="${fc(hX-20)}" y="${fc(mY-10)}" width="22" height="20" rx="3" fill="rgba(19,162,179,0.08)" stroke="rgba(19,162,179,0.25)" stroke-width="0.6" data-edit="height" style="cursor:text" stroke-dasharray="2,2"/>`;
+    const wY=dY+dH+12;s+=`<line x1="${fc(dX)}" y1="${fc(wY)}" x2="${fc(dX+dW)}" y2="${fc(wY)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<line x1="${fc(dX+1)}" y1="${fc(wY-3.5)}" x2="${fc(dX+1)}" y2="${fc(wY+3.5)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<line x1="${fc(dX+dW-1)}" y1="${fc(wY-3.5)}" x2="${fc(dX+dW-1)}" y2="${fc(wY+3.5)}" stroke="${dC}" stroke-width="0.8"/>`;s+=`<text x="${fc(mX)}" y="${fc(wY+12)}" text-anchor="middle" ${dF}>${num(W,0)} mm</text>`;
+    if(isDark)s+=`<rect x="${fc(mX-24)}" y="${fc(wY+2)}" width="48" height="14" rx="3" fill="rgba(19,162,179,0.08)" stroke="rgba(19,162,179,0.25)" stroke-width="0.6" data-edit="width" style="cursor:text" stroke-dasharray="2,2"/>`;
+    const ldl=`${num(W/folhas,0)} × ${num(H,0)} mm / folha`,lcW=Math.max(88,Math.min(126,ldl.length*4.15)),lcX=mX-lcW/2,lcY=wY+18;s+=`<rect x="${fc(lcX)}" y="${fc(lcY)}" width="${fc(lcW)}" height="17" rx="5" fill="rgba(8,12,17,0.78)" stroke="rgba(19,162,179,0.22)" stroke-width="0.6"/>`;s+=`<text x="${fc(mX)}" y="${fc(lcY+11.5)}" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="6.5" font-weight="500" letter-spacing="0.15" fill="rgba(206,244,248,0.78)">${ldl}</text>`;
+    if(pesoFolha!=null){const lb=`${Math.round(pesoFolha)} kg`;for(let i=0;i<folhas;i++){const cx=iX+i*lW+lW/2;s+=`<text x="${fc(cx)}" y="${fc(mY+3)}" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="5.9" font-weight="500" letter-spacing="0.1" fill="${lT}" clip-path="url(#${uid}CP${i})">${lb}</text>`;}}
+    s+=`<text x="${fc(mX)}" y="${fc(tZY-6)}" text-anchor="middle" ${lF}>${folhas} folha${folhas>1?"s":""} · ${planos} plano${planos>1?"s":""}</text>`;
+    if(isDark){const hBg="rgba(10,16,22,0.82)",bBg=`fill="${hBg}" stroke="${hi}" stroke-width="0.8" stroke-opacity="0.8"`;
+      const hx=dX+dW-1,hy=mY;s+=`<g data-handle="width" style="cursor:ew-resize" role="slider" aria-label="Largura" aria-valuenow="${W}" aria-valuemin="500" aria-valuemax="12000" tabindex="0"><rect x="${fc(hx-1)}" y="${fc(hy-14)}" width="11" height="28" rx="5" ${bBg}/><line x1="${fc(hx+2)}" y1="${fc(hy-7)}" x2="${fc(hx+2)}" y2="${fc(hy+7)}" stroke="${hi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/><line x1="${fc(hx+4.5)}" y1="${fc(hy-5)}" x2="${fc(hx+4.5)}" y2="${fc(hy+5)}" stroke="${hi}" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round"/></g>`;
+      const vx=mX,vy=dY+dH-1;s+=`<g data-handle="height" style="cursor:ns-resize" role="slider" aria-label="Altura" aria-valuenow="${H}" aria-valuemin="500" aria-valuemax="5000" tabindex="0"><rect x="${fc(vx-14)}" y="${fc(vy-1)}" width="28" height="11" rx="5" ${bBg}/><line x1="${fc(vx-7)}" y1="${fc(vy+2)}" x2="${fc(vx+7)}" y2="${fc(vy+2)}" stroke="${hi}" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/><line x1="${fc(vx-5)}" y1="${fc(vy+4.5)}" x2="${fc(vx+5)}" y2="${fc(vy+4.5)}" stroke="${hi}" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round"/></g>`;
+      const bY=iY+10,bR=8;s+=`<g data-handle="folhas-minus" style="cursor:pointer" role="button" aria-label="Remover folha" tabindex="0"><circle cx="${fc(iX+bR+2)}" cy="${fc(bY)}" r="${bR}" ${bBg}/><text x="${fc(iX+bR+2)}" y="${fc(bY+3.5)}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${hi}">−</text></g>`;
+      s+=`<g data-handle="folhas-plus" style="cursor:pointer" role="button" aria-label="Adicionar folha" tabindex="0"><circle cx="${fc(iX+iW-bR-2)}" cy="${fc(bY)}" r="${bR}" ${bBg}/><text x="${fc(iX+iW-bR-2)}" y="${fc(bY+3.5)}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" font-weight="700" fill="${hi}">+</text></g>`;
+      const pO=getPlanOptions(folhas);if(pO.length>1){const pR=7,pY=tZY+tZH/2,pI=pO.indexOf(planos);s+=`<g data-handle="planos-minus" style="cursor:pointer" role="button" aria-label="Reduzir planos" tabindex="0" opacity="${pI>0?1:0.35}"><circle cx="${fc(dX+pR+2)}" cy="${fc(pY)}" r="${pR}" ${bBg}/><text x="${fc(dX+pR+2)}" y="${fc(pY+3)}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${hi}">−</text></g>`;s+=`<g data-handle="planos-plus" style="cursor:pointer" role="button" aria-label="Aumentar planos" tabindex="0" opacity="${pI<pO.length-1?1:0.35}"><circle cx="${fc(dX+dW-pR-2)}" cy="${fc(pY)}" r="${pR}" ${bBg}/><text x="${fc(dX+dW-pR-2)}" y="${fc(pY+3)}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="${hi}">+</text></g>`;}
+    }
+    return s;
+  }
+
+  function renderDoorPreview() {
+    const W=Math.max(200,Number(refs.largura.value)||5000),H=Math.max(200,Number(refs.altura.value)||2700),f=getFolhas();
+    let pf=state.lastResult?state.lastResult.pesoTotalFolha:null;
+    if(pf==null){const ev=(state.lastGlassSuggestion&&state.lastGlassSuggestion.adoptedThickness)||10,lw=W/f,c=CONFIG.perfisKgM;pf=lw*H/1e6*ev*2.5+(H*2/1000)*c.OM009+(lw/1000)*c.LEV001+(((W/1000*2)+f*H/1000*2)/f)*c.OM018;}
+    if(refs.doorPreviewSvg) refs.doorPreviewSvg.innerHTML=buildDoorSvg({W,H,folhas:f,planos:state.selectedPlan||2,finish:state.selectedFinish,theme:"dark",pesoFolha:pf});
+    const ldb=document.getElementById("leafDimBar"); if(ldb)ldb.textContent=`Folha: ${num(W/f,0)} x ${num(H,0)} mm`;
+  }
+
+  function bindCoatEditor() {
+    const input=refs.coatEditInput; if(!input)return;
+    const apply=()=>{const v=Number(input.value);if(Number.isFinite(v)&&v>0){if(input.dataset.field==="width")refs.largura.value=Math.max(500,Math.min(12000,Math.round(v/50)*50));else refs.altura.value=Math.max(500,Math.min(5000,Math.round(v/50)*50));updateLeafWidthChip(true);renderDoorPreview();updateGlassUI();markDirty();}input.style.display="none";};
+    input.addEventListener("keydown",e=>{if(e.key==="Enter")apply();if(e.key==="Escape")input.style.display="none";}); input.addEventListener("blur",apply);
+  }
+
+  function bindDoorPreviewEvents(svgEl) {
+    if(!svgEl)return; let drag=null; const debouncedRender = debounce(renderDoorPreview, 16);
+    function triggerHandle(h) {
+      if(h==="folhas-plus"||h==="folhas-minus"){const n=h==="folhas-plus"?Math.min(12,getFolhas()+1):Math.max(2,getFolhas()-1);refs.folhas.value=n;renderPlanOptions(true,true);updateLeafWidthChip(true);markDirty();return;}
+      if(h==="planos-plus"||h==="planos-minus"){const o=getPlanOptions(getFolhas()),c=o.indexOf(state.selectedPlan),n=h==="planos-plus"?c+1:c-1;if(n>=0&&n<o.length){state.selectedPlan=o[n];refs.planos.value=String(state.selectedPlan);renderDoorPreview();markDirty();}return;}
+    }
+
+    svgEl.addEventListener("pointerdown",e=>{
+      const edit=e.target.closest("[data-edit]"); if(edit){e.preventDefault();const f=edit.dataset.edit,inp=refs.coatEditInput;if(!inp)return;const wr=svgEl.parentElement.getBoundingClientRect();inp.dataset.field=f;inp.value=f==="width"?(Number(refs.largura.value)||5000):(Number(refs.altura.value)||2700);inp.style.left=Math.min(e.clientX-wr.left-45,wr.width-100)+"px";inp.style.top=Math.max(0,e.clientY-wr.top-14)+"px";inp.style.display="block";inp.focus();inp.select();return;}
+      const handle=e.target.closest("[data-handle]"); if(!handle)return; const h=handle.dataset.handle; e.preventDefault();
+      triggerHandle(h); if(h==="width"||h==="height"){svgEl.setPointerCapture(e.pointerId);drag={handle:h,startX:e.clientX,startY:e.clientY,startW:Math.max(200,Number(refs.largura.value)||5000),startH:Math.max(200,Number(refs.altura.value)||2700)};}
+    });
+    svgEl.addEventListener("pointermove",e=>{if(!drag)return;e.preventDefault();const r=svgEl.getBoundingClientRect(),mpx=(doorGeo.W/doorGeo.dW)*(doorGeo.svgW/r.width),mpy=(doorGeo.H/doorGeo.dH)*(doorGeo.svgH/r.height);if(drag.handle==="width"){refs.largura.value=Math.max(500,Math.min(12000,Math.round((drag.startW+(e.clientX-drag.startX)*mpx)/50)*50));}else if(drag.handle==="height"){refs.altura.value=Math.max(500,Math.min(5000,Math.round((drag.startH+(e.clientY-drag.startY)*mpy)/50)*50));}updateLeafWidthChip(false);debouncedRender();markDirty();});
+    svgEl.addEventListener("pointerup",()=>{if(!drag)return;drag=null;updateLeafWidthChip(true);updateGlassUI();});
+    svgEl.addEventListener("pointercancel",()=>{drag=null;});
+    
+    // [MELHORIA 4] Acessibilidade: Ativação por teclado
+    svgEl.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const handle=e.target.closest("[data-handle]");if(handle){e.preventDefault();triggerHandle(handle.dataset.handle);}}});
+  }
+
+  function bindInputEvents() {
+    // [MELHORIA 1] UX Crítica: Separação de Estado Sujo
+    const descriptiveInputs = [refs.cliente, refs.obra];
+    descriptiveInputs.forEach(el => {
+      el.addEventListener("input", () => { if(state.lastResult) { state.lastResult.input.cliente = refs.cliente.value.trim(); state.lastResult.input.obra = refs.obra.value.trim(); } });
+    });
+
+    const technicalInputs = [refs.largura, refs.altura, refs.folhas, refs.quantidade, refs.glassHeat, refs.windState, refs.windCity, refs.buildingFloors, refs.espessuraManual];
+    technicalInputs.forEach(el => {
+      el.addEventListener("input", () => {
+        if(el===refs.espessuraManual) el.value=el.value.replace(/[^\d.,]/g,"").replace(/,/g,".").replace(/(\..*)\./g,"$1");
+        if(el===refs.folhas||el===refs.largura||el===refs.altura){updateLeafWidthChip(false);renderDoorPreview();}
+        if(el===refs.folhas) renderPlanOptions(false,true);
+        if(el===refs.windState) renderCityOptions(refs.windState.value);
+        if([refs.largura,refs.altura,refs.folhas,refs.glassHeat,refs.windState,refs.windCity,refs.buildingFloors].includes(el)) updateGlassUI();
+        markDirty();
+      });
+      el.addEventListener("change", () => {
+        if(el===refs.folhas) renderPlanOptions(true,true);
+        if(el===refs.largura||el===refs.altura) updateLeafWidthChip(true);
+        if(el===refs.windState) renderCityOptions(refs.windState.value);
+        if([refs.largura,refs.altura,refs.folhas,refs.glassHeat,refs.windState,refs.windCity,refs.buildingFloors,refs.espessuraManual].includes(el)) updateGlassUI();
+        markDirty();
+      });
+    });
+
+    document.querySelectorAll(".seg-btn").forEach(b=>b.addEventListener("click",()=>setGlassMode(b.dataset.mode,true)));
+    refs.windToggle.addEventListener("click",()=>{const o=refs.windParams.classList.toggle("open");refs.windToggle.classList.toggle("open",o);});
+    refs.calcButton.addEventListener("click",calculateQuote); refs.resetButton.addEventListener("click",resetForm);
+    refs.reportButton.addEventListener("click",openReport); refs.closeReportButton.addEventListener("click",closeReport);
+    refs.printButton.addEventListener("click",printReport); refs.reportOverlay.addEventListener("click",e=>{if(e.target===refs.reportOverlay)closeReport();});
+    refs.errorBanner.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".solver-apply");if(!b)return;applySolverOption(Number(b.dataset.solverIndex));});
+  }
+
+  renderStateOptions(); renderFinishOptions(); renderPlanOptions(true,true); bindInputEvents(); updateLeafWidthChip(false); setGlassMode("auto",false); renderDoorPreview(); bindDoorPreviewEvents(refs.doorPreviewSvg); bindCoatEditor();
+})();
+</script>
+</body>
+</html>
