@@ -484,22 +484,37 @@
 
   async function buildPdfBlobFromHtml() {
     const element = app.UI.get("reportContent");
-    const canvas = await window.html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      removeContainer: true
-    });
+    const overlay = app.UI.get("reportOverlay");
+
+    // Temporariamente remove overflow do overlay para html2canvas capturar tudo
+    const prevOverflow = overlay.style.overflow;
+    const prevPosition = overlay.style.position;
+    overlay.style.overflow = "visible";
+    overlay.style.position = "absolute";
+
+    let canvas;
+    try {
+      canvas = await window.html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        scrollX: 0,
+        scrollY: 0
+      });
+    } finally {
+      overlay.style.overflow = prevOverflow;
+      overlay.style.position = prevPosition;
+    }
 
     const imgData  = canvas.toDataURL("image/jpeg", 0.92);
     const { jsPDF } = window.jspdf;
 
     // Página com largura A4 e altura proporcional ao conteúdo — sem cortes
-    const pdfW  = 210;
-    const pdfH  = Math.ceil((canvas.height / canvas.width) * pdfW);
-    const pdf   = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfW, pdfH] });
+    const pdfW = 210;
+    const pdfH = Math.ceil((canvas.height / canvas.width) * pdfW);
+    const pdf  = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfW, pdfH] });
 
     pdf.addImage(imgData, "JPEG", 0, 0, pdfW, pdfH);
 
