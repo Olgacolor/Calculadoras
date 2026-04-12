@@ -1394,6 +1394,8 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../../assets/nbr10821/data.js"></script>
 <script src="../../assets/nbr10821/index.js"></script>
 <script src="../vidro-laminado/js/constants.js"></script>
@@ -2464,6 +2466,10 @@
 
   function calculateQuote() {
     const input = collectInput();
+    if (input.pressureMode === "auto" && !input.normative) {
+      blockQuote("Pressão de vento automática indisponível para a cidade selecionada. Escolha outra cidade ou use pressão manual.");
+      return;
+    }
     const validation = validateInput(input);
     if (!validation.ok) {
       blockQuote(validation.message);
@@ -2690,34 +2696,136 @@
     `;
   }
 
+  function isMobileSharePreferred() {
+    try {
+      return window.matchMedia("(max-width: 640px)").matches
+        || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function buildPdfFileName() {
+    const obra = (refs.obra ? refs.obra.value : "").trim();
+    const source = obra || "levitare-relatorio";
+    const slug = source.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
+    return `${slug || "levitare-relatorio"}.pdf`;
+  }
+
+  function openBlobFile(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    if (isMobileSharePreferred()) {
+      const popup = window.open(url, "_blank", "noopener");
+      if (!popup) window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 12000);
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = url; a.download = fileName; a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  async function buildPdfBlobFromHtml() {
+    const element = refs.reportContent;
+    const overlay = refs.reportOverlay;
+    const shell = overlay.querySelector(".report-shell");
+    const prevOvOvf = overlay.style.overflow;
+    const prevOvPos = overlay.style.position;
+    const prevShOvf = shell ? shell.style.overflow : "";
+    overlay.style.overflow = "visible";
+    overlay.style.position = "absolute";
+    if (shell) shell.style.overflow = "visible";
+    let canvas;
+    try {
+      canvas = await window.html2canvas(element, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: "#ffffff", logging: false, scrollX: 0, scrollY: 0
+      });
+    } finally {
+      overlay.style.overflow = prevOvOvf;
+      overlay.style.position = prevOvPos;
+      if (shell) shell.style.overflow = prevShOvf;
+    }
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const { jsPDF } = window.jspdf;
+    const pdfW = 210;
+    const pdfH = Math.ceil((canvas.height / canvas.width) * pdfW);
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfW, pdfH] });
+    pdf.addImage(imgData, "JPEG", 0, 0, pdfW, pdfH);
+    return pdf.output("blob");
+  }
+
   function openReport() {
     if (!state.lastResult) return;
     refs.reportContent.innerHTML = buildReportHtml(state.lastResult);
     refs.reportOverlay.classList.add("visible");
     refs.reportOverlay.scrollTop = 0;
+    if (refs.printButton) {
+      refs.printButton.textContent = isMobileSharePreferred() ? "Compartilhar PDF" : "Imprimir / PDF";
+    }
   }
 
   function closeReport() {
     refs.reportOverlay.classList.remove("visible");
   }
 
-  function printReport() {
+  async function printReport() {
     if (!state.lastResult) return;
-    const reportHtml = buildReportHtml(state.lastResult);
-    const frame = document.createElement("iframe");
-    frame.style.position = "fixed";
-    frame.style.right = "-9999px";
-    frame.style.bottom = "0";
-    document.body.appendChild(frame);
-    const doc = frame.contentWindow.document;
-    doc.open();
-    doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório Levitare</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}img{max-width:100%}table{page-break-inside:auto}tr,td,th{break-inside:avoid;page-break-inside:avoid}@page{margin:8mm 8mm}</style></head><body>${reportHtml}</body></html>`);
-    doc.close();
-    frame.onload = () => {
-      frame.contentWindow.focus();
-      frame.contentWindow.print();
-      setTimeout(() => frame.remove(), 400);
-    };
+
+    if (!isMobileSharePreferred()) {
+      const reportHtml = buildReportHtml(state.lastResult);
+      const frame = document.createElement("iframe");
+      frame.style.position = "fixed";
+      frame.style.right = "-9999px";
+      frame.style.bottom = "0";
+      document.body.appendChild(frame);
+      const doc = frame.contentWindow.document;
+      doc.open();
+      doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório Levitare</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}img{max-width:100%}table{page-break-inside:auto}tr,td,th{break-inside:avoid;page-break-inside:avoid}@page{margin:8mm 8mm}</style></head><body>${reportHtml}</body></html>`);
+      doc.close();
+      frame.onload = () => {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+        setTimeout(() => frame.remove(), 400);
+      };
+      return;
+    }
+
+    const btn = refs.printButton;
+    const origText = btn ? btn.textContent : null;
+    if (btn) { btn.disabled = true; btn.textContent = "Gerando PDF…"; }
+
+    let pdfBlob;
+    try {
+      if (window.html2canvas && window.jspdf) {
+        pdfBlob = await buildPdfBlobFromHtml();
+      }
+    } catch (e) {
+      pdfBlob = null;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = origText; }
+    }
+
+    if (!pdfBlob) { window.print(); return; }
+
+    const fileName = buildPdfFileName();
+    const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf", lastModified: Date.now() });
+
+    if (navigator.share) {
+      try {
+        if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
+          await navigator.share({ files: [pdfFile] });
+          return;
+        }
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+      }
+    }
+
+    openBlobFile(pdfBlob, fileName);
   }
 
   function resetForm() {
