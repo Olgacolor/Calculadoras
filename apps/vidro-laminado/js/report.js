@@ -164,17 +164,7 @@
   }
 
   // ── Light-theme dimetric panel sketch for print ───────────────────
-  function supportsForReport(apoio) {
-    const s = apoio === "2" ? "2altura" : (apoio || "4");
-    return {
-      top:    s === "4" || s === "2altura" || s === "3maior",
-      bottom: s === "4" || s === "2altura" || s === "3menor" || s === "3maior",
-      left:   s === "4" || s === "2largura" || s === "3menor" || s === "3maior",
-      right:  s === "4" || s === "2largura" || s === "3menor"
-    };
-  }
-
-  function buildLightPanelSvg(wMM, hMM, apoio) {
+  function buildLightPanelSvg(wMM, hMM, apoio, family) {
     const ratio = Math.max(200, wMM) / Math.max(200, hMM);
     const svgW = 176;
     const svgH = 152;
@@ -205,18 +195,20 @@
     const btr = [x2 + dx, y  + dy];
     const bbr = [x2 + dx, y2 + dy];
 
-    const sup = supportsForReport(apoio);
+    const sup = app.UI.supportsFor(apoio);
     const da  = `stroke="#dc2626" stroke-width="1.3" stroke-dasharray="4 2.5" stroke-linecap="round" fill="none"`;
     function edge(p1, p2) {
       return `<line x1="${p1[0].toFixed(2)}" y1="${p1[1].toFixed(2)}" x2="${p2[0].toFixed(2)}" y2="${p2[1].toFixed(2)}" ${da}/>`;
     }
 
-    // Glass depth layers (subtle for print: F1 blue / PVB yellow / F2 green).
-    const layers = [
-      { t0: 0,    t1: 0.46, topFill: "#c7d9f0",  rightFill: "#b0c8e0" },
-      { t0: 0.46, t1: 0.54, topFill: "#f5e7a0",  rightFill: "#ecdfa0" },
-      { t0: 0.54, t1: 1,    topFill: "#b5ddc8",   rightFill: "#9ecbb5" }
-    ];
+    // Glass depth layers (monolítico = single blue layer; laminado = F1/PVB/F2).
+    const layers = family === "monolitico"
+      ? [{ t0: 0, t1: 1, topFill: "#c7d9f0", rightFill: "#b0c8e0" }]
+      : [
+          { t0: 0,    t1: 0.46, topFill: "#c7d9f0",  rightFill: "#b0c8e0" },
+          { t0: 0.46, t1: 0.54, topFill: "#f5e7a0",  rightFill: "#ecdfa0" },
+          { t0: 0.54, t1: 1,    topFill: "#b5ddc8",  rightFill: "#9ecbb5" }
+        ];
 
     let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}">`;
 
@@ -395,7 +387,7 @@
 
         <div style="display:flex;flex-direction:column;align-items:center">
           <div class="rp-sketch-wrap">
-            ${buildLightPanelSvg(inputs.wMM, inputs.hMM, inputs.apoio)}
+            ${buildLightPanelSvg(inputs.wMM, inputs.hMM, inputs.apoio, inputs.family)}
           </div>
           <div class="rp-apoio-label">${apoioLabel}</div>
         </div>
