@@ -493,27 +493,15 @@
       removeContainer: true
     });
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const imgData  = canvas.toDataURL("image/jpeg", 0.92);
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-    const pageWidth  = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps   = pdf.getImageProperties(imgData);
-    const imgHeight  = (imgProps.height * pageWidth) / imgProps.width;
+    // Página com largura A4 e altura proporcional ao conteúdo — sem cortes
+    const pdfW  = 210;
+    const pdfH  = Math.ceil((canvas.height / canvas.width) * pdfW);
+    const pdf   = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfW, pdfH] });
 
-    let heightLeft = imgHeight;
-    let position   = 0;
-
-    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position -= pageHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "JPEG", 0, position, pageWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
+    pdf.addImage(imgData, "JPEG", 0, 0, pdfW, pdfH);
 
     return pdf.output("blob");
   }
