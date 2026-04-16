@@ -212,6 +212,59 @@ select option { color: #edf4ff; background: #111e38; }
 .doc-alert.bad  { border-color: rgba(255,125,125,0.28); background: rgba(255,125,125,0.07); color: #ffd0d0; }
 .doc-alert.bad strong { color: #ffd0d0; }
 
+/* Criteria term */
+.criteria-card {
+  border: 1px solid rgba(244,182,74,0.34);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(24,34,58,0.96), rgba(18,26,43,0.96));
+  box-shadow: var(--shadow-soft);
+}
+.criteria-card .card-title::before {
+  background: linear-gradient(135deg, rgba(244,182,74,0.9), rgba(91,168,245,0.75));
+}
+.criteria-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: rgba(255,255,255,0.76);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.criteria-copy p { margin: 0; }
+.criteria-copy strong { color: #fff; }
+.criteria-accept {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.04);
+  margin-top: 2px;
+}
+.criteria-accept input {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin: 0;
+  accent-color: var(--warn);
+}
+.criteria-accept label {
+  margin: 0;
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.criteria-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f7c766;
+}
+.criteria-hint.ok { color: #8df1c7; }
+
 /* Summary */
 .summary-card {
   border: 1px solid rgba(255,255,255,0.07);
