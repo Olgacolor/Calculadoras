@@ -314,6 +314,13 @@ function normalizePlanta(a, b, h) {
   return { aMaior: maior, bMenor: menor, hb, ab, faixa };
 }
 
+function inferClasseByDimensions(h, a, b) {
+  const governingDimension = Math.max(Number(h) || 0, Number(a) || 0, Number(b) || 0);
+  if (governingDimension <= 20) return { classe: 'A', governingDimension };
+  if (governingDimension <= 50) return { classe: 'B', governingDimension };
+  return { classe: 'C', governingDimension };
+}
+
 function resolveZEq() {
   return S.zEqMode === 'manual' ? S.zEqManual : S.z;
 }
@@ -446,11 +453,17 @@ function buildFlags(res) {
   return flags;
 }
 
+function getClasseDimensionNote(res) {
+  return `Classe ${res.classeAuto} automatica pela maior dimensao da edificacao (${fmt(res.governingDimension, 1)} m).`;
+}
+
 function calculate() {
   if (!S.v0 || !S.s1) return null;
 
   const { aMaior, bMenor, hb, ab, faixa } = normalizePlanta(S.a, S.b, S.z);
-  const s2 = calcS2(S.cat, S.classe, S.z);
+  const classeInfo = inferClasseByDimensions(S.z, aMaior, bMenor);
+  const classeAuto = classeInfo.classe;
+  const s2 = calcS2(S.cat, classeAuto, S.z);
   const gd = GRUPOS_S3.find(item => item.grupo === S.grupo);
   const s3 = gd.s3;
   const s3s = 0.92 * s3;
@@ -505,6 +518,8 @@ function calculate() {
   return {
     aMaior,
     bMenor,
+    classeAuto,
+    governingDimension: classeInfo.governingDimension,
     hb,
     ab,
     faixa,
@@ -646,10 +661,10 @@ function renderCityOptions() {
 }
 
 function updateUI() {
-  const { bm, p } = PARAMETROS_S2[S.cat][S.classe];
-  const fr = FR[S.classe];
   const res = calculate();
   if (!res) return;
+  const { bm, p } = PARAMETROS_S2[S.cat][res.classeAuto];
+  const fr = FR[res.classeAuto];
 
   toggleByMode();
 
@@ -685,9 +700,10 @@ function updateUI() {
   syncSegment('seg-forma', S.forma);
   syncSegment('seg-ce-mode', S.ceMode);
   syncSegment('seg-vizinha', S.vizinha);
+  syncSegment('seg-classe', res.classeAuto);
 
   document.getElementById('disp-s2').textContent = fmt(res.s2, 3);
-  document.getElementById('disp-s2-params').textContent = `bm=${fmt(bm,2)}  Fr=${fmt(fr,2)}  p=${p}`;
+  document.getElementById('disp-s2-params').textContent = `${getClasseDimensionNote(res)} · bm=${fmt(bm,2)} · Fr=${fmt(fr,2)} · p=${p}`;
   document.getElementById('disp-s3').textContent = fmt(res.s3, 2);
   document.getElementById('disp-s3s').textContent = fmt(res.s3s, 4);
   document.getElementById('disp-hb').textContent = fmt(res.hb, 2);
@@ -790,6 +806,7 @@ function buildReportBody(res) {
   if (S.forma === 'irregular') autoNotes.push('Edificações irregulares podem demandar avaliação específica e coeficientes conservadores ou manuais.');
   if (res.ceOrigin !== 'automatico' || res.cpiOrigin !== 'automatico') autoNotes.push('Coeficientes manuais ou conservadores foram adotados e devem ser validados pelo responsável técnico.');
   autoNotes.push('A região de comparação com a NBR 10821 deve ser confirmada pelo responsável técnico antes da emissão final.');
+  if (getMissingDocumentFields().length) autoNotes.push('Memorial emitido com identificacao documental incompleta.');
 
   document.getElementById('report-body').innerHTML = `
     <div class="rp-header">
@@ -826,7 +843,7 @@ function buildReportBody(res) {
     <table class="rp-table">
       <tr><td class="rp-k">Modo de calculo</td><td class="rp-v">${escapeHtml(res.modeLabel)}</td></tr>
       <tr><td class="rp-k">Topografia / S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
-      <tr><td class="rp-k">Categoria / Classe</td><td class="rp-v">${escapeHtml(S.cat)} / ${escapeHtml(S.classe)}</td></tr>
+      <tr><td class="rp-k">Categoria / Classe</td><td class="rp-v">${escapeHtml(S.cat)} / ${escapeHtml(res.classeAuto)} (${escapeHtml(getClasseDimensionNote(res))})</td></tr>
       <tr><td class="rp-k">Grupo estatistico / S3</td><td class="rp-v">${escapeHtml(String(S.grupo))} / ${fmt(res.s3,2)}</td></tr>
       <tr><td class="rp-k">Regiao sugerida de comparacao</td><td class="rp-v">${escapeHtml(String(S.regiao10821))}</td></tr>
       <tr><td class="rp-k">Condicao de permeabilidade</td><td class="rp-v">${escapeHtml(CASOS_CPI[res.cpiCase]?.label || 'Manual')}</td></tr>
@@ -892,11 +909,6 @@ function openReport() {
   }
   if (!S.criteriaAccepted) {
     alert('Marque o aceite dos critérios e limitações para liberar o Memorial / PDF.');
-    return;
-  }
-  const missingDoc = getMissingDocumentFields();
-  if (missingDoc.length) {
-    alert(`Preencha os dados de identificação para gerar um memorial técnico completo. Faltam: ${missingDoc.join(', ')}.`);
     return;
   }
   buildReportBody(res);
@@ -1004,11 +1016,6 @@ function init() {
     S.z = parseFloat(event.target.value) || 5;
     updateUI();
   });
-  setupSeg('seg-classe', value => {
-    S.classe = value;
-    updateUI();
-  });
-
   document.getElementById('sel-grupo').addEventListener('change', event => {
     S.grupo = parseInt(event.target.value, 10);
     updateUI();
