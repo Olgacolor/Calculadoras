@@ -223,6 +223,7 @@ function normalizeCityData(list) {
 }
 
 const CITY_DATA = normalizeCityData(typeof CIDADES_V0 !== 'undefined' ? CIDADES_V0 : []);
+const CRITERIA_ACCEPT_SESSION_KEY = 'pressao-vento.criteriaAccepted';
 
 function comparePt(a, b) {
   return a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
@@ -669,6 +670,8 @@ function updateUI() {
       : 'Marque o aceite para liberar o Memorial / PDF.';
     criteriaHint.classList.toggle('ok', Boolean(S.criteriaAccepted));
   }
+  const lockWrap = document.getElementById('calc-lock-wrap');
+  if (lockWrap) lockWrap.classList.toggle('locked', !S.criteriaAccepted);
   const criteriaInput = document.getElementById('inp-criteria-accept');
   if (criteriaInput) criteriaInput.checked = Boolean(S.criteriaAccepted);
   const reportButton = document.getElementById('btn-report');
@@ -902,6 +905,11 @@ function openReport() {
 }
 
 function init() {
+  try {
+    S.criteriaAccepted = sessionStorage.getItem(CRITERIA_ACCEPT_SESSION_KEY) === '1';
+  } catch (error) {
+    S.criteriaAccepted = false;
+  }
   renderUfOptions();
   renderCityOptions();
 
@@ -1058,6 +1066,11 @@ function init() {
     criteriaAccept.checked = Boolean(S.criteriaAccepted);
     criteriaAccept.addEventListener('change', event => {
       S.criteriaAccepted = event.target.checked;
+      try {
+        sessionStorage.setItem(CRITERIA_ACCEPT_SESSION_KEY, S.criteriaAccepted ? '1' : '0');
+      } catch (error) {
+        // no-op
+      }
       updateUI();
     });
   }

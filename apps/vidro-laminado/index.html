@@ -106,6 +106,21 @@
     justify-content: space-between;
     gap: 16px;
   }
+  .header-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .apps-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.07);
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: border-color .16s, color .16s, transform .16s;
+  }
+  .apps-back:hover { color: #fff; border-color: rgba(19,162,179,0.42); transform: translateY(-1px); }
   .brand { display: flex; align-items: center; gap: 14px; }
   .brand img { height: 28px; display: block; }
   .brand-copy strong { display: block; font-size: 15px; font-weight: 700; letter-spacing: var(--tracking-normal); }
@@ -868,11 +883,14 @@
 <body>
 <header>
   <div class="header-inner">
-    <div class="brand">
-      <img src="assets/olgacolor-logo.png" alt="Olgacolor">
-      <div class="brand-copy">
-        <strong>Vidro · NBR 7199</strong>
-        <span>Verificação normativa de espessura</span>
+    <div class="header-main">
+      <a href="../../index.html" class="apps-back">← Apps</a>
+      <div class="brand">
+        <img src="assets/olgacolor-logo.png" alt="Olgacolor">
+        <div class="brand-copy">
+          <strong>Vidro · NBR 7199</strong>
+          <span>Verificação normativa de espessura</span>
+        </div>
       </div>
     </div>
     <div class="header-badge">NBR 7199:2025</div>

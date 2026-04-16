@@ -77,6 +77,32 @@
     justify-content: space-between;
     gap: 16px;
   }
+  .header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  .apps-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: border-color 0.16s, color 0.16s, transform 0.16s;
+  }
+  .apps-back:hover {
+    color: #ffffff;
+    border-color: rgba(19, 162, 179, 0.4);
+    transform: translateY(-1px);
+  }
 
   .brand {
     display: flex;
@@ -1146,11 +1172,14 @@
 <body>
 <header>
   <div class="header-inner">
-    <div class="brand">
-      <img src="assets/logo.png" alt="Olgacolor">
-      <div class="brand-copy">
-        <strong>Levitare</strong>
-        <span>Orçamento orientativo de materiais</span>
+    <div class="header-main">
+      <a href="../../index.html" class="apps-back">← Apps</a>
+      <div class="brand">
+        <img src="assets/logo.png" alt="Olgacolor">
+        <div class="brand-copy">
+          <strong>Levitare</strong>
+          <span>Orçamento orientativo de materiais</span>
+        </div>
       </div>
     </div>
     <div class="header-result" id="headerResult">

@@ -87,6 +87,9 @@
 
     /* Topbar */
     .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+    .title-wrap{display:flex;flex-direction:column;gap:10px}
+    .apps-back{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:var(--muted);text-decoration:none;font-size:12px;font-weight:700;width:max-content;transition:.15s}
+    .apps-back:hover{color:var(--text);border-color:rgba(110,179,255,.4);transform:translateY(-1px)}
     .title-wrap h1{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px}
     .title-wrap p{font-size:13px;color:var(--muted)}
     .badge{padding:8px 16px;border-radius:99px;background:rgba(110,179,245,.12);border:1px solid rgba(110,179,255,.3);color:#d9ecff;font-size:13px;font-weight:600;white-space:nowrap;align-self:center}
@@ -135,6 +138,7 @@
 
     <div class="topbar">
       <div class="title-wrap">
+        <a href="../../index.html" class="apps-back">&larr; Apps</a>
         <h1>Gráfico de desempenho </h1>
         <p>Interface para seleção de conjuntos de perfis Olgacolor.</p>
       </div>

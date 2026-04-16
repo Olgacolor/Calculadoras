@@ -66,6 +66,25 @@ header {
   padding: 16px 20px 12px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
+.header-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.apps-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: border-color 0.16s, color 0.16s, transform 0.16s;
+}
+.apps-back:hover {
+  color: var(--ink);
+  border-color: rgba(91,168,245,0.38);
+  transform: translateY(-1px);
+}
 .brand-copy strong { display: block; font-size: 15px; font-weight: 700; }
 .brand-copy span   { display: block; font-size: 11px; color: rgba(255,255,255,0.48); text-transform: uppercase; letter-spacing: 0.1em; }
 .header-badge {
@@ -264,6 +283,50 @@ select option { color: #edf4ff; background: #111e38; }
   color: #f7c766;
 }
 .criteria-hint.ok { color: #8df1c7; }
+.calc-lock-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.calc-lock-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(11,18,32,0.26);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+.calc-lock-overlay span {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(11,18,32,0.92);
+  border: 1px solid rgba(244,182,74,0.42);
+  color: #ffe1a8;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+.calc-lock-wrap.locked > :not(.calc-lock-overlay) {
+  opacity: 0.42;
+  filter: saturate(0.72);
+  pointer-events: none;
+  user-select: none;
+}
+.calc-lock-wrap.locked .calc-lock-overlay {
+  display: flex;
+}
 
 /* Summary */
 .summary-card {
@@ -456,9 +519,12 @@ select option { color: #edf4ff; background: #111e38; }
 
 <header>
   <div class="header-inner">
-    <div class="brand-copy">
-      <strong>Pressão de Vento</strong>
-      <span>NBR 6123:2023 · Vedações</span>
+    <div class="header-main">
+      <a href="../../index.html" class="apps-back">&larr; Apps</a>
+      <div class="brand-copy">
+        <strong>Pressao de Vento</strong>
+        <span>NBR 6123:2023 - Vedacoes</span>
+      </div>
     </div>
     <span class="header-badge">Calculadora</span>
   </div>
@@ -473,6 +539,26 @@ select option { color: #edf4ff; background: #111e38; }
     <p>Calcula a pressão efetiva sobre esquadrias, vidros e painéis. Compara com a NBR 10821 e retorna Pe, Ps e Pa de ensaio recomendados.</p>
   </div>
 
+  <div class="card criteria-card">
+    <div class="card-head">
+      <div class="card-title">Criterios e limitacoes</div>
+    </div>
+    <div class="card-body">
+      <div class="criteria-copy">
+        <p>Esta calculadora fornece uma <strong>referencia tecnica preliminar</strong> para determinacao das pressoes devidas ao vento com base na logica adotada para a <strong>ABNT NBR 6123:2023</strong> e na comparacao de referencia com a <strong>ABNT NBR 10821</strong>.</p>
+        <p>O resultado nao substitui projeto, validacao estrutural especifica, detalhamento executivo nem a definicao final dos coeficientes da obra.</p>
+        <p>Use esta ferramenta como apoio a analise tecnica inicial e confirme a solucao conforme condicao real da edificacao, entorno, permeabilidade, topografia e hipoteses adotadas.</p>
+        <div class="criteria-accept">
+          <input type="checkbox" id="inp-criteria-accept">
+          <label for="inp-criteria-accept">Li e aceito os termos de responsabilidade tecnica.</label>
+        </div>
+        <div class="criteria-hint" id="criteria-hint">Marque o aceite para liberar o Memorial / PDF.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calc-lock-wrap locked" id="calc-lock-wrap">
+    <div class="calc-lock-overlay" id="calc-lock-overlay"><span>Aceite o termo acima para liberar o calculo</span></div>
   <div class="card flow-card">
     <div class="card-head">
       <span class="card-title">Identificação do documento</span>
@@ -802,25 +888,6 @@ select option { color: #edf4ff; background: #111e38; }
     </div>
     <div class="summary-flags" id="summary-flags"></div>
   </div>
-
-    <div class="card criteria-card">
-    <div class="card-head">
-      <div class="card-title">Crit?rios e limita??es</div>
-    </div>
-    <div class="card-body">
-      <div class="criteria-copy">
-        <p>Esta calculadora fornece uma <strong>refer?ncia t?cnica preliminar</strong> para determina??o das press?es devidas ao vento com base na l?gica adotada para a <strong>ABNT NBR 6123:2023</strong> e na compara??o de refer?ncia com a <strong>ABNT NBR 10821</strong>.</p>
-        <p>O resultado n?o substitui projeto, valida??o estrutural espec?fica, detalhamento executivo nem a defini??o final dos coeficientes da obra.</p>
-        <p>Use esta ferramenta como apoio ? an?lise t?cnica inicial e confirme a solu??o conforme condi??o real da edifica??o, entorno, permeabilidade, topografia e hip?teses adotadas.</p>
-        <div class="criteria-accept">
-          <input type="checkbox" id="inp-criteria-accept">
-          <label for="inp-criteria-accept">Li e concordo que os resultados t?m car?ter orientativo e que o memorial final depende da valida??o t?cnica do respons?vel pelo projeto.</label>
-        </div>
-        <div class="criteria-hint" id="criteria-hint">Marque o aceite para liberar o Memorial / PDF.</div>
-      </div>
-    </div>
-  </div>
-
 <!-- BLOCO 3 — Resultado -->
   <div class="results-card">
     <div class="results-head">
@@ -901,6 +968,8 @@ select option { color: #edf4ff; background: #111e38; }
       </div>
     </div>
   </div>
+
+</div>
 
 </div><!-- .shell -->
 
