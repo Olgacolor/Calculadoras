@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pressão de Vento · NBR 6123:2023</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b1220;
+  --s1: #121a2b;
+  --panel: #121a2b;
+  --panel-2: #18223a;
+  --ink: #edf4ff;
+  --ink-soft: #b8cce4;
+  --muted: #6a8aaa;
+  --line: #223050;
+  --accent: #5ba8f5;
+  --accent-2: #5cf0c8;
+  --warn: #f4b64a;
+  --bad: #ff7d7d;
+  --good: #57dca8;
+  --radius: 20px;
+  --radius-sm: 14px;
+  --shadow: 0 24px 60px rgba(0,0,0,0.42);
+  --shadow-soft: 0 10px 32px rgba(0,0,0,0.28);
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 8%,  rgba(91,168,245,0.18), transparent 28%),
+    radial-gradient(circle at 82% 5%,  rgba(92,240,200,0.10), transparent 24%),
+    linear-gradient(180deg, #0f182a 0%, var(--bg) 50%, #080c14 100%);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  padding-bottom: 88px;
+  overflow-x: hidden;
+  color-scheme: dark;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; opacity: 0.17;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, black 0 260px, transparent 480px);
+}
+
+/* Header */
+header {
+  position: sticky; top: 0; z-index: 20;
+  backdrop-filter: blur(16px);
+  background: rgba(11,18,32,0.84);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.header-inner {
+  max-width: 680px; margin: 0 auto;
+  padding: 16px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.brand-copy strong { display: block; font-size: 15px; font-weight: 700; }
+.brand-copy span   { display: block; font-size: 11px; color: rgba(255,255,255,0.48); text-transform: uppercase; letter-spacing: 0.1em; }
+.header-badge {
+  border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.07);
+  color: #fff; border-radius: 999px; padding: 6px 12px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+
+/* Shell */
+.shell {
+  max-width: 680px; margin: 0 auto;
+  padding: 20px 20px 0;
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative; z-index: 1;
+}
+
+/* Hero */
+.hero {
+  padding: 26px;
+  background:
+    linear-gradient(150deg, rgba(22,34,58,0.98), rgba(11,18,32,0.98)),
+    radial-gradient(circle at 86% 14%, rgba(91,168,245,0.28), transparent 36%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(91,168,245,0.92); margin-bottom: 8px; }
+.hero h1 { margin: 0 0 10px; font-size: clamp(22px, 4vw, 30px); line-height: 1.1; letter-spacing: -0.5px; }
+.hero p  { margin: 0; color: rgba(255,255,255,0.66); font-size: 13px; max-width: 540px; }
+
+/* Cards */
+.card {
+  background: linear-gradient(180deg, rgba(20,30,52,0.98), rgba(14,22,38,0.98));
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+.card::after {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.flow-card::before {
+  content: "";
+  position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  z-index: 1;
+}
+.card-head { padding: 18px 22px 0; display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.card-body { padding: 14px 22px 22px; position: relative; z-index: 1; }
+.card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #7a9abc;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.card-title::before {
+  content: "";
+  width: 10px; height: 10px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  flex-shrink: 0;
+}
+
+/* Fields */
+.fgrid { display: grid; gap: 14px; }
+.fg2   { grid-template-columns: 1fr 1fr; }
+.fg3   { grid-template-columns: 1fr 1fr 1fr; }
+.span2 { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+
+/* Inputs */
+input, select {
+  width: 100%; min-height: 48px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, rgba(11,19,35,0.98), rgba(8,14,26,0.98));
+  color: var(--ink); font-family: var(--font-sans); font-size: 16px;
+  outline: none; -webkit-appearance: none; appearance: none;
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(91,168,245,0.16);
+  background: #0b1628;
+}
+select {
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236a90b8' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center;
+  padding-right: 36px; cursor: pointer;
+}
+select option { color: #edf4ff; background: #111e38; }
+
+/* Seg buttons */
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button {
+  flex: 1; min-width: 80px; min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: rgba(11,19,35,0.72); color: var(--muted);
+  font-size: 13px; font-weight: 700; font-family: var(--font-sans);
+  cursor: pointer; transition: all 0.14s;
+}
+.seg button.active { background: rgba(91,168,245,0.16); border-color: rgba(91,168,245,0.55); color: #cce4ff; }
+.seg button:hover  { transform: translateY(-1px); border-color: rgba(91,168,245,0.36); color: var(--ink-soft); }
+
+/* Notes */
+.note {
+  font-size: 12px; color: var(--muted); line-height: 1.55;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+}
+.note.warn { border-color: rgba(244,182,74,0.32); background: rgba(244,182,74,0.06); color: rgba(244,182,74,0.92); }
+.note.info { border-color: rgba(91,168,245,0.24); background: rgba(91,168,245,0.05); color: var(--ink-soft); }
+
+/* Derived pills */
+.derived-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.derived-lbl { font-family: var(--font-sans); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.derived {
+  display: inline-flex; align-items: center;
+  background: rgba(92,240,200,0.10); border: 1px solid rgba(92,240,200,0.28);
+  border-radius: 999px; padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: #a0ffdf;
+}
+.derived.blue { background: rgba(91,168,245,0.10); border-color: rgba(91,168,245,0.28); color: #aad4ff; }
+.derived.small { font-size: 11px; padding: 3px 10px; }
+
+/* Alerts */
+.doc-alert { display: none; }
+.doc-alert.visible { display: block; }
+.doc-alert strong { display: block; margin-bottom: 4px; color: #ffe1a8; }
+.doc-alert {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.035);
+  padding: 12px 14px;
+  font-size: 13px; line-height: 1.5;
+}
+.doc-alert.warn { border-color: rgba(244,182,74,0.28); background: rgba(244,182,74,0.06); color: var(--ink-soft); }
+.doc-alert.bad  { border-color: rgba(255,125,125,0.28); background: rgba(255,125,125,0.07); color: #ffd0d0; }
+.doc-alert.bad strong { color: #ffd0d0; }
+
+/* Mode switch */
+.mode-switch {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(91,168,245,0.16); border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+}
+.mode-copy strong { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+.mode-copy span   { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); }
+
+.advanced-only[hidden],
+.simplified-only[hidden] { display: none !important; }
+
+/* Results card */
+.results-card {
+  background:
+    linear-gradient(150deg, rgba(16,28,50,0.98), rgba(11,18,32,0.98)),
+    radial-gradient(circle at 88% 12%, rgba(92,240,200,0.14), transparent 32%);
+  border: 1px solid rgba(91,168,245,0.22);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+}
+.results-head { padding: 20px 22px 0; }
+.results-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7a9abc; }
+.results-body  { padding: 14px 22px 22px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Chain display */
+.chain {
+  font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+  line-height: 1.9; white-space: pre-wrap;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 14px 16px;
+}
+
+/* Metric cards */
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.metric {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px; padding: 14px 16px;
+  position: relative; overflow: hidden;
+}
+.metric::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 3px 3px 0 0; }
+.metric.c-acc::after  { background: var(--accent); }
+.metric.c-acc2::after { background: var(--accent-2); }
+.metric.c-warn::after { background: var(--warn); }
+.metric-lbl  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px; }
+.metric-val  { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+.metric-unit { font-size: 13px; color: var(--muted); margin-left: 2px; }
+.metric-sub  { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+
+.results-section { display: grid; gap: 10px; }
+.results-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7a9abc; }
+
+/* Pe final */
+.pe-box {
+  background: linear-gradient(135deg, rgba(92,240,200,0.12), rgba(91,168,245,0.08));
+  border: 2px solid rgba(92,240,200,0.38);
+  border-radius: 16px; padding: 18px 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.pe-box-copy   { flex: 1; min-width: 160px; }
+.pe-box-lbl    { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+.pe-box-val    { font-family: var(--font-mono); font-size: 36px; font-weight: 500; color: #a0ffdf; line-height: 1; font-variant-numeric: tabular-nums; }
+.pe-box-unit   { font-size: 16px; color: var(--muted); margin-left: 3px; }
+.pe-box-gov    { font-size: 12px; color: var(--ink-soft); margin-top: 5px; }
+.pe-box-badge  {
+  background: rgba(92,240,200,0.18); border: 1px solid rgba(92,240,200,0.42);
+  border-radius: 10px; padding: 6px 14px;
+  font-size: 12px; font-weight: 700; color: #a0ffdf; white-space: nowrap;
+}
+
+/* FAB */
+.fab {
+  position: fixed; bottom: 24px; right: 24px; z-index: 50;
+  background: linear-gradient(135deg, var(--accent), #3a8ee8);
+  color: #fff; border: none; border-radius: 14px;
+  padding: 14px 20px;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 8px 24px rgba(91,168,245,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.fab:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(91,168,245,0.48); }
+
+/* Report overlay */
+#reportOverlay { display: none; position: fixed; inset: 0; z-index: 200; background: #f3f4f6; overflow-y: auto; }
+#reportOverlay.active { display: block; }
+.report-toolbar {
+  position: sticky; top: 0; z-index: 10;
+  background: #fff; border-bottom: 1px solid #e5e7eb;
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.report-toolbar-title { font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: #111827; }
+.report-toolbar-btns  { display: flex; gap: 8px; }
+.btn-rprint { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; background: #2563eb; color: #fff; }
+.btn-rclose { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; }
+.report-body { max-width: 680px; margin: 0 auto; padding: 20px 18px 40px; }
+.rp-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb; margin-bottom: 16px; }
+.rp-title  { font-family: var(--font-sans); font-size: 16px; font-weight: 700; color: #111827; }
+.rp-sub    { font-family: var(--font-sans); font-size: 10px; color: #9ca3af; margin-top: 2px; }
+.rp-meta   { text-align: right; font-family: var(--font-sans); font-size: 10px; color: #6b7280; line-height: 1.8; }
+.rp-id-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.rp-id-field { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; background: #fff; }
+.rp-id-field.full { grid-column: 1 / -1; }
+.rp-id-k { font-family: var(--font-sans); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; margin-bottom: 4px; }
+.rp-id-input {
+  width: 100%; border: none; outline: none; padding: 0;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: #111827;
+  background: transparent;
+}
+.rp-id-textarea {
+  width: 100%; border: none; outline: none; padding: 0;
+  font-family: var(--font-sans); font-size: 13px; color: #374151;
+  background: transparent; resize: none; min-height: 48px; line-height: 1.5;
+}
+.rp-section { font-family: var(--font-sans); font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #9ca3af; background: #f9fafb; border-top: 1px solid #d1d5db; border-bottom: 1px solid #e5e7eb; padding: 6px 12px; margin-bottom: 0; }
+.rp-table  { width: 100%; border-collapse: collapse; margin-bottom: 14px; border: 1px solid #e5e7eb; background: #fff; }
+.rp-table td { padding: 6px 12px; border-bottom: 1px solid #f3f4f6; font-family: var(--font-sans); font-size: 12px; }
+.rp-table tr:last-child td { border-bottom: none; }
+.rp-k { color: #6b7280; width: 60%; }
+.rp-v { font-weight: 600; text-align: right; color: #111827; font-variant-numeric: tabular-nums; }
+.rp-result-big {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 10px;
+  border: 2px solid #a7f3d0; background: #ecfdf5; margin-bottom: 12px;
+}
+.rp-result-icon { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; background: #059669; font-family: var(--font-sans); }
+.rp-result-title { font-family: var(--font-sans); font-size: 15px; font-weight: 700; color: #059669; }
+.rp-result-sub   { font-family: var(--font-sans); font-size: 11px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+.rp-norma { font-family: var(--font-sans); font-size: 9px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 10px; text-align: center; line-height: 1.8; }
+
+@media print {
+  header, .shell, .fab { display: none !important; }
+  .report-toolbar { display: none !important; }
+  #reportOverlay { display: block !important; position: static !important; overflow: visible !important; background: #fff !important; }
+  .report-body { max-width: none !important; padding: 0 !important; }
+  @page { size: A4; margin: 8mm 10mm; }
+}
+/* Zone table */
+.zone-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.zone-table th { padding: 5px 10px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+.zone-table th[colspan] { color: var(--ink-soft); font-size: 11px; padding-top: 10px; }
+.zone-table td { padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: var(--font-mono); font-size: 12px; }
+.zone-table td:first-child { font-family: var(--font-sans); font-size: 12px; }
+.zone-table tr:last-child td { border-bottom: none; }
+.zone-govern td { background: rgba(92,240,200,0.08); color: var(--accent-2); font-weight: 600; }
+.zone-tag { font-size: 10px; background: rgba(244,182,74,0.15); color: var(--warn); border-radius: 4px; padding: 1px 6px; font-family: var(--font-sans); font-weight: 600; vertical-align: middle; }
+
+@media (max-width: 640px) {
+  .header-inner, .shell { padding-left: 14px; padding-right: 14px; }
+  .metrics { grid-template-columns: 1fr; }
+  .fg2, .fg3 { grid-template-columns: 1fr; }
+  .rp-id-grid { grid-template-columns: 1fr; }
+  .mode-switch { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-copy">
+      <strong>Pressão de Vento</strong>
+      <span>NBR 6123:2023 · Vedações</span>
+    </div>
+    <span class="header-badge">Calculadora</span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="eyebrow">NBR 6123:2023 + NBR 10821</div>
+    <h1>Pressão de Vento em Vedações</h1>
+    <p>Calcula a pressão efetiva sobre esquadrias, vidros e painéis. Compara com a NBR 10821 e retorna Pe, Ps e Pa de ensaio recomendados.</p>
+  </div>
+
+  <!-- Modo -->
+  <div class="mode-switch">
+    <div class="mode-copy">
+      <strong>Modo de uso</strong>
+      <span>Simplificado: 5 campos, resultado imediato. Avançado: todos os parâmetros para memorial técnico.</span>
+    </div>
+    <div class="seg" id="seg-mode" style="flex:0 0 auto;min-width:200px">
+      <button data-val="simplificado" class="active">Simplificado</button>
+      <button data-val="avancado">Avançado</button>
+    </div>
+  </div>
+
+  <!-- BLOCO 1 — A obra -->
+  <div class="card flow-card">
+    <div class="card-head">
+      <span class="card-title">A obra</span>
+    </div>
+    <div class="card-body fgrid">
+
+      <!-- UF + Cidade -->
+      <div class="fgrid fg2">
+        <div class="field">
+          <label for="sel-uf">UF</label>
+          <select id="sel-uf">
+            <option value="">— UF —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sel-cidade">Cidade (V₀ aproximado)</label>
+          <select id="sel-cidade">
+            <option value="">— selecione a cidade —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- V0 + Região NBR 10821 -->
+      <div class="fgrid fg2">
+        <div class="field">
+          <label for="inp-v0">V₀ (m/s)</label>
+          <input type="number" id="inp-v0" min="15" max="70" step="1" value="40" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="sel-regiao10821">Região NBR 10821</label>
+          <select id="sel-regiao10821">
+            <option value="1">Região 1</option>
+            <option value="2">Região 2</option>
+            <option value="3" selected>Região 3</option>
+            <option value="4">Região 4</option>
+            <option value="5">Região 5</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- h + a + b -->
+      <div class="fgrid fg3">
+        <div class="field">
+          <label for="inp-z">h — altura (m)</label>
+          <input type="number" id="inp-z" min="1" max="500" step="0.5" value="20" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="inp-a">a — lado maior (m)</label>
+          <input type="number" id="inp-a" min="1" max="500" step="0.1" value="40" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="inp-b">b — lado menor (m)</label>
+          <input type="number" id="inp-b" min="1" max="500" step="0.1" value="20" inputmode="decimal">
+        </div>
+      </div>
+
+      <!-- Forma -->
+      <div class="field">
+        <label>Forma da edificação em planta</label>
+        <div class="seg" id="seg-forma">
+          <button data-val="regular" class="active">Regular</button>
+          <button data-val="irregular">Irregular</button>
+        </div>
+        <span class="note" style="margin-top:6px">Regular = planta retangular simples. Irregular = formas em L, T, U ou volumes complexos.</span>
+      </div>
+
+      <!-- Alerta irregular -->
+      <div class="doc-alert bad" id="shape-warning">
+        <strong>Edificação irregular</strong>
+        <span>Edificações irregulares podem exigir avaliação específica. O app adota Ce conservador (pior caso entre todas as zonas).</span>
+      </div>
+
+      <!-- Derivados geométricos -->
+      <div class="derived-row">
+        <span class="derived-lbl">h/b</span>
+        <span class="derived" id="disp-hb">—</span>
+        <span class="derived-lbl">a/b</span>
+        <span class="derived blue" id="disp-ab">—</span>
+        <span class="derived-lbl">faixa Tab. 6</span>
+        <span class="derived blue small" id="disp-faixa">—</span>
+      </div>
+
+      <div class="note warn">
+        ⚠ V₀ deve ser confirmado na Figura 1 da NBR 6123. Os valores por cidade são aproximações das isopletas.
+      </div>
+      <div class="note info">
+        Região sugerida pelo V₀. Ajuste se necessário.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 2 — Condições de vento -->
+  <div class="card flow-card">
+    <div class="card-head">
+      <span class="card-title">Condições de vento</span>
+    </div>
+    <div class="card-body fgrid">
+
+      <!-- S1 — advanced only -->
+      <div class="field advanced-only" hidden>
+        <label>S₁ — Topografia (seção 5.2)</label>
+        <div class="seg" id="seg-s1">
+          <button data-val="1.0" class="active">Plano (1,0)</button>
+          <button data-val="0.9">Vale (0,9)</button>
+          <button data-val="manual">Manual</button>
+        </div>
+      </div>
+      <div class="field advanced-only" id="s1-manual-row" style="display:none" hidden>
+        <label for="inp-s1">S₁ (valor manual)</label>
+        <input type="number" id="inp-s1" min="0.5" max="2.0" step="0.01" value="1.00" inputmode="decimal">
+      </div>
+
+      <!-- Categoria de rugosidade -->
+      <div class="field">
+        <label for="sel-cat">O que existe em volta do edifício?</label>
+        <select id="sel-cat">
+          <option value="I">I · Campo aberto, mar ou lago — sem obstáculos por 5 km</option>
+          <option value="II" selected>II · Terreno aberto com poucos obstáculos (fazendas, aeroportos)</option>
+          <option value="III">III · Subúrbio com casas baixas esparsas, sebes e muros</option>
+          <option value="IV">IV · Bairro urbano denso, zona industrial ou florestal</option>
+          <option value="V">V · Centro de cidade grande com prédios altos</option>
+        </select>
+      </div>
+
+      <!-- Classe — advanced only -->
+      <div class="field advanced-only" hidden>
+        <label>Classe (vedações = Classe A, seção 6.1.1)</label>
+        <div class="seg" id="seg-classe">
+          <button data-val="A" class="active">A · até 20 m</button>
+          <button data-val="B">B · 20 a 50 m</button>
+          <button data-val="C">C · &gt; 50 m</button>
+        </div>
+      </div>
+
+      <!-- Grupo S3 -->
+      <div class="field">
+        <label for="sel-grupo">Tipo de ocupação da edificação</label>
+        <select id="sel-grupo">
+          <option value="1">1 · Hospital, quartel, central de controle, ponte</option>
+          <option value="2">2 · Escola, creche, ginásio (aglomeração &gt; 300 pessoas)</option>
+          <option value="3" selected>3 · Residencial, hotel, escritório, comércio, indústria</option>
+          <option value="4">4 · Depósito ou silo sem circulação de pessoas</option>
+          <option value="5">5 · Estrutura temporária ou em construção (até 2 anos)</option>
+        </select>
+      </div>
+
+      <!-- Permeabilidade (cpi) -->
+      <div class="field">
+        <label for="sel-cpi">Permeabilidade da edificação</label>
+        <select id="sel-cpi">
+          <option value="estanque">Toda fechada — janelas fixas que não abrem</option>
+          <option value="4faces">Aberturas em todas as faces (ventilação cruzada equilibrada)</option>
+          <option value="2faces_perp_permeavel">Janelas em lados opostos — vento bate na face com janelas</option>
+          <option value="2faces_perp_impermeavel">Janelas em lados opostos — vento bate na face sem janelas</option>
+          <option value="abertura_dominante">Uma face muito mais aberta que as outras (portão, vitrine grande)</option>
+          <option value="manual">Definir manualmente</option>
+        </select>
+      </div>
+      <div class="field" id="cpi-manual-row" style="display:none">
+        <label for="inp-cpi">cpi (valor manual)</label>
+        <input type="number" id="inp-cpi" step="0.05" value="0.8" inputmode="decimal">
+      </div>
+
+      <!-- fv via vizinhança — advanced only -->
+      <div class="field advanced-only" hidden>
+        <label>Edificações vizinhas altas?</label>
+        <div class="seg" id="seg-vizinha">
+          <button data-val="nao" class="active">Não</button>
+          <button data-val="sim">Sim</button>
+        </div>
+      </div>
+      <div class="field advanced-only" id="viz-s-row" style="display:none" hidden>
+        <label for="inp-s-viz">Afastamento s entre fachadas confrontantes (m)</label>
+        <input type="number" id="inp-s-viz" min="1" max="500" step="0.5" value="20" inputmode="decimal">
+      </div>
+      <div class="derived-row advanced-only" id="viz-derived-row" style="display:none" hidden>
+        <span class="derived-lbl">d*</span>
+        <span class="derived" id="disp-dstar">—</span>
+        <span class="derived-lbl">s/d*</span>
+        <span class="derived" id="disp-sdstar">—</span>
+        <span class="derived-lbl">fv</span>
+        <span class="derived blue" id="disp-fv-calc">—</span>
+      </div>
+
+      <!-- Ce mode — advanced only -->
+      <div class="field advanced-only" hidden>
+        <label>Ce — coeficiente de pressão externa</label>
+        <div class="seg" id="seg-ce-mode">
+          <button data-val="auto" class="active">Automático (Tabela 6)</button>
+          <button data-val="manual">Manual</button>
+        </div>
+      </div>
+      <div class="field advanced-only" id="ce-manual-row" style="display:none" hidden>
+        <label for="inp-ce">Ce (valor manual)</label>
+        <input type="number" id="inp-ce" step="0.05" value="-1.1" inputmode="decimal">
+      </div>
+
+      <!-- Face / Direção — advanced only -->
+      <div class="fgrid fg2 advanced-only" hidden>
+        <div class="field">
+          <label for="sel-face">Face / fachada analisada</label>
+          <select id="sel-face">
+            <option value="especial" selected>Pior caso (conservador)</option>
+            <option value="barlavento">Barlavento</option>
+            <option value="sotavento">Sotavento</option>
+            <option value="lateral">Lateral</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sel-direcao">Direção do vento</label>
+          <select id="sel-direcao">
+            <option value="0">0°</option>
+            <option value="90">90°</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div class="note info advanced-only" hidden>
+        Seção 6.1.1: para vedações, usar <strong>Classe A</strong> e S₂ no <strong>topo da edificação</strong>. Seção 6.4: vizinhas com s/d* ≤ 1,0 → fv = 1,3; interpolar até s/d* = 3,0.
+      </div>
+      <div class="note info">
+        Quando o caso admite múltiplos valores de cpi, o app usa o pior caso. S₃* = 0,92 × S₃ (regime de transição para vedações, Nota Tabela 4).
+      </div>
+
+      <!-- Derivados calculados -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="derived-row">
+          <span class="derived-lbl">S₂</span>
+          <span class="derived" id="disp-s2">—</span>
+          <span class="derived blue small" id="disp-s2-params">—</span>
+        </div>
+        <div class="derived-row">
+          <span class="derived-lbl">S₃</span>
+          <span class="derived blue" id="disp-s3">—</span>
+          <span class="derived-lbl">S₃*</span>
+          <span class="derived" id="disp-s3s">—</span>
+          <span class="derived-lbl">Ce</span>
+          <span class="derived" id="disp-ce">—</span>
+          <span class="derived blue small" id="disp-ce-zona">—</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 3 — Resultado -->
+  <div class="results-card">
+    <div class="results-head">
+      <div class="results-title">Resultado do cálculo</div>
+    </div>
+    <div class="results-body">
+      <div class="chain" id="chain-display">Preencha os parâmetros acima para calcular.</div>
+      <div class="results-section">
+        <div class="results-section-title">Cálculo pela NBR 6123</div>
+        <div class="metrics">
+          <div class="metric c-acc">
+            <div class="metric-lbl">Vk</div>
+            <div><span class="metric-val" id="disp-vk">—</span><span class="metric-unit">m/s</span></div>
+            <div class="metric-sub">Velocidade característica</div>
+          </div>
+          <div class="metric c-acc">
+            <div class="metric-lbl">q</div>
+            <div><span class="metric-val" id="disp-q">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">Pressão dinâmica</div>
+          </div>
+          <div class="metric c-acc2">
+            <div class="metric-lbl">Pp 6123</div>
+            <div><span class="metric-val" id="disp-pp6123">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub" id="disp-pe6123-sub">|Δp| · pior caso Ce × cpi</div>
+          </div>
+          <div class="metric c-acc2">
+            <div class="metric-lbl">Pe 6123</div>
+            <div><span class="metric-val" id="disp-pe6123">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">1,2 × Pp</div>
+          </div>
+          <div class="metric c-acc2">
+            <div class="metric-lbl">Ps 6123</div>
+            <div><span class="metric-val" id="disp-ps6123">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">1,5 × Pe</div>
+          </div>
+          <div class="metric c-acc2">
+            <div class="metric-lbl">Pa 6123</div>
+            <div><span class="metric-val" id="disp-pa6123">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">0,2 × Pp</div>
+          </div>
+        </div>
+      </div>
+      <div class="results-section">
+        <div class="results-section-title">Comparação / referência NBR 10821</div>
+        <div class="metrics">
+          <div class="metric c-warn">
+            <div class="metric-lbl">Pe 10821</div>
+            <div><span class="metric-val" id="disp-pe10821-res">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">Tabela 1 interpolada</div>
+          </div>
+          <div class="metric c-warn">
+            <div class="metric-lbl">Ps 10821</div>
+            <div><span class="metric-val" id="disp-ps10821-res">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">Tabela 1 interpolada</div>
+          </div>
+          <div class="metric c-warn">
+            <div class="metric-lbl">Pa 10821</div>
+            <div><span class="metric-val" id="disp-pa10821-res">—</span><span class="metric-unit">Pa</span></div>
+            <div class="metric-sub">Tabela 1 interpolada</div>
+          </div>
+        </div>
+      </div>
+      <div class="results-section">
+        <div class="results-section-title">Pressão por zona — Tabela 6</div>
+        <div id="zones-table-container"></div>
+      </div>
+
+      <div class="pe-box">
+        <div class="pe-box-copy">
+          <div class="pe-box-lbl">Pe recomendado</div>
+          <div>
+            <span class="pe-box-val" id="disp-pe-final">—</span>
+            <span class="pe-box-unit">Pa</span>
+          </div>
+          <div class="pe-box-gov" id="disp-pe-gov">—</div>
+        </div>
+        <span class="pe-box-badge" id="disp-pe-badge">—</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .shell -->
+
+<button class="fab" id="btn-report">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  Relatório / PDF
+</button>
+
+<!-- Report overlay -->
+<div id="reportOverlay">
+  <div class="report-toolbar">
+    <span class="report-toolbar-title">Relatório · Pressão de Vento NBR 6123:2023</span>
+    <div class="report-toolbar-btns">
+      <button class="btn-rprint" id="btn-print">Imprimir / PDF</button>
+      <button class="btn-rclose" id="btn-close-report">Fechar</button>
+    </div>
+  </div>
+  <div class="report-body" id="report-body"></div>
+</div>
+
+<script src="./cidades_v0.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

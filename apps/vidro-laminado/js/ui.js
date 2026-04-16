@@ -421,12 +421,14 @@
     const manualBox = get("pressureManualBox");
     if (!summary || !help || !autoBox || !manualBox) return;
 
+    const isManual = inputs && inputs.pressureMeta && inputs.pressureMeta.mode === "manual";
+    autoBox.style.display = isManual ? "none" : "";
+    manualBox.style.display = isManual ? "" : "none";
+
     const pressure = pressureTechnical || (technical && technical.buildPressureTechnical
       ? technical.buildPressureTechnical(inputs.pressureMeta, inputs.Pv)
       : null);
 
-    autoBox.style.display = pressure && pressure.mode === "manual" ? "none" : "";
-    manualBox.style.display = pressure && pressure.mode === "manual" ? "" : "none";
     summary.textContent = pressure ? pressure.summaryText : "Seleção normativa indisponível";
     help.textContent = pressure ? pressure.helpText : "Escolha UF, cidade e pavimentos para calcular a pressão automaticamente.";
   }
