@@ -212,15 +212,45 @@ select option { color: #edf4ff; background: #111e38; }
 .doc-alert.bad  { border-color: rgba(255,125,125,0.28); background: rgba(255,125,125,0.07); color: #ffd0d0; }
 .doc-alert.bad strong { color: #ffd0d0; }
 
-/* Mode switch */
-.mode-switch {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+/* Summary */
+.summary-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.035);
   padding: 14px 16px;
-  border: 1px solid rgba(91,168,245,0.16); border-radius: 16px;
-  background: rgba(255,255,255,0.03);
 }
-.mode-copy strong { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
-.mode-copy span   { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); }
+.summary-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px;
+}
+.summary-head strong {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft);
+}
+.summary-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+}
+.summary-item {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(11,19,35,0.42);
+}
+.summary-item span {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 3px;
+}
+.summary-item strong { display: block; font-size: 13px; color: var(--ink); }
+.summary-flags {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+}
+.flag-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+}
+.flag-pill.info { background: rgba(91,168,245,0.12); border: 1px solid rgba(91,168,245,0.24); color: #cfe5ff; }
+.flag-pill.warn { background: rgba(244,182,74,0.12); border: 1px solid rgba(244,182,74,0.24); color: #ffe1a8; }
+.flag-pill.bad { background: rgba(255,125,125,0.12); border: 1px solid rgba(255,125,125,0.24); color: #ffd0d0; }
+.flag-pill.good { background: rgba(92,240,200,0.12); border: 1px solid rgba(92,240,200,0.24); color: #a0ffdf; }
 
 .advanced-only[hidden],
 .simplified-only[hidden] { display: none !important; }
@@ -365,7 +395,7 @@ select option { color: #edf4ff; background: #111e38; }
   .metrics { grid-template-columns: 1fr; }
   .fg2, .fg3 { grid-template-columns: 1fr; }
   .rp-id-grid { grid-template-columns: 1fr; }
-  .mode-switch { flex-direction: column; align-items: stretch; }
+  .summary-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -390,15 +420,59 @@ select option { color: #edf4ff; background: #111e38; }
     <p>Calcula a pressão efetiva sobre esquadrias, vidros e painéis. Compara com a NBR 10821 e retorna Pe, Ps e Pa de ensaio recomendados.</p>
   </div>
 
-  <!-- Modo -->
-  <div class="mode-switch">
-    <div class="mode-copy">
-      <strong>Modo de uso</strong>
-      <span>Simplificado: 5 campos, resultado imediato. Avançado: todos os parâmetros para memorial técnico.</span>
+  <div class="card flow-card">
+    <div class="card-head">
+      <span class="card-title">Identificação do documento</span>
     </div>
-    <div class="seg" id="seg-mode" style="flex:0 0 auto;min-width:200px">
-      <button data-val="simplificado" class="active">Simplificado</button>
-      <button data-val="avancado">Avançado</button>
+    <div class="card-body fgrid">
+      <div class="fgrid fg2">
+        <div class="field">
+          <label for="inp-cliente">Cliente</label>
+          <input type="text" id="inp-cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="field">
+          <label for="inp-obra">Obra / Projeto</label>
+          <input type="text" id="inp-obra" placeholder="Nome da obra ou projeto">
+        </div>
+      </div>
+      <div class="fgrid fg2">
+        <div class="field">
+          <label for="inp-local">Local da obra</label>
+          <input type="text" id="inp-local" placeholder="Endereço, lote ou referência">
+        </div>
+        <div class="field">
+          <label for="inp-responsavel">Responsável técnico</label>
+          <input type="text" id="inp-responsavel" placeholder="Nome / CREA / CAU">
+        </div>
+      </div>
+      <div class="fgrid fg3">
+        <div class="field">
+          <label for="inp-data-doc">Data</label>
+          <input type="date" id="inp-data-doc">
+        </div>
+        <div class="field">
+          <label for="inp-revisao">Revisão</label>
+          <input type="text" id="inp-revisao" placeholder="Ex.: R00">
+        </div>
+        <div class="field">
+          <label for="inp-documento">Número do documento</label>
+          <input type="text" id="inp-documento" placeholder="Ex.: MEM-VENTO-001">
+        </div>
+      </div>
+      <div class="fgrid fg2">
+        <div class="field">
+          <label for="inp-disciplina">Disciplina</label>
+          <input type="text" id="inp-disciplina" placeholder="Ex.: Fachadas / Esquadrias">
+        </div>
+        <div class="field">
+          <label for="inp-observacoes">Observações gerais</label>
+          <input type="text" id="inp-observacoes" placeholder="Observações complementares">
+        </div>
+      </div>
+      <div class="doc-alert warn" id="doc-warning">
+        <strong>Relatório técnico incompleto</strong>
+        <span>Preencha cliente, obra, local, responsável técnico, data, revisão e número do documento antes de gerar o memorial.</span>
+      </div>
     </div>
   </div>
 
@@ -432,7 +506,7 @@ select option { color: #edf4ff; background: #111e38; }
           <input type="number" id="inp-v0" min="15" max="70" step="1" value="40" inputmode="decimal">
         </div>
         <div class="field">
-          <label for="sel-regiao10821">Região NBR 10821</label>
+          <label for="sel-regiao10821">Região sugerida para comparação NBR 10821</label>
           <select id="sel-regiao10821">
             <option value="1">Região 1</option>
             <option value="2">Região 2</option>
@@ -489,7 +563,7 @@ select option { color: #edf4ff; background: #111e38; }
         ⚠ V₀ deve ser confirmado na Figura 1 da NBR 6123. Os valores por cidade são aproximações das isopletas.
       </div>
       <div class="note info">
-        Região sugerida pelo V₀. Ajuste se necessário.
+        A região acima é apenas sugerida a partir do V₀ inicial e deve ser confirmada pelo responsável técnico antes da emissão do documento.
       </div>
 
     </div>
@@ -650,6 +724,32 @@ select option { color: #edf4ff; background: #111e38; }
     </div>
   </div>
 
+  <div class="summary-card">
+    <div class="summary-head">
+      <strong>Hipóteses adotadas</strong>
+      <span class="derived blue small" id="disp-mode">Modo simplificado</span>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span>Forma / face</span>
+        <strong id="sum-forma">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>Ce / origem</span>
+        <strong id="sum-ce">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>cpi / origem</span>
+        <strong id="sum-cpi">—</strong>
+      </div>
+      <div class="summary-item">
+        <span>Pe final / governante</span>
+        <strong id="sum-govern">—</strong>
+      </div>
+    </div>
+    <div class="summary-flags" id="summary-flags"></div>
+  </div>
+
   <!-- BLOCO 3 — Resultado -->
   <div class="results-card">
     <div class="results-head">
@@ -735,7 +835,7 @@ select option { color: #edf4ff; background: #111e38; }
 
 <button class="fab" id="btn-report">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-  Relatório / PDF
+  Memorial / PDF
 </button>
 
 <!-- Report overlay -->

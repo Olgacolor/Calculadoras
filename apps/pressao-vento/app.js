@@ -142,7 +142,7 @@ const NBR10821_TAB1 = {
 };
 
 const S = {
-  mode: 'simplificado',
+  mode: 'avancado',
   cliente: '',
   obra: '',
   local: '',
@@ -434,11 +434,12 @@ function resolveCeScenario(faixa) {
 function buildFlags(res) {
   const flags = [];
   if (S.forma === 'irregular') flags.push({ tone: 'bad', label: 'Edificacao irregular' });
+  if (S.face === 'especial') flags.push({ tone: 'warn', label: 'Pior caso adotado' });
   if (res.ceOrigin === 'manual') flags.push({ tone: 'warn', label: 'Ce manual' });
   if (res.ceOrigin === 'conservador') flags.push({ tone: 'warn', label: 'Ce conservador' });
   if (res.cpiOrigin === 'manual') flags.push({ tone: 'warn', label: 'cpi manual' });
   if (res.cpiOrigin === 'conservador') flags.push({ tone: 'warn', label: 'cpi conservador' });
-  if (S.mode === 'avancado') flags.push({ tone: 'info', label: 'Modo avancado' });
+  flags.push({ tone: 'info', label: 'Modo tecnico completo' });
   if (getMissingDocumentFields().length) flags.push({ tone: 'bad', label: 'Documento incompleto' });
   return flags;
 }
@@ -597,31 +598,17 @@ function setText(id, value) {
 }
 
 function toggleByMode() {
-  const advanced = S.mode === 'avancado';
   document.querySelectorAll('.advanced-only').forEach(node => {
-    node.hidden = !advanced;
+    node.hidden = false;
   });
   const ceManualRow = document.getElementById('ce-manual-row');
   const cpiManualRow = document.getElementById('cpi-manual-row');
-  const zeqManualRow = document.getElementById('zeq-manual-row');
   const vizSRow = document.getElementById('viz-s-row');
   const vizDerivedRow = document.getElementById('viz-derived-row');
-  if (!advanced) {
-    S.ceMode = 'auto';
-    S.cpiMode = 'auto';
-    S.zEqMode = 'auto';
-    ceManualRow.style.display = 'none';
-    cpiManualRow.style.display = 'none';
-    if (zeqManualRow) zeqManualRow.style.display = 'none';
-    if (vizSRow) vizSRow.style.display = 'none';
-    if (vizDerivedRow) vizDerivedRow.style.display = 'none';
-  } else {
-    ceManualRow.style.display = S.ceMode === 'manual' ? '' : 'none';
-    cpiManualRow.style.display = S.cpiMode === 'manual' ? '' : 'none';
-    if (zeqManualRow) zeqManualRow.style.display = S.zEqMode === 'manual' ? '' : 'none';
-    if (vizSRow) vizSRow.style.display = S.vizinha === 'sim' ? '' : 'none';
-    if (vizDerivedRow) vizDerivedRow.style.display = S.vizinha === 'sim' ? '' : 'none';
-  }
+  ceManualRow.style.display = S.ceMode === 'manual' ? '' : 'none';
+  cpiManualRow.style.display = S.cpiCase === 'manual' ? '' : 'none';
+  if (vizSRow) vizSRow.style.display = S.vizinha === 'sim' ? '' : 'none';
+  if (vizDerivedRow) vizDerivedRow.style.display = S.vizinha === 'sim' ? '' : 'none';
 }
 
 function syncSegment(id, value) {
@@ -664,16 +651,21 @@ function updateUI() {
 
   toggleByMode();
 
+  const missingDoc = getMissingDocumentFields();
+  const docWarning = document.getElementById('doc-warning');
   const shapeWarning = document.getElementById('shape-warning');
+  if (docWarning) {
+    docWarning.classList.toggle('visible', Boolean(missingDoc.length));
+    if (missingDoc.length) {
+      docWarning.querySelector('span').textContent = `Preencha os campos obrigatorios para o memorial: ${missingDoc.join(', ')}.`;
+    }
+  }
   shapeWarning.classList.toggle('visible', S.forma === 'irregular');
 
   document.getElementById('sel-cpi').value = res.cpiCase;
   document.getElementById('sel-regiao10821').value = String(S.regiao10821);
-  syncSegment('seg-mode', S.mode);
   syncSegment('seg-forma', S.forma);
   syncSegment('seg-ce-mode', S.ceMode);
-  syncSegment('seg-cpi-mode', S.cpiMode);
-  syncSegment('seg-zeq-mode', S.zEqMode);
   syncSegment('seg-vizinha', S.vizinha);
 
   document.getElementById('disp-s2').textContent = fmt(res.s2, 3);
@@ -698,7 +690,7 @@ function updateUI() {
   setText('disp-geom-ratio', `h/b = ${fmt(res.hb,2)} | a/b = ${fmt(res.ab,2)}`);
   setText('disp-cpi-adotado', `${fmt(res.cpiUsed,2)} | ${CASOS_CPI[res.cpiCase]?.label || 'Manual'}`);
   setText('disp-cpi-criterio', `${CPI_ORIGIN_LABEL[res.cpiOrigin] || 'Automatico'}: ${res.cpiCriterio}`);
-  setText('disp-mode', `Modo ${res.modeLabel}`);
+  setText('disp-mode', 'Modo tecnico completo');
 
   document.getElementById('disp-vk').textContent = fmt(res.vk, 1);
   document.getElementById('disp-q').textContent = fmt(res.q, 0);
@@ -751,18 +743,7 @@ function updateUI() {
   document.getElementById('chain-display').textContent = chainText;
 }
 
-function syncReportIdInputs() {
-  [['inp-cliente','cliente'],['inp-obra','obra'],['inp-local','local'],
-   ['inp-responsavel','responsavel'],['inp-data-doc','dataDoc'],['inp-revisao','revisao'],
-   ['inp-documento','documento'],['inp-disciplina','disciplina'],['inp-observacoes','observacoes'],
-  ].forEach(([id, key]) => {
-    const el = document.getElementById(id);
-    if (el) S[key] = el.value;
-  });
-}
-
 function printReport() {
-  syncReportIdInputs();
   const res = calculate();
   if (!res) return;
   buildReportBody(res);
@@ -790,6 +771,7 @@ function buildReportBody(res) {
   ];
   if (S.forma === 'irregular') autoNotes.push('Edificações irregulares podem demandar avaliação específica e coeficientes conservadores ou manuais.');
   if (res.ceOrigin !== 'automatico' || res.cpiOrigin !== 'automatico') autoNotes.push('Coeficientes manuais ou conservadores foram adotados e devem ser validados pelo responsável técnico.');
+  autoNotes.push('A região de comparação com a NBR 10821 deve ser confirmada pelo responsável técnico antes da emissão final.');
 
   document.getElementById('report-body').innerHTML = `
     <div class="rp-header">
@@ -800,45 +782,16 @@ function buildReportBody(res) {
       <div class="rp-meta">Documento: ${escapeHtml(S.documento)}<br>Revisao: ${escapeHtml(S.revisao)}<br>Data: ${escapeHtml(S.dataDoc)}</div>
     </div>
 
-    <div class="rp-section">Identificacao — preencha antes de imprimir</div>
-    <div class="rp-id-grid">
-      <div class="rp-id-field">
-        <div class="rp-id-k">Cliente</div>
-        <input class="rp-id-input" id="inp-cliente" type="text" value="${escapeHtml(S.cliente)}" placeholder="—" oninput="S.cliente = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Obra / Projeto</div>
-        <input class="rp-id-input" id="inp-obra" type="text" value="${escapeHtml(S.obra)}" placeholder="—" oninput="S.obra = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Local da obra</div>
-        <input class="rp-id-input" id="inp-local" type="text" value="${escapeHtml(S.local)}" placeholder="—" oninput="S.local = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Responsavel tecnico</div>
-        <input class="rp-id-input" id="inp-responsavel" type="text" value="${escapeHtml(S.responsavel)}" placeholder="—" oninput="S.responsavel = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Data</div>
-        <input class="rp-id-input" id="inp-data-doc" type="text" value="${escapeHtml(S.dataDoc)}" oninput="S.dataDoc = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Revisao</div>
-        <input class="rp-id-input" id="inp-revisao" type="text" value="${escapeHtml(S.revisao)}" placeholder="R00" oninput="S.revisao = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">N do documento</div>
-        <input class="rp-id-input" id="inp-documento" type="text" value="${escapeHtml(S.documento)}" placeholder="—" oninput="S.documento = this.value">
-      </div>
-      <div class="rp-id-field">
-        <div class="rp-id-k">Disciplina</div>
-        <input class="rp-id-input" id="inp-disciplina" type="text" value="${escapeHtml(S.disciplina)}" placeholder="—" oninput="S.disciplina = this.value">
-      </div>
-      <div class="rp-id-field full">
-        <div class="rp-id-k">Observacoes</div>
-        <textarea class="rp-id-textarea" id="inp-observacoes" rows="2" placeholder="—" oninput="S.observacoes = this.value">${escapeHtml(S.observacoes)}</textarea>
-      </div>
-    </div>
+    <div class="rp-section">Cabecalho</div>
+    <table class="rp-table">
+      <tr><td class="rp-k">Cliente</td><td class="rp-v">${escapeHtml(S.cliente)}</td></tr>
+      <tr><td class="rp-k">Obra / Projeto</td><td class="rp-v">${escapeHtml(S.obra)}</td></tr>
+      <tr><td class="rp-k">Local da obra</td><td class="rp-v">${escapeHtml(S.local)}</td></tr>
+      <tr><td class="rp-k">Cidade / UF</td><td class="rp-v">${escapeHtml(S.cidade)} / ${escapeHtml(S.uf)}</td></tr>
+      <tr><td class="rp-k">Responsavel tecnico</td><td class="rp-v">${escapeHtml(S.responsavel)}</td></tr>
+      <tr><td class="rp-k">Disciplina</td><td class="rp-v">${escapeHtml(S.disciplina || 'Nao informada')}</td></tr>
+      <tr><td class="rp-k">Observacoes gerais</td><td class="rp-v">${escapeHtml(S.observacoes || 'Sem observacoes adicionais.')}</td></tr>
+    </table>
 
     <div class="rp-section">Identificacao da obra</div>
     <table class="rp-table">
@@ -857,7 +810,7 @@ function buildReportBody(res) {
       <tr><td class="rp-k">Topografia / S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
       <tr><td class="rp-k">Categoria / Classe</td><td class="rp-v">${escapeHtml(S.cat)} / ${escapeHtml(S.classe)}</td></tr>
       <tr><td class="rp-k">Grupo estatistico / S3</td><td class="rp-v">${escapeHtml(String(S.grupo))} / ${fmt(res.s3,2)}</td></tr>
-      <tr><td class="rp-k">Regiao do vento</td><td class="rp-v">${escapeHtml(String(S.regiao10821))}</td></tr>
+      <tr><td class="rp-k">Regiao sugerida de comparacao</td><td class="rp-v">${escapeHtml(String(S.regiao10821))}</td></tr>
       <tr><td class="rp-k">Condicao de permeabilidade</td><td class="rp-v">${escapeHtml(CASOS_CPI[res.cpiCase]?.label || 'Manual')}</td></tr>
       <tr><td class="rp-k">Fator de vizinhanca fv</td><td class="rp-v">${fmt(res.fvUsed,2)}${res.fvInfo.dstar !== null ? ` (d*=${fmt(res.fvInfo.dstar,1)} m, s/d*=${fmt(res.fvInfo.ratio,2)})` : ' (edificacao isolada)'}</td></tr>
       <tr><td class="rp-k">Ce adotado</td><td class="rp-v">${fmtSigned(res.ce,2)} (${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])})</td></tr>
@@ -902,10 +855,8 @@ function buildReportBody(res) {
         <div class="rp-result-sub">Criterio governante: <strong>${escapeHtml(res.governs)}</strong> | Ce: ${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])} | cpi: ${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])}</div>
       </div>
     </div>
-
     <div class="rp-section">Observacoes e responsabilidade tecnica</div>
     <table class="rp-table">
-      <tr><td class="rp-k">Observacoes gerais</td><td class="rp-v">${escapeHtml(S.observacoes || 'Sem observacoes adicionais.')}</td></tr>
       <tr><td class="rp-k">Responsabilidade</td><td class="rp-v">A especificacao final depende da validacao tecnica do responsavel pelo projeto.</td></tr>
     </table>
 
@@ -919,6 +870,11 @@ function openReport() {
   const res = calculate();
   if (!res) {
     alert('Preencha os parâmetros para gerar o relatório.');
+    return;
+  }
+  const missingDoc = getMissingDocumentFields();
+  if (missingDoc.length) {
+    alert(`Preencha os dados de identificação para gerar um memorial técnico completo. Faltam: ${missingDoc.join(', ')}.`);
     return;
   }
   buildReportBody(res);
@@ -936,6 +892,26 @@ function init() {
     S.regiao10821 = inferRegiaoFromV0(city.v0);
     document.getElementById('inp-v0').value = city.v0;
   }
+
+  [
+    ['inp-cliente', 'cliente'],
+    ['inp-obra', 'obra'],
+    ['inp-local', 'local'],
+    ['inp-responsavel', 'responsavel'],
+    ['inp-data-doc', 'dataDoc'],
+    ['inp-revisao', 'revisao'],
+    ['inp-documento', 'documento'],
+    ['inp-disciplina', 'disciplina'],
+    ['inp-observacoes', 'observacoes'],
+  ].forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = S[key] || '';
+    el.addEventListener('input', event => {
+      S[key] = event.target.value;
+      updateUI();
+    });
+  });
 
   document.getElementById('sel-face').value = S.face;
   document.getElementById('sel-direcao').value = S.direcao;
@@ -967,11 +943,6 @@ function init() {
 
   document.getElementById('inp-v0').addEventListener('input', event => {
     S.v0 = parseFloat(event.target.value) || 0;
-    updateUI();
-  });
-
-  setupSeg('seg-mode', value => {
-    S.mode = value;
     updateUI();
   });
 
@@ -1039,6 +1010,7 @@ function init() {
   document.getElementById('sel-cpi').addEventListener('change', event => {
     S.cpiCase = event.target.value;
     document.getElementById('cpi-manual-row').style.display = event.target.value === 'manual' ? '' : 'none';
+    if (event.target.value !== 'manual') S.cpiMode = 'auto';
     updateUI();
   });
   document.getElementById('inp-cpi').addEventListener('input', event => {

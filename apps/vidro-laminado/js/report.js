@@ -102,7 +102,24 @@
       : (result.ok ? "Composição aprovada" : "Composição em revisão");
     const pressureLabel = pressure && pressure.mode === "auto" ? "Automática" : "Manual";
     const criterionLabel = technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing);
-    const assumptions = (snapshot.assumptions || []).slice(0, 3);
+    const assumptions = (snapshot.assumptions || []).slice(0, 4);
+    const issues = (snapshot.issues || []).slice(0, 2);
+    const panes = Array.isArray(inputs.panes) ? inputs.panes : [];
+    const nominalThickness = panes.reduce(function (sum, pane) {
+      return sum + (Number(pane.h) || 0);
+    }, 0);
+    const familyLabel = inputs.family === "laminado" ? "Laminado" : "Monolítico";
+    const compositionLabel = inputs.family === "laminado"
+      ? panes.map(function (pane) { return `${pane.h} mm`; }).join(" + ")
+      : `${(panes[0] && panes[0].h) || nominalThickness} mm`;
+    const heatLabel = panes[0]
+      ? (technical && technical.heatLabel ? technical.heatLabel(panes[0].eps3) : engine.gtLabel(panes[0].eps3))
+      : "-";
+    const originParts = [];
+    if (pressure && pressure.mode === "manual") originParts.push("pressão manual");
+    if (technicalResult && technicalResult.originLabel && /manual/i.test(technicalResult.originLabel)) originParts.push("coeficiente manual");
+    if (technicalResult && technicalResult.originLabel && /conservador/i.test(technicalResult.originLabel)) originParts.push("adoção conservadora");
+    const originLine = originParts.length ? originParts.join(" | ") : "critérios automáticos";
 
     const lines = [
       { text: "Memorial de Cálculo de Vidro", size: 16, x: 50, y: 790 },
@@ -113,12 +130,16 @@
       { text: `Painel: ${fmt(inputs.wMM, 0)} x ${fmt(inputs.hMM, 0)} mm`, size: 11, x: 50, y: obra || resp ? 686 : 702 },
       { text: `Apoio: ${apoioLabel}`, size: 11, x: 50, y: obra || resp ? 670 : 686 },
       { text: `Pe: ${inputs.Pv} Pa (${pressureLabel})`, size: 11, x: 50, y: obra || resp ? 654 : 670 },
-      { text: `Resistência: eR ${fmt(result.eR, 2)} mm | e1·c ${fmt(result.e1c, 2)} mm`, size: 11, x: 50, y: obra || resp ? 628 : 644 },
-      { text: `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`, size: 11, x: 50, y: obra || resp ? 612 : 628 },
-      { text: `Critério governante: ${criterionLabel}`, size: 11, x: 50, y: obra || resp ? 596 : 612 },
-      { text: "Premissas principais:", size: 11, x: 50, y: obra || resp ? 566 : 582 },
+      { text: `Composição: ${familyLabel} | ${compositionLabel}`, size: 11, x: 50, y: obra || resp ? 638 : 654 },
+      { text: `Tratamento: ${heatLabel} | esp. nominal ${fmt(nominalThickness, 0)} mm`, size: 11, x: 50, y: obra || resp ? 622 : 638 },
+      { text: `Resistência: eR ${fmt(result.eR, 2)} mm | e1·c ${fmt(result.e1c, 2)} mm`, size: 11, x: 50, y: obra || resp ? 600 : 616 },
+      { text: `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`, size: 11, x: 50, y: obra || resp ? 584 : 600 },
+      { text: `Critério governante: ${criterionLabel}`, size: 11, x: 50, y: obra || resp ? 568 : 584 },
+      { text: `Origem adotada: ${originLine}`, size: 10, x: 50, y: obra || resp ? 552 : 568 },
+      issues[0] ? { text: `Observação: ${issues[0]}`, size: 10, x: 50, y: obra || resp ? 536 : 552 } : null,
+      { text: "Premissas principais:", size: 11, x: 50, y: obra || resp ? 506 : 522 },
       ...assumptions.map(function (item, offset) {
-        return { text: `- ${item}`, size: 10, x: 62, y: (obra || resp ? 548 : 564) - offset * 16 };
+        return { text: `- ${item}`, size: 10, x: 62, y: (obra || resp ? 488 : 504) - offset * 15 };
       }),
       { text: "Uso orientativo. A especificação final depende da validação técnica do responsável pelo projeto.", size: 10, x: 50, y: 120 },
       { text: `Versão ${constants.APP_META.version}`, size: 9, x: 50, y: 96 }
@@ -322,6 +343,16 @@
 
     const apoioLabel    = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
     const pressureLabel = pressure && pressure.mode === "auto" ? "Automática — ABNT NBR 10821" : "Manual";
+    const familyLabel   = inputs.family === "laminado" ? "Laminado" : "Monolítico";
+    const panes         = Array.isArray(inputs.panes) ? inputs.panes : [];
+    const nominalThickness = panes.reduce(function (sum, pane) {
+      return sum + (Number(pane.h) || 0);
+    }, 0);
+    const compositionLabel = inputs.family === "laminado"
+      ? panes.map(function (pane) { return `${pane.h} mm`; }).join(" + ")
+      : `${(panes[0] && panes[0].h) || nominalThickness} mm`;
+    const originLabel = technicalResult && technicalResult.originLabel ? technicalResult.originLabel : "cálculo automático";
+    const issues = (snapshot.issues || []).slice(0, 2);
 
     // Formula labels.
     const eFLabel = inputs.family === "laminado"
@@ -369,6 +400,25 @@
 
       ${obra ? `<div class="rp-obra">Obra / Projeto: ${obra}</div>` : ""}
 
+      <div class="rp-summary">
+        <div class="rp-summary-card">
+          <div class="rp-summary-k">Pressão adotada</div>
+          <div class="rp-summary-v">${inputs.Pv} Pa</div>
+        </div>
+        <div class="rp-summary-card">
+          <div class="rp-summary-k">Composição</div>
+          <div class="rp-summary-v">${familyLabel} · ${compositionLabel}</div>
+        </div>
+        <div class="rp-summary-card">
+          <div class="rp-summary-k">Espessura nominal</div>
+          <div class="rp-summary-v">${fmt(nominalThickness, 0)} mm</div>
+        </div>
+        <div class="rp-summary-card">
+          <div class="rp-summary-k">Critério governante</div>
+          <div class="rp-summary-v">${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}</div>
+        </div>
+      </div>
+
       <!-- ── 2-column overview ── -->
       <div class="rp-overview">
         <div>
@@ -379,6 +429,7 @@
             <tr><td class="rp-ik">Apoio</td><td class="rp-iv">${apoioLabel}</td></tr>
             <tr><td class="rp-ik">Pe</td><td class="rp-iv">${inputs.Pv} Pa (${pressureLabel.toLowerCase()})</td></tr>
             <tr><td class="rp-ik">P = 1,5 × Pe</td><td class="rp-iv">${result.P.toFixed(0)} Pa</td></tr>
+            <tr><td class="rp-ik">Origem adotada</td><td class="rp-iv">${originLabel}</td></tr>
           </table>
 
           <div class="rp-block-title" style="margin-top:10px">Composição</div>
@@ -432,6 +483,23 @@
               ? `${result.okF ? "≤" : ">"} ${fmt(result.fLim, 2)} mm (${((uF || 0) * 100).toFixed(0)}%)`
               : "— limite a definir"}
             &nbsp;·&nbsp; Gov: ${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}
+          </div>
+        </div>
+      </div>
+
+      <div class="rp-overview" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div class="rp-summary-card" style="padding:10px 12px;">
+          <div class="rp-summary-k">Leitura técnica</div>
+          <div class="rp-result-big-sub" style="margin:0; color:#374151;">
+            ${familyLabel} ${compositionLabel} · ${panes[0] ? heatLabel(panes[0].eps3) : "-"}<br>
+            ${pressureLabel} · α = ${result.alpha.toFixed(5)} · b = ${fmt(result.b * 1000, 0)} mm
+          </div>
+        </div>
+        <div class="rp-summary-card" style="padding:10px 12px;">
+          <div class="rp-summary-k">Hipóteses e ressalvas</div>
+          <div class="rp-result-big-sub" style="margin:0; color:#374151;">
+            ${assumptions.slice(0, 2).join(" · ")}
+            ${issues.length ? `<br>${issues.join(" · ")}` : ""}
           </div>
         </div>
       </div>
