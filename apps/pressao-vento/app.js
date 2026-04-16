@@ -90,13 +90,13 @@ const FACE_LABEL = {
 };
 
 const CE_ORIGIN_LABEL = {
-  automatico: 'Automatico',
+  automático: 'Automático',
   manual: 'Manual',
   conservador: 'Conservador',
 };
 
 const CPI_ORIGIN_LABEL = {
-  automatico: 'Automatico',
+  automático: 'Automático',
   manual: 'Manual',
   conservador: 'Conservador',
 };
@@ -146,18 +146,18 @@ const S = {
   cliente: '',
   obra: '',
   local: '',
-  responsavel: '',
+  responsável: '',
   dataDoc: new Date().toISOString().slice(0, 10),
   revisao: 'R00',
   documento: '',
   disciplina: '',
-  observacoes: '',
+  observações: '',
   criteriaAccepted: false,
   uf: 'SP',
   cidade: 'São Paulo',
   v0: 40,
   face: 'barlavento',
-  direcao: '0',
+  direção: '0',
   forma: 'regular',
   s1: 1.0,
   cat: 'II',
@@ -175,10 +175,10 @@ const S = {
   cpiAberturas: 'nao',
   cpiDominante: 'nao',
   cpiOpostas: 'nao',
-  cpiDirecao: 'nao',
+  cpiDireção: 'nao',
   vizinha: 'nao',
   sViz: 20,
-  regiao10821: 3,
+  região10821: 3,
   zEqMode: 'auto',
   zEqManual: 20,
 };
@@ -329,8 +329,8 @@ function interpolateLinear(a, b, t) {
   return a + (b - a) * t;
 }
 
-function interpolateNBR10821(regiao, zEq) {
-  const rows = NBR10821_TAB1.regioes[regiao] || NBR10821_TAB1.regioes[3];
+function interpolateNBR10821(região, zEq) {
+  const rows = NBR10821_TAB1.regioes[região] || NBR10821_TAB1.regioes[3];
   if (zEq <= rows[0].z) return { ...rows[0], zEq };
   if (zEq >= rows[rows.length - 1].z) return { ...rows[rows.length - 1], zEq };
   for (let i = 0; i < rows.length - 1; i += 1) {
@@ -358,9 +358,9 @@ function getRequiredDocumentFields() {
     ['Local da obra', S.local],
     ['Cidade', S.cidade],
     ['UF', S.uf],
-    ['Responsavel tecnico', S.responsavel],
+    ['Responsável técnico', S.responsável],
     ['Data', S.dataDoc],
-    ['Revisao', S.revisao],
+    ['Revisão', S.revisao],
     ['Numero do documento', S.documento],
   ];
 }
@@ -375,7 +375,7 @@ function inferCpiScenario() {
       cpiCase: 'manual',
       values: [S.cpiManual],
       origin: 'manual',
-      criterio: 'cpi manual informado pelo usuario.',
+      criterio: 'cpi manual informado pelo usuário.',
     };
   }
   const config = CASOS_CPI[S.cpiCase];
@@ -383,14 +383,14 @@ function inferCpiScenario() {
     return {
       cpiCase: 'estanque',
       values: CASOS_CPI.estanque.valores,
-      origin: 'automatico',
+      origin: 'automático',
       criterio: 'Configuracao padrao adotada.',
     };
   }
   return {
     cpiCase: S.cpiCase,
     values: config.valores,
-    origin: 'automatico',
+    origin: 'automático',
     criterio: `${config.label}.`,
   };
 }
@@ -401,27 +401,27 @@ function resolveCeScenario(faixa) {
       ce: S.ceManual,
       zona: 'manual',
       origin: 'manual',
-      justificativa: 'Ce manual informado pelo usuario.',
+      justificativa: 'Ce manual informado pelo usuário.',
     };
   }
 
   const valores = TABELA_CE[faixa].valores;
-  const dirKey = S.direcao === '90' ? '_90' : '_0';
+  const dirKey = S.direção === '90' ? '_90' : '_0';
   const faceKeys = S.face === 'especial'
     ? Object.keys(valores)
     : Object.keys(valores).filter(key => key.startsWith(`${S.face}${dirKey}`) || key.startsWith(`${S.face}_`));
 
   let candidateKeys = faceKeys.length ? faceKeys : Object.keys(valores);
-  let origin = 'automatico';
-  let justificativa = 'Ce definido automaticamente para edificio regular.';
+  let origin = 'automático';
+  let justificativa = 'Ce definido automáticamente para edifício regular.';
 
   if (S.face === 'especial') {
     origin = 'conservador';
-    justificativa = 'Ce conservador adotado por falta de definicao detalhada da face analisada.';
+    justificativa = 'Ce conservador adotado por falta de definição detalhada da face analisada.';
   }
   if (S.forma === 'irregular') {
     origin = 'conservador';
-    justificativa = 'Ce conservador adotado por edificacao irregular.';
+    justificativa = 'Ce conservador adotado por edificação irregular.';
     candidateKeys = Object.keys(valores).filter(key => key.startsWith(`${S.face}_`));
     if (!candidateKeys.length) candidateKeys = Object.keys(valores);
   }
@@ -442,19 +442,19 @@ function resolveCeScenario(faixa) {
 
 function buildFlags(res) {
   const flags = [];
-  if (S.forma === 'irregular') flags.push({ tone: 'bad', label: 'Edificacao irregular' });
+  if (S.forma === 'irregular') flags.push({ tone: 'bad', label: 'Edificação irregular' });
   if (S.face === 'especial') flags.push({ tone: 'warn', label: 'Pior caso adotado' });
   if (res.ceOrigin === 'manual') flags.push({ tone: 'warn', label: 'Ce manual' });
   if (res.ceOrigin === 'conservador') flags.push({ tone: 'warn', label: 'Ce conservador' });
   if (res.cpiOrigin === 'manual') flags.push({ tone: 'warn', label: 'cpi manual' });
   if (res.cpiOrigin === 'conservador') flags.push({ tone: 'warn', label: 'cpi conservador' });
-  flags.push({ tone: 'info', label: 'Modo tecnico completo' });
+  flags.push({ tone: 'info', label: 'Modo técnico completo' });
   if (getMissingDocumentFields().length) flags.push({ tone: 'bad', label: 'Documento incompleto' });
   return flags;
 }
 
 function getClasseDimensionNote(res) {
-  return `Classe ${res.classeAuto} automatica pela maior dimensao da edificacao (${fmt(res.governingDimension, 1)} m).`;
+  return `Classe ${res.classeAuto} automática pela maior dimensão da edificação (${fmt(res.governingDimension, 1)} m).`;
 }
 
 function calculate() {
@@ -470,7 +470,7 @@ function calculate() {
   const vk = S.v0 * S.s1 * s2 * s3s;
   const q = 0.613 * vk * vk;
   const zEq = resolveZEq();
-  const nbr10821 = interpolateNBR10821(Number(S.regiao10821), zEq);
+  const nbr10821 = interpolateNBR10821(Number(S.região10821), zEq);
 
   // Fator de vizinhança
   let fvInfo = { fv: 1.0, dstar: null, ratio: null };
@@ -549,7 +549,7 @@ function calculate() {
     zones: getTab6Zones(hb, ab),
     efs: Math.min(0.2 * bMenor, S.z),
     faceLabel: FACE_LABEL[S.face] || 'Face analisada',
-    direcaoLabel: S.direcao === '90' ? 'vento a 90 graus' : 'vento a 0 grau',
+    direçãoLabel: S.direção === '90' ? 'vento a 90 graus' : 'vento a 0 grau',
     formaLabel: S.forma === 'irregular' ? 'Irregular' : 'Regular',
     modeLabel: S.mode === 'avancado' ? 'Avancado' : 'Simplificado',
     flags,
@@ -674,7 +674,7 @@ function updateUI() {
   if (docWarning) {
     docWarning.classList.toggle('visible', Boolean(missingDoc.length));
     if (missingDoc.length) {
-      docWarning.querySelector('span').textContent = `Preencha os campos obrigatorios para o memorial: ${missingDoc.join(', ')}.`;
+      docWarning.querySelector('span').textContent = `Preencha os campos obrigatórios para o memorial: ${missingDoc.join(', ')}.`;
     }
   }
   shapeWarning.classList.toggle('visible', S.forma === 'irregular');
@@ -696,7 +696,7 @@ function updateUI() {
   }
 
   document.getElementById('sel-cpi').value = res.cpiCase;
-  document.getElementById('sel-regiao10821').value = String(S.regiao10821);
+  document.getElementById('sel-região10821').value = String(S.região10821);
   syncSegment('seg-forma', S.forma);
   syncSegment('seg-ce-mode', S.ceMode);
   syncSegment('seg-vizinha', S.vizinha);
@@ -711,7 +711,7 @@ function updateUI() {
   document.getElementById('disp-faixa').textContent = TABELA_CE[res.faixa].label;
   document.getElementById('disp-ce').textContent = fmtSigned(res.ce, 2);
   document.getElementById('disp-ce-zona').textContent = ZONA_LABEL[res.zona] || 'Manual';
-  setText('disp-ce-origin', CE_ORIGIN_LABEL[res.ceOrigin] || 'Automatico');
+  setText('disp-ce-origin', CE_ORIGIN_LABEL[res.ceOrigin] || 'Automático');
   setText('disp-ce-just', res.ceJustificativa);
   setText('disp-zeq', `${fmt(res.nbr10821.zEq, 1)} m`);
   setText('disp-pe10821', `${fmt(res.nbr10821.pe, 0)} Pa`);
@@ -719,12 +719,12 @@ function updateUI() {
   setText('disp-pa10821', `${fmt(res.nbr10821.pa, 0)} Pa`);
   setText('disp-h-ref', `${fmt(S.z,1)} m`);
   setText('disp-face', res.faceLabel);
-  setText('disp-direcao-helper', `Direcao analisada: ${res.direcaoLabel}. Forma: ${res.formaLabel}.`);
+  setText('disp-direção-helper', `Direção analisada: ${res.direçãoLabel}. Forma: ${res.formaLabel}.`);
   setText('disp-geom', `h = ${fmt(S.z,1)} m | a = ${fmt(res.aMaior,1)} m | b = ${fmt(res.bMenor,1)} m`);
   setText('disp-geom-ratio', `h/b = ${fmt(res.hb,2)} | a/b = ${fmt(res.ab,2)}`);
   setText('disp-cpi-adotado', `${fmt(res.cpiUsed,2)} | ${CASOS_CPI[res.cpiCase]?.label || 'Manual'}`);
-  setText('disp-cpi-criterio', `${CPI_ORIGIN_LABEL[res.cpiOrigin] || 'Automatico'}: ${res.cpiCriterio}`);
-  setText('disp-mode', 'Modo tecnico completo');
+  setText('disp-cpi-criterio', `${CPI_ORIGIN_LABEL[res.cpiOrigin] || 'Automático'}: ${res.cpiCriterio}`);
+  setText('disp-mode', 'Modo técnico completo');
 
   document.getElementById('disp-vk').textContent = fmt(res.vk, 1);
   document.getElementById('disp-q').textContent = fmt(res.q, 0);
@@ -789,7 +789,7 @@ function printReport() {
   document.body.appendChild(frame);
   const doc = frame.contentWindow.document;
   doc.open();
-  doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatorio - Pressao de Vento</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}input,textarea{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:#111827;background:transparent;width:100%;padding:0}table{page-break-inside:auto}tr,td{break-inside:avoid}@page{margin:8mm 10mm}</style></head><body>${reportHtml}</body></html>`);
+  doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório - Pressão de Vento</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}input,textarea{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:#111827;background:transparent;width:100%;padding:0}table{page-break-inside:auto}tr,td{break-inside:avoid}@page{margin:8mm 10mm}</style></head><body>${reportHtml}</body></html>`);
   doc.close();
   frame.onload = () => {
     frame.contentWindow.focus();
@@ -804,17 +804,17 @@ function buildReportBody(res) {
     'Este relatório depende da correta caracterização da obra e das hipóteses adotadas.',
   ];
   if (S.forma === 'irregular') autoNotes.push('Edificações irregulares podem demandar avaliação específica e coeficientes conservadores ou manuais.');
-  if (res.ceOrigin !== 'automatico' || res.cpiOrigin !== 'automatico') autoNotes.push('Coeficientes manuais ou conservadores foram adotados e devem ser validados pelo responsável técnico.');
+  if (res.ceOrigin !== 'automático' || res.cpiOrigin !== 'automático') autoNotes.push('Coeficientes manuais ou conservadores foram adotados e devem ser validados pelo responsável técnico.');
   autoNotes.push('A região de comparação com a NBR 10821 deve ser confirmada pelo responsável técnico antes da emissão final.');
-  if (getMissingDocumentFields().length) autoNotes.push('Memorial emitido com identificacao documental incompleta.');
+  if (getMissingDocumentFields().length) autoNotes.push('Memorial emitido com identificação documental incompleta.');
 
   document.getElementById('report-body').innerHTML = `
     <div class="rp-header">
       <div>
-        <div class="rp-title">MEMORIAL DE CALCULO<br>DETERMINACAO DAS PRESSOES DEVIDO AO VENTO</div>
+        <div class="rp-title">MEMORIAL DE CÁLCULO<br>DETERMINAÇÃO DAS PRESSÕES DEVIDO AO VENTO</div>
         <div class="rp-sub">Normas utilizadas: ABNT NBR 6123:2023 e ABNT NBR 10821</div>
       </div>
-      <div class="rp-meta">Documento: ${escapeHtml(S.documento)}<br>Revisao: ${escapeHtml(S.revisao)}<br>Data: ${escapeHtml(S.dataDoc)}</div>
+      <div class="rp-meta">Documento: ${escapeHtml(S.documento)}<br>Revisão: ${escapeHtml(S.revisao)}<br>Data: ${escapeHtml(S.dataDoc)}</div>
     </div>
 
     <div class="rp-section">Cabecalho</div>
@@ -823,16 +823,16 @@ function buildReportBody(res) {
       <tr><td class="rp-k">Obra / Projeto</td><td class="rp-v">${escapeHtml(S.obra)}</td></tr>
       <tr><td class="rp-k">Local da obra</td><td class="rp-v">${escapeHtml(S.local)}</td></tr>
       <tr><td class="rp-k">Cidade / UF</td><td class="rp-v">${escapeHtml(S.cidade)} / ${escapeHtml(S.uf)}</td></tr>
-      <tr><td class="rp-k">Responsavel tecnico</td><td class="rp-v">${escapeHtml(S.responsavel)}</td></tr>
-      <tr><td class="rp-k">Disciplina</td><td class="rp-v">${escapeHtml(S.disciplina || 'Nao informada')}</td></tr>
-      <tr><td class="rp-k">Observacoes gerais</td><td class="rp-v">${escapeHtml(S.observacoes || 'Sem observacoes adicionais.')}</td></tr>
+      <tr><td class="rp-k">Responsável técnico</td><td class="rp-v">${escapeHtml(S.responsável)}</td></tr>
+      <tr><td class="rp-k">Disciplina</td><td class="rp-v">${escapeHtml(S.disciplina || 'Não informada')}</td></tr>
+      <tr><td class="rp-k">Observações gerais</td><td class="rp-v">${escapeHtml(S.observações || 'Sem observações adicionais.')}</td></tr>
     </table>
 
-    <div class="rp-section">Identificacao da obra</div>
+    <div class="rp-section">Identificação da obra</div>
     <table class="rp-table">
       <tr><td class="rp-k">Face analisada</td><td class="rp-v">${escapeHtml(res.faceLabel)}</td></tr>
-      <tr><td class="rp-k">Direcao do vento</td><td class="rp-v">${escapeHtml(res.direcaoLabel)}</td></tr>
-      <tr><td class="rp-k">Forma da edificacao</td><td class="rp-v">${escapeHtml(res.formaLabel)}</td></tr>
+      <tr><td class="rp-k">Direção do vento</td><td class="rp-v">${escapeHtml(res.direçãoLabel)}</td></tr>
+      <tr><td class="rp-k">Forma da edificação</td><td class="rp-v">${escapeHtml(res.formaLabel)}</td></tr>
       <tr><td class="rp-k">Cidade / UF</td><td class="rp-v">${escapeHtml(S.cidade)} / ${escapeHtml(S.uf)}</td></tr>
       <tr><td class="rp-k">Altura h</td><td class="rp-v">${fmt(S.z,1)} m</td></tr>
       <tr><td class="rp-k">Lado maior a</td><td class="rp-v">${fmt(res.aMaior,2)} m</td></tr>
@@ -841,20 +841,20 @@ function buildReportBody(res) {
 
     <div class="rp-section">Hipoteses adotadas</div>
     <table class="rp-table">
-      <tr><td class="rp-k">Modo de calculo</td><td class="rp-v">${escapeHtml(res.modeLabel)}</td></tr>
+      <tr><td class="rp-k">Modo de cálculo</td><td class="rp-v">${escapeHtml(res.modeLabel)}</td></tr>
       <tr><td class="rp-k">Topografia / S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
       <tr><td class="rp-k">Categoria / Classe</td><td class="rp-v">${escapeHtml(S.cat)} / ${escapeHtml(res.classeAuto)} (${escapeHtml(getClasseDimensionNote(res))})</td></tr>
       <tr><td class="rp-k">Grupo estatistico / S3</td><td class="rp-v">${escapeHtml(String(S.grupo))} / ${fmt(res.s3,2)}</td></tr>
-      <tr><td class="rp-k">Regiao sugerida de comparacao</td><td class="rp-v">${escapeHtml(String(S.regiao10821))}</td></tr>
-      <tr><td class="rp-k">Condicao de permeabilidade</td><td class="rp-v">${escapeHtml(CASOS_CPI[res.cpiCase]?.label || 'Manual')}</td></tr>
-      <tr><td class="rp-k">Fator de vizinhanca fv</td><td class="rp-v">${fmt(res.fvUsed,2)}${res.fvInfo.dstar !== null ? ` (d*=${fmt(res.fvInfo.dstar,1)} m, s/d*=${fmt(res.fvInfo.ratio,2)})` : ' (edificacao isolada)'}</td></tr>
+      <tr><td class="rp-k">Regiao sugerida de comparação</td><td class="rp-v">${escapeHtml(String(S.região10821))}</td></tr>
+      <tr><td class="rp-k">Condição de permeabilidade</td><td class="rp-v">${escapeHtml(CASOS_CPI[res.cpiCase]?.label || 'Manual')}</td></tr>
+      <tr><td class="rp-k">Fator de vizinhança fv</td><td class="rp-v">${fmt(res.fvUsed,2)}${res.fvInfo.dstar !== null ? ` (d*=${fmt(res.fvInfo.dstar,1)} m, s/d*=${fmt(res.fvInfo.ratio,2)})` : ' (edificação isolada)'}</td></tr>
       <tr><td class="rp-k">Ce adotado</td><td class="rp-v">${fmtSigned(res.ce,2)} (${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])})</td></tr>
       <tr><td class="rp-k">Justificativa do Ce</td><td class="rp-v">${escapeHtml(res.ceJustificativa)}</td></tr>
       <tr><td class="rp-k">cpi adotado</td><td class="rp-v">${fmt(res.cpiUsed,2)} (${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])})</td></tr>
-      <tr><td class="rp-k">Criterio do cpi</td><td class="rp-v">${escapeHtml(res.cpiCriterio)}</td></tr>
+      <tr><td class="rp-k">Critério do cpi</td><td class="rp-v">${escapeHtml(res.cpiCriterio)}</td></tr>
     </table>
 
-    <div class="rp-section">Calculo pela NBR 6123</div>
+    <div class="rp-section">Cálculo pela NBR 6123</div>
     <table class="rp-table">
       <tr><td class="rp-k">V0</td><td class="rp-v">${fmt(S.v0,0)} m/s</td></tr>
       <tr><td class="rp-k">S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
@@ -865,16 +865,16 @@ function buildReportBody(res) {
       <tr><td class="rp-k">Ce</td><td class="rp-v">${fmtSigned(res.ce,2)}</td></tr>
       <tr><td class="rp-k">cpi</td><td class="rp-v">${fmt(res.cpiUsed,2)}</td></tr>
       <tr><td class="rp-k">fv</td><td class="rp-v">${fmt(res.fvUsed,2)}</td></tr>
-      <tr><td class="rp-k">Delta p / pressao efetiva</td><td class="rp-v">${fmt(res.dp,0)} Pa</td></tr>
+      <tr><td class="rp-k">Delta p / pressão efetiva</td><td class="rp-v">${fmt(res.dp,0)} Pa</td></tr>
       <tr><td class="rp-k">Pp</td><td class="rp-v">${fmt(res.pp6123,0)} Pa</td></tr>
       <tr><td class="rp-k">Pe</td><td class="rp-v">${fmt(res.pe6123,0)} Pa</td></tr>
       <tr><td class="rp-k">Ps</td><td class="rp-v">${fmt(res.ps6123,0)} Pa</td></tr>
       <tr><td class="rp-k">Pa</td><td class="rp-v">${fmt(res.pa6123,0)} Pa</td></tr>
     </table>
 
-    <div class="rp-section">Comparacao com a NBR 10821</div>
+    <div class="rp-section">Comparação com a NBR 10821</div>
     <table class="rp-table">
-      <tr><td class="rp-k">Regiao</td><td class="rp-v">${escapeHtml(String(S.regiao10821))}</td></tr>
+      <tr><td class="rp-k">Regiao</td><td class="rp-v">${escapeHtml(String(S.região10821))}</td></tr>
       <tr><td class="rp-k">z.eq</td><td class="rp-v">${fmt(res.nbr10821.zEq,1)} m</td></tr>
       <tr><td class="rp-k">Pe 10821</td><td class="rp-v">${fmt(res.nbr10821.pe,0)} Pa</td></tr>
       <tr><td class="rp-k">Ps 10821</td><td class="rp-v">${fmt(res.nbr10821.ps,0)} Pa</td></tr>
@@ -886,13 +886,13 @@ function buildReportBody(res) {
     <div class="rp-result-big">
       <div class="rp-result-icon">Pe</div>
       <div>
-        <div class="rp-result-title">Pressao de ensaio recomendada = ${fmt(res.peFinal,0)} Pa</div>
-        <div class="rp-result-sub">Criterio governante: <strong>${escapeHtml(res.governs)}</strong> | Ce: ${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])} | cpi: ${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])}</div>
+        <div class="rp-result-title">Pressão de ensaio recomendada = ${fmt(res.peFinal,0)} Pa</div>
+        <div class="rp-result-sub">Critério governante: <strong>${escapeHtml(res.governs)}</strong> | Ce: ${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])} | cpi: ${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])}</div>
       </div>
     </div>
-    <div class="rp-section">Observacoes e responsabilidade tecnica</div>
+    <div class="rp-section">Observações e responsabilidade técnica</div>
     <table class="rp-table">
-      <tr><td class="rp-k">Responsabilidade</td><td class="rp-v">A especificacao final depende da validacao tecnica do responsavel pelo projeto.</td></tr>
+      <tr><td class="rp-k">Responsabilidade</td><td class="rp-v">A especificacao final depende da validacao técnica do responsável pelo projeto.</td></tr>
     </table>
 
     <div class="rp-norma">
@@ -928,7 +928,7 @@ function init() {
   const city = findCity(S.uf, S.cidade);
   if (city) {
     S.v0 = city.v0;
-    S.regiao10821 = inferRegiaoFromV0(city.v0);
+    S.região10821 = inferRegiaoFromV0(city.v0);
     document.getElementById('inp-v0').value = city.v0;
   }
 
@@ -936,12 +936,12 @@ function init() {
     ['inp-cliente', 'cliente'],
     ['inp-obra', 'obra'],
     ['inp-local', 'local'],
-    ['inp-responsavel', 'responsavel'],
+    ['inp-responsável', 'responsável'],
     ['inp-data-doc', 'dataDoc'],
     ['inp-revisao', 'revisao'],
     ['inp-documento', 'documento'],
     ['inp-disciplina', 'disciplina'],
-    ['inp-observacoes', 'observacoes'],
+    ['inp-observações', 'observações'],
   ].forEach(([id, key]) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -953,7 +953,7 @@ function init() {
   });
 
   document.getElementById('sel-face').value = S.face;
-  document.getElementById('sel-direcao').value = S.direcao;
+  document.getElementById('sel-direção').value = S.direção;
   document.getElementById('sel-cpi').value = S.cpiCase;
 
   document.getElementById('sel-uf').addEventListener('change', event => {
@@ -962,7 +962,7 @@ function init() {
     S.cidade = firstCity ? firstCity.cidade : '';
     if (firstCity) {
       S.v0 = firstCity.v0;
-      S.regiao10821 = inferRegiaoFromV0(firstCity.v0);
+      S.região10821 = inferRegiaoFromV0(firstCity.v0);
       document.getElementById('inp-v0').value = firstCity.v0;
     }
     renderCityOptions();
@@ -974,7 +974,7 @@ function init() {
     const cityData = findCity(S.uf, S.cidade);
     if (cityData) {
       S.v0 = cityData.v0;
-      S.regiao10821 = inferRegiaoFromV0(cityData.v0);
+      S.região10821 = inferRegiaoFromV0(cityData.v0);
       document.getElementById('inp-v0').value = cityData.v0;
     }
     updateUI();
@@ -989,8 +989,8 @@ function init() {
     S.face = event.target.value;
     updateUI();
   });
-  document.getElementById('sel-direcao').addEventListener('change', event => {
-    S.direcao = event.target.value;
+  document.getElementById('sel-direção').addEventListener('change', event => {
+    S.direção = event.target.value;
     updateUI();
   });
   setupSeg('seg-forma', value => {
@@ -1064,8 +1064,8 @@ function init() {
     updateUI();
   });
 
-  document.getElementById('sel-regiao10821').addEventListener('change', event => {
-    S.regiao10821 = parseInt(event.target.value, 10);
+  document.getElementById('sel-região10821').addEventListener('change', event => {
+    S.região10821 = parseInt(event.target.value, 10);
     updateUI();
   });
   const criteriaAccept = document.getElementById('inp-criteria-accept');
@@ -1091,13 +1091,13 @@ function init() {
   renderCityOptions();
   document.getElementById('sel-cidade').value = S.cidade;
   document.getElementById('sel-face').value = S.face;
-  document.getElementById('sel-direcao').value = S.direcao;
+  document.getElementById('sel-direção').value = S.direção;
   document.getElementById('sel-cat').value = S.cat;
   document.getElementById('sel-grupo').value = String(S.grupo);
   document.getElementById('inp-z').value = S.z;
   document.getElementById('inp-a').value = S.a;
   document.getElementById('inp-b').value = S.b;
-  document.getElementById('sel-regiao10821').value = String(S.regiao10821);
+  document.getElementById('sel-região10821').value = String(S.região10821);
   document.getElementById('sel-cpi').value = S.cpiCase;
   document.getElementById('inp-cpi').value = S.cpiManual;
 
@@ -1105,3 +1105,4 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
