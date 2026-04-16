@@ -152,6 +152,7 @@ const S = {
   documento: '',
   disciplina: '',
   observacoes: '',
+  criteriaAccepted: false,
   uf: 'SP',
   cidade: 'São Paulo',
   v0: 40,
@@ -661,6 +662,20 @@ function updateUI() {
     }
   }
   shapeWarning.classList.toggle('visible', S.forma === 'irregular');
+  const criteriaHint = document.getElementById('criteria-hint');
+  if (criteriaHint) {
+    criteriaHint.textContent = S.criteriaAccepted
+      ? 'Aceite registrado. O Memorial / PDF está liberado.'
+      : 'Marque o aceite para liberar o Memorial / PDF.';
+    criteriaHint.classList.toggle('ok', Boolean(S.criteriaAccepted));
+  }
+  const criteriaInput = document.getElementById('inp-criteria-accept');
+  if (criteriaInput) criteriaInput.checked = Boolean(S.criteriaAccepted);
+  const reportButton = document.getElementById('btn-report');
+  if (reportButton) {
+    reportButton.disabled = !S.criteriaAccepted;
+    reportButton.title = S.criteriaAccepted ? '' : 'Marque o aceite dos critérios e limitações para liberar o memorial.';
+  }
 
   document.getElementById('sel-cpi').value = res.cpiCase;
   document.getElementById('sel-regiao10821').value = String(S.regiao10821);
@@ -872,6 +887,10 @@ function openReport() {
     alert('Preencha os parâmetros para gerar o relatório.');
     return;
   }
+  if (!S.criteriaAccepted) {
+    alert('Marque o aceite dos critérios e limitações para liberar o Memorial / PDF.');
+    return;
+  }
   const missingDoc = getMissingDocumentFields();
   if (missingDoc.length) {
     alert(`Preencha os dados de identificação para gerar um memorial técnico completo. Faltam: ${missingDoc.join(', ')}.`);
@@ -1034,6 +1053,14 @@ function init() {
     S.regiao10821 = parseInt(event.target.value, 10);
     updateUI();
   });
+  const criteriaAccept = document.getElementById('inp-criteria-accept');
+  if (criteriaAccept) {
+    criteriaAccept.checked = Boolean(S.criteriaAccepted);
+    criteriaAccept.addEventListener('change', event => {
+      S.criteriaAccepted = event.target.checked;
+      updateUI();
+    });
+  }
   document.getElementById('btn-report').addEventListener('click', openReport);
   document.getElementById('btn-close-report').addEventListener('click', () => {
     document.getElementById('reportOverlay').classList.remove('active');
