@@ -265,7 +265,7 @@ function getTab6Zones(hb, ab) {
   const t = ab <= 1.5 ? 0 : ab >= 2 ? 1 : (ab - 1.5) / 0.5;
   const v = (i) => rowLow[i] + t * (rowHigh[i] - rowLow[i]);
   // NOTA 3: A3/B3 — a/b=1 → igual A2/B2; a/b≥2 → Ce=−0,2; interpolar
-  const A2B2base = rowLow[5];
+  const A2B2base = v(5);
   const A3B3 = ab >= 2 ? -0.2 : ab <= 1 ? A2B2base : A2B2base + (-0.2 - A2B2base) * (ab - 1);
   return {
     wind0: [
@@ -409,7 +409,7 @@ function resolveCeScenario(faixa) {
   const dirKey = S.direção === '90' ? '_90' : '_0';
   const faceKeys = S.face === 'especial'
     ? Object.keys(valores)
-    : Object.keys(valores).filter(key => key.startsWith(`${S.face}${dirKey}`) || key.startsWith(`${S.face}_`));
+    : Object.keys(valores).filter(key => key.startsWith(`${S.face}${dirKey}`));
 
   let candidateKeys = faceKeys.length ? faceKeys : Object.keys(valores);
   let origin = 'automático';
@@ -464,7 +464,7 @@ function calculate() {
   const classeInfo = inferClasseByDimensions(S.z, aMaior, bMenor);
   const classeAuto = classeInfo.classe;
   const s2 = calcS2(S.cat, classeAuto, S.z);
-  const gd = GRUPOS_S3.find(item => item.grupo === S.grupo);
+  const gd = GRUPOS_S3.find(item => item.grupo === S.grupo) || GRUPOS_S3[2];
   const s3 = gd.s3;
   const s3s = 0.92 * s3;
   const vk = S.v0 * S.s1 * s2 * s3s;
@@ -661,6 +661,14 @@ function renderCityOptions() {
 }
 
 function updateUI() {
+  const _lockWrap = document.getElementById('calc-lock-wrap');
+  if (_lockWrap) _lockWrap.classList.toggle('locked', !S.criteriaAccepted);
+  const _reportButton = document.getElementById('btn-report');
+  if (_reportButton) {
+    _reportButton.disabled = !S.criteriaAccepted;
+    _reportButton.title = S.criteriaAccepted ? '' : 'Marque o aceite dos critérios e limitações para liberar o memorial.';
+  }
+
   const res = calculate();
   if (!res) return;
   const { bm, p } = PARAMETROS_S2[S.cat][res.classeAuto];
@@ -677,7 +685,7 @@ function updateUI() {
       docWarning.querySelector('span').textContent = `Preencha os campos obrigatórios para o memorial: ${missingDoc.join(', ')}.`;
     }
   }
-  shapeWarning.classList.toggle('visible', S.forma === 'irregular');
+  if (shapeWarning) shapeWarning.classList.toggle('visible', S.forma === 'irregular');
   const criteriaHint = document.getElementById('criteria-hint');
   if (criteriaHint) {
     criteriaHint.textContent = S.criteriaAccepted
@@ -778,24 +786,7 @@ function updateUI() {
 }
 
 function printReport() {
-  const res = calculate();
-  if (!res) return;
-  buildReportBody(res);
-  const reportHtml = document.getElementById('report-body').innerHTML;
-  const frame = document.createElement('iframe');
-  frame.style.position = 'fixed';
-  frame.style.right = '-9999px';
-  frame.style.bottom = '0';
-  document.body.appendChild(frame);
-  const doc = frame.contentWindow.document;
-  doc.open();
-  doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório - Pressão de Vento</title><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;padding:12px 14px;font-family:'DM Sans',sans-serif;color:#111827;background:#fff;font-size:11px;line-height:1.28}input,textarea{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:#111827;background:transparent;width:100%;padding:0}table{page-break-inside:auto}tr,td{break-inside:avoid}@page{margin:8mm 10mm}</style></head><body>${reportHtml}</body></html>`);
-  doc.close();
-  frame.onload = () => {
-    frame.contentWindow.focus();
-    frame.contentWindow.print();
-    setTimeout(() => frame.remove(), 400);
-  };
+  window.print();
 }
 
 function buildReportBody(res) {
@@ -914,6 +905,7 @@ function openReport() {
   buildReportBody(res);
   document.getElementById('reportOverlay').classList.add('active');
   document.getElementById('reportOverlay').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
 }
 
 function init() {
@@ -1084,6 +1076,7 @@ function init() {
   document.getElementById('btn-report').addEventListener('click', openReport);
   document.getElementById('btn-close-report').addEventListener('click', () => {
     document.getElementById('reportOverlay').classList.remove('active');
+    document.body.style.overflow = '';
   });
   document.getElementById('btn-print').addEventListener('click', printReport);
 

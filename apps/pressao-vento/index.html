@@ -440,6 +440,7 @@ select option { color: #edf4ff; background: #111e38; }
   display: flex; align-items: center; gap: 8px;
 }
 .fab:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(91,168,245,0.48); }
+.fab:disabled { cursor: not-allowed; opacity: 0.45; transform: none !important; box-shadow: none; }
 
 /* Report overlay */
 #reportOverlay { display: none; position: fixed; inset: 0; z-index: 200; background: #f3f4f6; overflow-y: auto; }
@@ -557,8 +558,6 @@ select option { color: #edf4ff; background: #111e38; }
     </div>
   </div>
 
-  <div class="calc-lock-wrap locked" id="calc-lock-wrap">
-    <div class="calc-lock-overlay" id="calc-lock-overlay"><span>Aceite o termo acima para liberar o cálculo</span></div>
   <div class="card flow-card">
     <div class="card-head">
       <span class="card-title">Identificação do documento</span>
@@ -888,6 +887,8 @@ select option { color: #edf4ff; background: #111e38; }
     </div>
     <div class="summary-flags" id="summary-flags"></div>
   </div>
+  <div class="calc-lock-wrap locked" id="calc-lock-wrap">
+    <div class="calc-lock-overlay" id="calc-lock-overlay"><span>Aceite o termo acima para ver o resultado</span></div>
 <!-- BLOCO 3 — Resultado -->
   <div class="results-card">
     <div class="results-head">
