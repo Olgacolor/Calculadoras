@@ -26,10 +26,16 @@
     return Math.min(max, Math.max(min, numeric));
   }
 
+  function normalizeApoio(value) {
+    if (value === "2") return "2altura";
+    if (value === "4" || value === "2largura" || value === "2altura" || value === "3menor" || value === "3maior") return value;
+    return "4";
+  }
+
   function validateInputs(rawInputs) {
     const normalized = {
       family: rawInputs.family === "monolitico" ? "monolitico" : "laminado",
-      apoio: rawInputs.apoio || "4",
+      apoio: normalizeApoio(rawInputs.apoio),
       wMM: normalizeNumber(rawInputs.wMM, 1200, 200, 6000),
       hMM: normalizeNumber(rawInputs.hMM, 2400, 200, 6000),
       Pv: normalizeNumber(rawInputs.Pv, 1000, 50, 6000),
@@ -85,7 +91,7 @@
       });
     }
 
-    if (normalized.apoio === "2" || normalized.apoio === "2largura" || normalized.apoio === "2altura") {
+    if (normalized.apoio === "2largura" || normalized.apoio === "2altura") {
       issues.push({
         tone: "warn",
         title: "Flecha depende de criterio de projeto",
@@ -94,8 +100,11 @@
       assumptions.push("Para 2 apoios, o atendimento final de flecha precisa de validacao complementar do projeto.");
     }
 
-    if (normalized.family === "laminado" && normalized.panes[0].h !== normalized.panes[1].h) {
+    if (normalized.family === "laminado") {
       assumptions.push("Tipo de vidro único aplicado a ambas as lâminas (F1 = F2).");
+      if (normalized.panes[0].h !== normalized.panes[1].h) {
+        assumptions.push("Laminado assimétrico: espessuras F1 e F2 diferentes.");
+      }
     }
 
     if (!issues.length) {
@@ -110,7 +119,7 @@
   }
 
   function calcNBR(inputs) {
-    const apoio = inputs.apoio === "2" ? "2altura" : inputs.apoio;
+    const apoio = inputs.apoio;
     const c = 1.0;
     const widthM = inputs.wMM / 1000;
     const heightM = inputs.hMM / 1000;

@@ -314,8 +314,15 @@
     renderSupportThumbs(inputs);
     summary.textContent = `${supportPreviewLabel(inputs.apoio)} · ${familyLabel(inputs.family)}`;
     pressureChip.textContent = pressure && pressure.pe ? `Pe ${fmt(pressure.pe, 0)} Pa` : "Pe —";
-    widthValue.textContent = `${fmt(inputs.wMM, 0)} mm`;
-    heightValue.textContent = `${fmt(inputs.hMM, 0)} mm`;
+    // Atualiza só se o usuário não estiver digitando no campo (evita conflito com edição)
+    if (document.activeElement !== widthValue) {
+      if (widthValue.tagName === "INPUT") widthValue.value = Math.round(inputs.wMM);
+      else widthValue.textContent = `${fmt(inputs.wMM, 0)} mm`;
+    }
+    if (document.activeElement !== heightValue) {
+      if (heightValue.tagName === "INPUT") heightValue.value = Math.round(inputs.hMM);
+      else heightValue.textContent = `${fmt(inputs.hMM, 0)} mm`;
+    }
     svg.setAttribute("viewBox", "0 0 420 360");
     svg.innerHTML = buildPanelPreviewSvg(inputs);
 

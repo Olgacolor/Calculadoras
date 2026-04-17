@@ -693,6 +693,8 @@ function updateUI() {
       : 'Marque o aceite para liberar o Memorial / PDF.';
     criteriaHint.classList.toggle('ok', Boolean(S.criteriaAccepted));
   }
+  const criteriaCard = document.querySelector('.criteria-card');
+  if (criteriaCard) criteriaCard.classList.toggle('accepted', Boolean(S.criteriaAccepted));
   const lockWrap = document.getElementById('calc-lock-wrap');
   if (lockWrap) lockWrap.classList.toggle('locked', !S.criteriaAccepted);
   const criteriaInput = document.getElementById('inp-criteria-accept');

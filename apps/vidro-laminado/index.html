@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vidro · NBR 7199:2025</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -483,6 +483,31 @@
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
+  .panel-adjust-input {
+    margin-top: 2px;
+    width: 100%;
+    min-width: 72px;
+    padding: 4px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--t-md);
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .panel-adjust-input::-webkit-outer-spin-button,
+  .panel-adjust-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .panel-adjust-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(19,162,179,0.22);
+  }
   .panel-support-pills {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -731,6 +756,7 @@
   .report-toolbar-title { font-family: "DM Sans", sans-serif; font-size: 14px; font-weight: 700; color: #111827; }
   .report-toolbar-btns  { display: flex; gap: 8px; }
   .btn-rprint { font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; background: #2563eb; color: #fff; }
+  .btn-rshare { font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; background: #25d366; color: #fff; }
   .btn-rclose { font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; }
   .report-body { max-width: 700px; margin: 0 auto; padding: 18px 16px 28px; }
   .rp-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb; margin-bottom: 12px; }
@@ -1011,16 +1037,16 @@
               <div class="panel-adjust">
                 <button type="button" data-adjust="width-minus" aria-label="Reduzir largura">−</button>
                 <div class="panel-adjust-meta">
-                  <div class="panel-adjust-label">Largura</div>
-                  <div class="panel-adjust-value" id="panelWidthValue">—</div>
+                  <div class="panel-adjust-label">Largura (mm)</div>
+                  <input type="number" class="panel-adjust-input" id="panelWidthValue" min="200" max="6000" step="1" inputmode="numeric" value="1200">
                 </div>
                 <button type="button" data-adjust="width-plus" aria-label="Aumentar largura">+</button>
               </div>
               <div class="panel-adjust">
                 <button type="button" data-adjust="height-minus" aria-label="Reduzir altura">−</button>
                 <div class="panel-adjust-meta">
-                  <div class="panel-adjust-label">Altura</div>
-                  <div class="panel-adjust-value" id="panelHeightValue">—</div>
+                  <div class="panel-adjust-label">Altura (mm)</div>
+                  <input type="number" class="panel-adjust-input" id="panelHeightValue" min="200" max="6000" step="1" inputmode="numeric" value="2400">
                 </div>
                 <button type="button" data-adjust="height-plus" aria-label="Aumentar altura">+</button>
               </div>
@@ -1237,6 +1263,7 @@
   <div class="report-toolbar">
     <span class="report-toolbar-title">Memorial de Cálculo de Vidro</span>
     <div class="report-toolbar-btns">
+      <button class="btn-rshare" id="btnShareReport" style="display:none">Compartilhar</button>
       <button class="btn-rprint" id="btnPrintReport">Imprimir / PDF</button>
       <button class="btn-rclose" id="btnCloseReport">Fechar</button>
     </div>

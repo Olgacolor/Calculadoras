@@ -91,7 +91,7 @@
       return null;
     }
 
-    if (rawInputs.pressureMeta.mode === "auto" && rawInputs.Pv === null) {
+    if (rawInputs.pressureMeta.mode === "auto" && (!Number.isFinite(rawInputs.Pv) || rawInputs.Pv <= 0)) {
       app.UI.renderValidation([{
         tone: "warn",
         title: "Pressão de vento indisponível",
@@ -208,11 +208,20 @@
       });
     });
 
+    let pvDebounce = null;
+    const debouncedRender = () => {
+      if (pvDebounce) clearTimeout(pvDebounce);
+      pvDebounce = setTimeout(calculateAndRender, 250);
+    };
+
     ["width", "height", "pv", "apoio", "h1", "h2", "gtLam", "monoH", "monoGt"].forEach((id) => {
       const element = app.UI.get(id);
       if (!element) return;
       element.addEventListener("change", calculateAndRender);
-      if (element.tagName === "INPUT") element.addEventListener("input", calculateAndRender);
+      if (element.tagName === "INPUT") {
+        // Pv é digitado livremente — debounce evita recálculo a cada tecla.
+        element.addEventListener("input", id === "pv" ? debouncedRender : calculateAndRender);
+      }
     });
 
     ["windCity", "buildingFloors"].forEach((id) => {
@@ -246,6 +255,26 @@
       });
     });
 
+    // Inputs editáveis de dimensão (espelhados nos hidden #width / #height)
+    [["panelWidthValue", "width"], ["panelHeightValue", "height"]].forEach(([visibleId, hiddenId]) => {
+      const visible = document.getElementById(visibleId);
+      const hidden = app.UI.get(hiddenId);
+      if (!visible || !hidden) return;
+      const sync = () => {
+        const value = Number(visible.value);
+        if (!Number.isFinite(value)) return;
+        hidden.value = Math.min(6000, Math.max(200, value));
+        debouncedRender();
+      };
+      visible.addEventListener("input", sync);
+      visible.addEventListener("change", () => {
+        const clamped = Math.min(6000, Math.max(200, Number(visible.value) || 200));
+        visible.value = clamped;
+        hidden.value = clamped;
+        calculateAndRender();
+      });
+    });
+
     document.querySelectorAll("[data-apoio-preview]").forEach((button) => {
       button.addEventListener("click", function () {
         app.UI.get("apoio").value = button.dataset.apoioPreview;
@@ -262,6 +291,11 @@
     });
     app.UI.get("btnPrintReport").addEventListener("click", app.Report.executarAcaoPrincipal);
     app.UI.get("btnCloseReport").addEventListener("click", app.Report.fecharRelatorio);
+    const btnShareReport = app.UI.get("btnShareReport");
+    if (btnShareReport) {
+      if (navigator.share) btnShareReport.style.display = "";
+      btnShareReport.addEventListener("click", app.Report.compartilharRelatorio);
+    }
   }
 
   app.Controller = {

@@ -36,152 +36,10 @@
     }
   }
 
-  function buildShareText(snapshot) {
-    const inputs = snapshot.inputs;
-    const result = snapshot.result;
-    const technicalResult = snapshot.technical || null;
-    const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
-    const obra = (app.UI.get("obra").value || "").trim();
-    const resp = (app.UI.get("resp").value || "").trim();
-    const apoioLabel = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
-    const title = technicalResult && technicalResult.status
-      ? technicalResult.status.title
-      : (result.ok ? "Composição aprovada" : "Composição em revisão");
-
-    return [
-      "Memorial orientativo de cálculo de vidro",
-      obra ? `Obra: ${obra}` : null,
-      resp ? `Responsável técnico: ${resp}` : null,
-      `Norma: ${constants.APP_META.normRef}`,
-      `Resultado: ${title}`,
-      `Painel: ${fmt(inputs.wMM, 0)} x ${fmt(inputs.hMM, 0)} mm`,
-      `Apoio: ${apoioLabel}`,
-      `Pe: ${inputs.Pv} Pa${pressure && pressure.mode === "auto" ? " (automática)" : " (manual)"}`,
-      `eR: ${fmt(result.eR, 2)} mm | e1·c: ${fmt(result.e1c, 2)} mm`,
-      `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`,
-      `Critério governante: ${technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing)}`,
-      "Resultado orientativo. A especificação final depende da validação técnica do responsável pelo projeto."
-    ].filter(Boolean).join("\n");
-  }
-
   function syncPrimaryActionLabel() {
     const button = app.UI.get("btnPrintReport");
     if (!button) return;
-    button.textContent = isMobileSharePreferred() ? "Compartilhar PDF" : "Imprimir / PDF";
-  }
-
-  function latin1Bytes(text) {
-    const bytes = [];
-    const source = String(text || "");
-    for (let index = 0; index < source.length; index += 1) {
-      const code = source.charCodeAt(index);
-      bytes.push(code <= 255 ? code : 63);
-    }
-    return bytes;
-  }
-
-  function pdfEscape(text) {
-    return String(text || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/\(/g, "\\(")
-      .replace(/\)/g, "\\)")
-      .replace(/\r/g, "")
-      .replace(/\n/g, " ");
-  }
-
-  function buildPdfBlob(snapshot) {
-    const inputs = snapshot.inputs;
-    const result = snapshot.result;
-    const technicalResult = snapshot.technical || null;
-    const pressure = technicalResult && technicalResult.pressure ? technicalResult.pressure : null;
-    const obra = (app.UI.get("obra").value || "").trim();
-    const resp = (app.UI.get("resp").value || "").trim();
-    const apoioLabel = constants.APOIO_LABEL[inputs.apoio] || inputs.apoio;
-    const title = technicalResult && technicalResult.status
-      ? technicalResult.status.title
-      : (result.ok ? "Composição aprovada" : "Composição em revisão");
-    const pressureLabel = pressure && pressure.mode === "auto" ? "Automática" : "Manual";
-    const criterionLabel = technicalResult ? technicalResult.criterionLabel : governingLabel(result.governing);
-    const assumptions = (snapshot.assumptions || []).slice(0, 4);
-    const issues = (snapshot.issues || []).slice(0, 2);
-    const panes = Array.isArray(inputs.panes) ? inputs.panes : [];
-    const nominalThickness = panes.reduce(function (sum, pane) {
-      return sum + (Number(pane.h) || 0);
-    }, 0);
-    const familyLabel = inputs.family === "laminado" ? "Laminado" : "Monolítico";
-    const compositionLabel = inputs.family === "laminado"
-      ? panes.map(function (pane) { return `${pane.h} mm`; }).join(" + ")
-      : `${(panes[0] && panes[0].h) || nominalThickness} mm`;
-    const heatLabel = panes[0]
-      ? (technical && technical.heatLabel ? technical.heatLabel(panes[0].eps3) : engine.gtLabel(panes[0].eps3))
-      : "-";
-    const originParts = [];
-    if (pressure && pressure.mode === "manual") originParts.push("pressão manual");
-    if (technicalResult && technicalResult.originLabel && /manual/i.test(technicalResult.originLabel)) originParts.push("coeficiente manual");
-    if (technicalResult && technicalResult.originLabel && /conservador/i.test(technicalResult.originLabel)) originParts.push("adoção conservadora");
-    const originLine = originParts.length ? originParts.join(" | ") : "critérios automáticos";
-
-    const lines = [
-      { text: "Memorial de Cálculo de Vidro", size: 16, x: 50, y: 790 },
-      { text: constants.APP_META.normRef, size: 10, x: 50, y: 772 },
-      obra ? { text: `Obra / Projeto: ${obra}`, size: 11, x: 50, y: 748 } : null,
-      resp ? { text: `Responsável técnico: ${resp}`, size: 11, x: 50, y: obra ? 732 : 748 } : null,
-      { text: `Resultado: ${title}`, size: 12, x: 50, y: obra || resp ? 708 : 724 },
-      { text: `Painel: ${fmt(inputs.wMM, 0)} x ${fmt(inputs.hMM, 0)} mm`, size: 11, x: 50, y: obra || resp ? 686 : 702 },
-      { text: `Apoio: ${apoioLabel}`, size: 11, x: 50, y: obra || resp ? 670 : 686 },
-      { text: `Pe: ${inputs.Pv} Pa (${pressureLabel})`, size: 11, x: 50, y: obra || resp ? 654 : 670 },
-      { text: `Composição: ${familyLabel} | ${compositionLabel}`, size: 11, x: 50, y: obra || resp ? 638 : 654 },
-      { text: `Tratamento: ${heatLabel} | esp. nominal ${fmt(nominalThickness, 0)} mm`, size: 11, x: 50, y: obra || resp ? 622 : 638 },
-      { text: `Resistência: eR ${fmt(result.eR, 2)} mm | e1·c ${fmt(result.e1c, 2)} mm`, size: 11, x: 50, y: obra || resp ? 600 : 616 },
-      { text: `Flecha: ${fmt(result.f, 2)} mm${result.fLim !== null ? ` | limite ${fmt(result.fLim, 2)} mm` : " | limite a definir em projeto"}`, size: 11, x: 50, y: obra || resp ? 584 : 600 },
-      { text: `Critério governante: ${criterionLabel}`, size: 11, x: 50, y: obra || resp ? 568 : 584 },
-      { text: `Origem adotada: ${originLine}`, size: 10, x: 50, y: obra || resp ? 552 : 568 },
-      issues[0] ? { text: `Observação: ${issues[0]}`, size: 10, x: 50, y: obra || resp ? 536 : 552 } : null,
-      { text: "Premissas principais:", size: 11, x: 50, y: obra || resp ? 506 : 522 },
-      ...assumptions.map(function (item, offset) {
-        return { text: `- ${item}`, size: 10, x: 62, y: (obra || resp ? 488 : 504) - offset * 15 };
-      }),
-      { text: "Uso orientativo. A especificação final depende da validação técnica do responsável pelo projeto.", size: 10, x: 50, y: 120 },
-      { text: `Versão ${constants.APP_META.version}`, size: 9, x: 50, y: 96 }
-    ].filter(Boolean);
-
-    const streamLines = [
-      "BT",
-      "/F1 16 Tf",
-      "0 0 0 rg"
-    ];
-
-    lines.forEach(function (line) {
-      streamLines.push(`/F1 ${line.size} Tf`);
-      streamLines.push(`1 0 0 1 ${line.x} ${line.y} Tm`);
-      streamLines.push(`(${pdfEscape(line.text)}) Tj`);
-    });
-    streamLines.push("ET");
-
-    const stream = streamLines.join("\n");
-    const objects = [
-      "<< /Type /Catalog /Pages 2 0 R >>",
-      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
-      `<< /Length ${latin1Bytes(stream).length} >>\nstream\n${stream}\nendstream`,
-      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"
-    ];
-
-    let pdf = "%PDF-1.4\n";
-    const offsets = [0];
-    objects.forEach(function (object, index) {
-      offsets.push(latin1Bytes(pdf).length);
-      pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-    });
-    const xrefOffset = latin1Bytes(pdf).length;
-    pdf += `xref\n0 ${objects.length + 1}\n`;
-    pdf += "0000000000 65535 f \n";
-    offsets.slice(1).forEach(function (offset) {
-      pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-    });
-    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-
-    return new Blob([new Uint8Array(latin1Bytes(pdf))], { type: "application/pdf" });
+    button.textContent = "Imprimir / PDF";
   }
 
   // ── Light-theme dimetric panel sketch for print ───────────────────
@@ -611,23 +469,24 @@
     const snapshot = app.Controller.getSnapshot();
     if (!snapshot) return;
 
-    const pdfName  = buildPdfFileName();
-    const btn      = app.UI.get("btnPrintReport");
-    const origText = btn ? btn.textContent : null;
+    const pdfName = buildPdfFileName();
+    const shareBtn = app.UI.get("btnShareReport");
+    const mainBtn  = app.UI.get("btnPrintReport");
+    const busyBtn  = shareBtn && shareBtn.offsetParent !== null ? shareBtn : mainBtn;
+    const origText = busyBtn ? busyBtn.textContent : null;
 
-    if (btn) { btn.disabled = true; btn.textContent = "Gerando PDF…"; }
+    if (busyBtn) { busyBtn.disabled = true; busyBtn.textContent = "Gerando PDF…"; }
 
     let pdfBlob;
     try {
-      if (window.html2canvas && window.jspdf) {
-        pdfBlob = await buildPdfBlobFromHtml();
-      } else {
-        pdfBlob = buildPdfBlob(snapshot);
+      if (!window.html2canvas || !window.jspdf) {
+        throw new Error("Bibliotecas de PDF indisponíveis. Verifique a conexão e recarregue a página.");
       }
+      pdfBlob = await buildPdfBlobFromHtml();
     } catch (error) {
-      pdfBlob = buildPdfBlob(snapshot);
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = origText; }
+      if (busyBtn) { busyBtn.disabled = false; busyBtn.textContent = origText; }
+      alert(error && error.message ? error.message : "Falha ao gerar PDF.");
+      return;
     }
 
     const pdfFile = new File([pdfBlob], pdfName, {
@@ -635,24 +494,22 @@
       lastModified: Date.now()
     });
 
-    if (navigator.share) {
-      try {
-        if (!navigator.canShare || navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile] });
-          return;
-        }
-      } catch (error) {
-        if (error && error.name === "AbortError") return;
+    try {
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [pdfFile] }))) {
+        await navigator.share({ files: [pdfFile] });
+        return;
       }
+      openBlobFile(pdfBlob, pdfName);
+    } catch (error) {
+      if (!error || error.name !== "AbortError") {
+        openBlobFile(pdfBlob, pdfName);
+      }
+    } finally {
+      if (busyBtn) { busyBtn.disabled = false; busyBtn.textContent = origText; }
     }
-
-    openBlobFile(pdfBlob, pdfName);
   }
 
   function executarAcaoPrincipal() {
-    if (isMobileSharePreferred()) {
-      return compartilharRelatorio();
-    }
     return imprimirRelatorio();
   }
 
