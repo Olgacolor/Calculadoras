@@ -802,13 +802,13 @@ function buildReportBody(res) {
   document.getElementById('report-body').innerHTML = `
     <div class="rp-header">
       <div>
-        <div class="rp-title">MEMORIAL DE CÁLCULO<br>DETERMINAÇÃO DAS PRESSÕES DEVIDO AO VENTO</div>
-        <div class="rp-sub">Normas utilizadas: ABNT NBR 6123:2023 e ABNT NBR 10821</div>
+        <div class="rp-title">MEMORIAL DE CÁLCULO — PRESSÕES DEVIDAS AO VENTO</div>
+        <div class="rp-sub">ABNT NBR 6123:2023 | ABNT NBR 10821</div>
       </div>
       <div class="rp-meta">Documento: ${escapeHtml(S.documento)}<br>Revisão: ${escapeHtml(S.revisao)}<br>Data: ${escapeHtml(S.dataDoc)}</div>
     </div>
 
-    <div class="rp-section">Cabecalho</div>
+    <div class="rp-section">Identificação</div>
     <table class="rp-table">
       <tr><td class="rp-k">Cliente</td><td class="rp-v">${escapeHtml(S.cliente)}</td></tr>
       <tr><td class="rp-k">Obra / Projeto</td><td class="rp-v">${escapeHtml(S.obra)}</td></tr>
@@ -816,61 +816,36 @@ function buildReportBody(res) {
       <tr><td class="rp-k">Cidade / UF</td><td class="rp-v">${escapeHtml(S.cidade)} / ${escapeHtml(S.uf)}</td></tr>
       <tr><td class="rp-k">Responsável técnico</td><td class="rp-v">${escapeHtml(S.responsável)}</td></tr>
       <tr><td class="rp-k">Disciplina</td><td class="rp-v">${escapeHtml(S.disciplina || 'Não informada')}</td></tr>
-      <tr><td class="rp-k">Observações gerais</td><td class="rp-v">${escapeHtml(S.observações || 'Sem observações adicionais.')}</td></tr>
+      ${S.observações ? `<tr><td class="rp-k">Observações gerais</td><td class="rp-v">${escapeHtml(S.observações)}</td></tr>` : ''}
+      <tr><td class="rp-k">Geometria (h / a / b)</td><td class="rp-v">${fmt(S.z,1)} m / ${fmt(res.aMaior,2)} m / ${fmt(res.bMenor,2)} m</td></tr>
+      <tr><td class="rp-k">Face / Direção / Forma</td><td class="rp-v">${escapeHtml(res.faceLabel)} | ${escapeHtml(res.direçãoLabel)} | ${escapeHtml(res.formaLabel)}</td></tr>
     </table>
 
-    <div class="rp-section">Identificação da obra</div>
-    <table class="rp-table">
-      <tr><td class="rp-k">Face analisada</td><td class="rp-v">${escapeHtml(res.faceLabel)}</td></tr>
-      <tr><td class="rp-k">Direção do vento</td><td class="rp-v">${escapeHtml(res.direçãoLabel)}</td></tr>
-      <tr><td class="rp-k">Forma da edificação</td><td class="rp-v">${escapeHtml(res.formaLabel)}</td></tr>
-      <tr><td class="rp-k">Cidade / UF</td><td class="rp-v">${escapeHtml(S.cidade)} / ${escapeHtml(S.uf)}</td></tr>
-      <tr><td class="rp-k">Altura h</td><td class="rp-v">${fmt(S.z,1)} m</td></tr>
-      <tr><td class="rp-k">Lado maior a</td><td class="rp-v">${fmt(res.aMaior,2)} m</td></tr>
-      <tr><td class="rp-k">Lado menor b</td><td class="rp-v">${fmt(res.bMenor,2)} m</td></tr>
-    </table>
-
-    <div class="rp-section">Hipoteses adotadas</div>
+    <div class="rp-section">Hipóteses adotadas</div>
     <table class="rp-table">
       <tr><td class="rp-k">Modo de cálculo</td><td class="rp-v">${escapeHtml(res.modeLabel)}</td></tr>
       <tr><td class="rp-k">Topografia / S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
       <tr><td class="rp-k">Categoria / Classe</td><td class="rp-v">${escapeHtml(S.cat)} / ${escapeHtml(res.classeAuto)} (${escapeHtml(getClasseDimensionNote(res))})</td></tr>
-      <tr><td class="rp-k">Grupo estatistico / S3</td><td class="rp-v">${escapeHtml(String(S.grupo))} / ${fmt(res.s3,2)}</td></tr>
-      <tr><td class="rp-k">Regiao sugerida de comparação</td><td class="rp-v">${escapeHtml(String(S.região10821))}</td></tr>
+      <tr><td class="rp-k">Grupo estatístico / S3</td><td class="rp-v">${escapeHtml(String(S.grupo))} / ${fmt(res.s3,2)}</td></tr>
+      <tr><td class="rp-k">Região sugerida de comparação (NBR 10821)</td><td class="rp-v">${escapeHtml(String(S.região10821))}</td></tr>
       <tr><td class="rp-k">Condição de permeabilidade</td><td class="rp-v">${escapeHtml(CASOS_CPI[res.cpiCase]?.label || 'Manual')}</td></tr>
       <tr><td class="rp-k">Fator de vizinhança fv</td><td class="rp-v">${fmt(res.fvUsed,2)}${res.fvInfo.dstar !== null ? ` (d*=${fmt(res.fvInfo.dstar,1)} m, s/d*=${fmt(res.fvInfo.ratio,2)})` : ' (edificação isolada)'}</td></tr>
-      <tr><td class="rp-k">Ce adotado</td><td class="rp-v">${fmtSigned(res.ce,2)} (${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])})</td></tr>
-      <tr><td class="rp-k">Justificativa do Ce</td><td class="rp-v">${escapeHtml(res.ceJustificativa)}</td></tr>
-      <tr><td class="rp-k">cpi adotado</td><td class="rp-v">${fmt(res.cpiUsed,2)} (${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])})</td></tr>
-      <tr><td class="rp-k">Critério do cpi</td><td class="rp-v">${escapeHtml(res.cpiCriterio)}</td></tr>
+      <tr><td class="rp-k">Ce adotado / origem</td><td class="rp-v">${fmtSigned(res.ce,2)} — ${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])}: ${escapeHtml(res.ceJustificativa)}</td></tr>
+      <tr><td class="rp-k">cpi adotado / critério</td><td class="rp-v">${fmt(res.cpiUsed,2)} — ${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])}: ${escapeHtml(res.cpiCriterio)}</td></tr>
     </table>
 
-    <div class="rp-section">Cálculo pela NBR 6123</div>
+    <div class="rp-section">Cálculo — NBR 6123:2023 e comparação NBR 10821</div>
     <table class="rp-table">
-      <tr><td class="rp-k">V0</td><td class="rp-v">${fmt(S.v0,0)} m/s</td></tr>
-      <tr><td class="rp-k">S1</td><td class="rp-v">${fmt(S.s1,2)}</td></tr>
-      <tr><td class="rp-k">S2</td><td class="rp-v">${fmt(res.s2,3)}</td></tr>
-      <tr><td class="rp-k">S3 / S3*</td><td class="rp-v">${fmt(res.s3,2)} / ${fmt(res.s3s,4)}</td></tr>
+      <tr><td class="rp-k">V₀ / S1 / S2 / S3 / S3*</td><td class="rp-v">${fmt(S.v0,0)} m/s / ${fmt(S.s1,2)} / ${fmt(res.s2,3)} / ${fmt(res.s3,2)} / ${fmt(res.s3s,4)}</td></tr>
       <tr><td class="rp-k">Vk</td><td class="rp-v">${fmt(res.vk,2)} m/s</td></tr>
-      <tr><td class="rp-k">q</td><td class="rp-v">${fmt(res.q,0)} Pa</td></tr>
-      <tr><td class="rp-k">Ce</td><td class="rp-v">${fmtSigned(res.ce,2)}</td></tr>
-      <tr><td class="rp-k">cpi</td><td class="rp-v">${fmt(res.cpiUsed,2)}</td></tr>
-      <tr><td class="rp-k">fv</td><td class="rp-v">${fmt(res.fvUsed,2)}</td></tr>
-      <tr><td class="rp-k">Delta p / pressão efetiva</td><td class="rp-v">${fmt(res.dp,0)} Pa</td></tr>
-      <tr><td class="rp-k">Pp</td><td class="rp-v">${fmt(res.pp6123,0)} Pa</td></tr>
-      <tr><td class="rp-k">Pe</td><td class="rp-v">${fmt(res.pe6123,0)} Pa</td></tr>
-      <tr><td class="rp-k">Ps</td><td class="rp-v">${fmt(res.ps6123,0)} Pa</td></tr>
-      <tr><td class="rp-k">Pa</td><td class="rp-v">${fmt(res.pa6123,0)} Pa</td></tr>
-    </table>
-
-    <div class="rp-section">Comparação com a NBR 10821</div>
-    <table class="rp-table">
-      <tr><td class="rp-k">Regiao</td><td class="rp-v">${escapeHtml(String(S.região10821))}</td></tr>
-      <tr><td class="rp-k">z.eq</td><td class="rp-v">${fmt(res.nbr10821.zEq,1)} m</td></tr>
-      <tr><td class="rp-k">Pe 10821</td><td class="rp-v">${fmt(res.nbr10821.pe,0)} Pa</td></tr>
-      <tr><td class="rp-k">Ps 10821</td><td class="rp-v">${fmt(res.nbr10821.ps,0)} Pa</td></tr>
-      <tr><td class="rp-k">Pa 10821</td><td class="rp-v">${fmt(res.nbr10821.pa,0)} Pa</td></tr>
-      <tr><td class="rp-k">Comparacao</td><td class="rp-v">Pe final = max(${fmt(res.pe6123,0)}; ${fmt(res.nbr10821.pe,0)})</td></tr>
+      <tr><td class="rp-k">q = 0,613 × Vk²</td><td class="rp-v">${fmt(res.q,0)} Pa</td></tr>
+      <tr><td class="rp-k">Δp = (Ce − cpi) × q × fv</td><td class="rp-v">(${fmtSigned(res.ce,2)} − ${fmt(res.cpiUsed,2)}) × ${fmt(res.q,0)} × ${fmt(res.fvUsed,2)} = ${fmt(res.dp,0)} Pa</td></tr>
+      <tr><td class="rp-k">Pp = |Δp|</td><td class="rp-v">${fmt(res.pp6123,0)} Pa</td></tr>
+      <tr><td class="rp-k">Pe 6123 = 1,2 × Pp</td><td class="rp-v">${fmt(res.pe6123,0)} Pa</td></tr>
+      <tr><td class="rp-k">Ps 6123 = 1,5 × Pe</td><td class="rp-v">${fmt(res.ps6123,0)} Pa</td></tr>
+      <tr><td class="rp-k">Pa 6123 = 0,2 × Pp</td><td class="rp-v">${fmt(res.pa6123,0)} Pa</td></tr>
+      <tr><td class="rp-k">NBR 10821 — Região ${escapeHtml(String(S.região10821))} / z.eq ${fmt(res.nbr10821.zEq,1)} m</td><td class="rp-v">Pe ${fmt(res.nbr10821.pe,0)} Pa | Ps ${fmt(res.nbr10821.ps,0)} Pa | Pa ${fmt(res.nbr10821.pa,0)} Pa</td></tr>
+      <tr><td class="rp-k">Pe final = max(Pe 6123; Pe 10821)</td><td class="rp-v">max(${fmt(res.pe6123,0)}; ${fmt(res.nbr10821.pe,0)}) = <strong>${fmt(res.peFinal,0)} Pa</strong> — governa: ${escapeHtml(res.governs)}</td></tr>
     </table>
 
     <div class="rp-section">Resultado final</div>
@@ -881,12 +856,9 @@ function buildReportBody(res) {
         <div class="rp-result-sub">Critério governante: <strong>${escapeHtml(res.governs)}</strong> | Ce: ${escapeHtml(CE_ORIGIN_LABEL[res.ceOrigin])} | cpi: ${escapeHtml(CPI_ORIGIN_LABEL[res.cpiOrigin])}</div>
       </div>
     </div>
-    <div class="rp-section">Observações e responsabilidade técnica</div>
-    <table class="rp-table">
-      <tr><td class="rp-k">Responsabilidade</td><td class="rp-v">A especificacao final depende da validacao técnica do responsável pelo projeto.</td></tr>
-    </table>
 
     <div class="rp-norma">
+      A especificação final depende da validação técnica do responsável pelo projeto.<br>
       ${autoNotes.map(note => `• ${escapeHtml(note)}`).join('<br>')}
     </div>
   `;

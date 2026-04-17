@@ -495,7 +495,20 @@ select option { color: #edf4ff; background: #111e38; }
   .report-toolbar { display: none !important; }
   #reportOverlay { display: block !important; position: static !important; overflow: visible !important; background: #fff !important; }
   .report-body { max-width: none !important; padding: 0 !important; }
-  @page { size: A4; margin: 8mm 10mm; }
+  @page { size: A4; margin: 6mm 8mm; }
+  /* Compact print typography */
+  .report-body { font-size: 10.5px; }
+  .rp-header { padding-bottom: 8px; margin-bottom: 10px; }
+  .rp-title { font-size: 13px; }
+  .rp-sub, .rp-meta { font-size: 9px; line-height: 1.6; }
+  .rp-section { padding: 3px 8px; font-size: 9px; }
+  .rp-table { margin-bottom: 8px; }
+  .rp-table td { padding: 3px 8px; font-size: 10.5px; }
+  .rp-result-big { padding: 8px 12px; margin-bottom: 8px; }
+  .rp-result-icon { width: 30px; height: 30px; font-size: 11px; }
+  .rp-result-title { font-size: 12px; }
+  .rp-result-sub { font-size: 10px; }
+  .rp-norma { font-size: 8px; padding-top: 6px; line-height: 1.6; }
 }
 /* Zone table */
 .zone-table { width: 100%; border-collapse: collapse; font-size: 12px; }
