@@ -454,7 +454,8 @@ select option { color: #edf4ff; background: #111e38; }
 .report-toolbar-title { font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: #111827; }
 .report-toolbar-btns  { display: flex; gap: 8px; }
 .btn-rprint { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; background: #2563eb; color: #fff; }
-.btn-rclose { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; }
+.btn-rclose  { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; }
+.btn-rshare  { font-family: var(--font-sans); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; background: #25d366; color: #fff; }
 .report-body { max-width: 680px; margin: 0 auto; padding: 20px 18px 40px; }
 .rp-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb; margin-bottom: 16px; }
 .rp-title  { font-family: var(--font-sans); font-size: 16px; font-weight: 700; color: #111827; }
@@ -997,6 +998,7 @@ select option { color: #edf4ff; background: #111e38; }
   <div class="report-toolbar">
     <span class="report-toolbar-title">Relatório · Pressão de Vento NBR 6123:2023</span>
     <div class="report-toolbar-btns">
+      <button class="btn-rshare" id="btn-share" style="display:none">Compartilhar</button>
       <button class="btn-rprint" id="btn-print">Imprimir / PDF</button>
       <button class="btn-rclose" id="btn-close-report">Fechar</button>
     </div>

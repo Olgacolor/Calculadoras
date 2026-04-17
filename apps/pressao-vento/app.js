@@ -789,6 +789,42 @@ function printReport() {
   window.print();
 }
 
+function buildShareText(res) {
+  const lines = [
+    'MEMORIAL DE CÁLCULO — PRESSÃO DE VENTO',
+    'ABNT NBR 6123:2023 | ABNT NBR 10821',
+    '',
+    `Cliente: ${S.cliente || '—'}`,
+    `Obra: ${S.obra || '—'}`,
+    `Local: ${S.local || '—'}`,
+    `Responsável: ${S.responsável || '—'}`,
+    `Documento: ${S.documento || '—'} | Rev.: ${S.revisao || '—'} | Data: ${S.dataDoc || '—'}`,
+    '',
+    `Cidade / UF: ${S.cidade} / ${S.uf}`,
+    `Geometria: h=${fmt(S.z,1)} m | a=${fmt(res.aMaior,2)} m | b=${fmt(res.bMenor,2)} m`,
+    `Face / Direção / Forma: ${res.faceLabel} | ${res.direçãoLabel} | ${res.formaLabel}`,
+    '',
+    `V₀=${fmt(S.v0,0)} m/s | S1=${fmt(S.s1,2)} | S2=${fmt(res.s2,3)} | S3*=${fmt(res.s3s,4)}`,
+    `Vk=${fmt(res.vk,2)} m/s | q=${fmt(res.q,0)} Pa`,
+    `Ce=${fmtSigned(res.ce,2)} (${CE_ORIGIN_LABEL[res.ceOrigin]}) | cpi=${fmt(res.cpiUsed,2)} (${CPI_ORIGIN_LABEL[res.cpiOrigin]})`,
+    '',
+    `NBR 6123: Pe=${fmt(res.pe6123,0)} Pa | Ps=${fmt(res.ps6123,0)} Pa | Pa=${fmt(res.pa6123,0)} Pa`,
+    `NBR 10821 (Região ${S.região10821}): Pe=${fmt(res.nbr10821.pe,0)} Pa | Ps=${fmt(res.nbr10821.ps,0)} Pa | Pa=${fmt(res.nbr10821.pa,0)} Pa`,
+    '',
+    `▶ Pe recomendado: ${fmt(res.peFinal,0)} Pa (governa: ${res.governs})`,
+  ];
+  return lines.join('\n');
+}
+
+function shareReport() {
+  const res = calculate();
+  if (!res) return;
+  navigator.share({
+    title: `Memorial Pressão de Vento — ${S.obra || S.cliente || 'NBR 6123'}`,
+    text: buildShareText(res)
+  }).catch(() => {});
+}
+
 function buildReportBody(res) {
   const autoNotes = [
     'Os valores de V0 obtidos por cidade são indicativos e devem ser confirmados no mapa oficial da NBR 6123.',
@@ -1051,6 +1087,11 @@ function init() {
     document.body.style.overflow = '';
   });
   document.getElementById('btn-print').addEventListener('click', printReport);
+  const btnShare = document.getElementById('btn-share');
+  if (btnShare) {
+    if (navigator.share) btnShare.style.display = '';
+    btnShare.addEventListener('click', shareReport);
+  }
 
   document.getElementById('sel-uf').value = S.uf;
   renderCityOptions();
